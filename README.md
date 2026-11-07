@@ -1,4 +1,4 @@
-# Ferretería ERP
+# Ferretería
 
 ## 1. Descripción del sistema
 
