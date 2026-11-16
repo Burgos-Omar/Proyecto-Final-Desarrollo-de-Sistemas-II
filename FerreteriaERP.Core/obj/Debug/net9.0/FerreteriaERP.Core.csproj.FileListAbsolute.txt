@@ -1,0 +1,27 @@
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.deps.json
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.pdb
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfoInputs.cache
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfo.cs
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.CoreCompileInputs.cache
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\refint\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.pdb
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\ref\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Debug\net9.0\questpdf_fonts_lato.br
+C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.AssemblyReference.cache
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\questpdf_fonts_lato.br
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.deps.json
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.pdb
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.AssemblyReference.cache
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfoInputs.cache
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfo.cs
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.CoreCompileInputs.cache
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.sourcelink.json
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\refint\FerreteriaERP.Core.dll
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.pdb
+C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\ref\FerreteriaERP.Core.dll

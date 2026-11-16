@@ -1,0 +1,467 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1160" d:DesignHeight="720"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.CreditosView"
+             x:DataType="vm:CreditosViewModel">
+
+    <Grid ColumnDefinitions="*,20,380" Margin="24,20">
+
+        <!-- ========================================================= -->
+        <!-- COLUMNA IZQUIERDA: FILTROS + DATAGRID DE CRÉDITOS         -->
+        <!-- ========================================================= -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*">
+
+            <!-- 1. Encabezado y KPIs de Cartera -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Classes="title"
+                               Text="Gestión de Créditos y Cobranzas" />
+                    <TextBlock Classes="subtitle"
+                               Text="Control de cuentas por cobrar, abonos parciales y recordatorios automáticos por WhatsApp." />
+                </StackPanel>
+
+                <!-- Indicadores Rápidos -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Center">
+                    <Border Classes="panel" Padding="14,8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Total por Cobrar:"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TotalPorCobrar, StringFormat='Bs {0:N2}'}"
+                                       Foreground="{StaticResource PrimaryAccentBrush}"
+                                       FontWeight="Bold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="14,8"
+                            CornerRadius="8"
+                            Background="{StaticResource DangerSubtleBgBrush}"
+                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                            BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Vencidos:"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding CreditosVencidosCount}"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontWeight="Bold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Barra de Búsqueda + Filtro de Estado (Toggle y ComboBox) -->
+            <Border Grid.Row="1"
+                    Classes="panel"
+                    Padding="16,14"
+                    Margin="0,0,0,14">
+                <Grid ColumnDefinitions="*,12,Auto,10,160,10,Auto">
+                    <Border Grid.Column="0" Classes="input-slot">
+                        <TextBox Text="{Binding TextoBusqueda}"
+                                 PlaceholderText="Buscar cliente por nombre, C.I. o celular..."
+                                 FontSize="14" />
+                    </Border>
+
+                    <!-- Toggle Rápido Pendientes / Pagados -->
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="6">
+                        <Button Content="Pendientes"
+                                Command="{Binding FiltrarPendientesCommand}"
+                                Classes.ghost="{Binding NoEsFiltroPendientes}"
+                                Padding="14,9"
+                                FontSize="13" />
+                        <Button Content="Pagados"
+                                Command="{Binding FiltrarPagadosCommand}"
+                                Classes.ghost="{Binding NoEsFiltroPagados}"
+                                Padding="14,9"
+                                FontSize="13" />
+                    </StackPanel>
+
+                    <!-- ComboBox de Estado sincronizado -->
+                    <Border Grid.Column="4" Classes="input-slot">
+                        <ComboBox ItemsSource="{Binding OpcionesEstadoFiltro}"
+                                  SelectedItem="{Binding EstadoFiltroSeleccionado}"
+                                  IsEnabled="{Binding ControlesHabilitados}" />
+                    </Border>
+
+                    <Button Grid.Column="6"
+                            Classes="ghost"
+                            Content="Actualizar"
+                            Command="{Binding RecargarCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}" />
+                </Grid>
+            </Border>
+
+            <!-- 3. Alertas de Estado -->
+            <Panel Grid.Row="2">
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="6"
+                        Background="{StaticResource DangerSubtleBgBrush}"
+                        BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarError}">
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="6"
+                        Background="{StaticResource SuccessSubtleBgBrush}"
+                        BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarExito}">
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource SuccessBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Border>
+            </Panel>
+
+            <!-- 4. DataGrid Principal de Créditos -->
+            <Grid Grid.Row="3">
+                <DataGrid ItemsSource="{Binding ListaCreditos}"
+                          SelectedItem="{Binding CreditoSeleccionado}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserReorderColumns="False"
+                          CanUserResizeColumns="True"
+                          CanUserSortColumns="True"
+                          SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <!-- Nombre del Cliente (Resaltado en rojo #EF4444 si está vencido) -->
+                        <DataGridTemplateColumn Header="NOMBRE DEL CLIENTE" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="entities:Credito">
+                                    <TextBlock Text="{Binding Cliente.NombreCompleto}"
+                                               Classes.texto-vencido="{Binding EsVencido}"
+                                               VerticalAlignment="Center"
+                                               Margin="14,0"
+                                               TextTrimming="CharacterEllipsis" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Celular -->
+                        <DataGridTemplateColumn Header="CELULAR" Width="135">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="entities:Credito">
+                                    <TextBlock Text="{Binding CelularClienteTexto}"
+                                               Classes.texto-vencido="{Binding EsVencido}"
+                                               VerticalAlignment="Center"
+                                               Margin="14,0" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Fecha Vencimiento (Resaltada en rojo #EF4444 si <= hoy y Pendiente) -->
+                        <DataGridTemplateColumn Header="FECHA VENCIMIENTO" Width="155">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="entities:Credito">
+                                    <TextBlock Text="{Binding FechaVencimientoTexto}"
+                                               Classes.texto-vencido="{Binding EsVencido}"
+                                               VerticalAlignment="Center"
+                                               Margin="14,0" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Monto Total -->
+                        <DataGridTextColumn Header="MONTO TOTAL"
+                                            Width="130"
+                                            Binding="{Binding MontoTotalDeuda, StringFormat='Bs {0:N2}'}"
+                                            x:DataType="entities:Credito" />
+
+                        <!-- Saldo Pendiente (Resaltado en rojo #EF4444 si está vencido) -->
+                        <DataGridTemplateColumn Header="SALDO PENDIENTE" Width="145">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="entities:Credito">
+                                    <TextBlock Text="{Binding SaldoPendiente, StringFormat='Bs {0:N2}'}"
+                                               Classes.texto-vencido="{Binding EsVencido}"
+                                               FontWeight="Bold"
+                                               VerticalAlignment="Center"
+                                               Margin="14,0" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Estado -->
+                        <DataGridTemplateColumn Header="ESTADO" Width="125">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="entities:Credito">
+                                    <Border Classes="badge-credito"
+                                            Classes.vencido="{Binding EsVencido}"
+                                            Classes.pagado="{Binding EsPagado}"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center"
+                                            Margin="6,4">
+                                        <TextBlock Text="{Binding EstadoDetalleTexto}" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Estado vacío -->
+                <StackPanel HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="6"
+                            IsVisible="{Binding SinResultados}"
+                            IsHitTestVisible="False">
+                    <TextBlock Text="No hay créditos en este estado"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="Las ventas registradas con método de pago 'Crédito' desde la Caja aparecerán aquí."
+                               FontSize="13"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Opacity="0.75"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- COLUMNA DERECHA: PANEL DE ACCIONES (ABONO Y WHATSAPP)     -->
+        <!-- ========================================================= -->
+        <Border Grid.Column="2"
+                Classes="panel"
+                ClipToBounds="True">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                <!-- Barra superior Cian -->
+                <Border Grid.Row="0"
+                        Height="4"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <!-- Cabecera del Panel de Acciones -->
+                <Border Grid.Row="1"
+                        Padding="22,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <StackPanel Spacing="3">
+                        <TextBlock Classes="label"
+                                   Text="PANEL DE ACCIONES DEL CRÉDITO" />
+                        <TextBlock Text="{Binding NombreClienteSeleccionado}"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding CiClienteSeleccionado}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource PrimaryAccentBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Cuerpo del Panel -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16" Margin="22,18">
+
+                        <!-- Resumen de saldos del crédito seleccionado -->
+                        <Grid ColumnDefinitions="*,10,*" IsVisible="{Binding TieneCreditoSeleccionado}">
+                            <Border Grid.Column="0"
+                                    Padding="12,10"
+                                    CornerRadius="6"
+                                    Background="{StaticResource PrimaryBackgroundBrush}"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="label"
+                                               Text="DEUDA INICIAL"
+                                               FontSize="10" />
+                                    <TextBlock Text="{Binding MontoTotalSeleccionadoTexto}"
+                                               FontSize="15"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2"
+                                    Padding="12,10"
+                                    CornerRadius="6"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="label"
+                                               Text="SALDO PENDIENTE"
+                                               Foreground="{StaticResource PrimaryAccentBrush}"
+                                               FontSize="10" />
+                                    <TextBlock Text="{Binding SaldoPendienteSeleccionadoTexto}"
+                                               Foreground="{StaticResource PrimaryAccentBrush}"
+                                               FontSize="15"
+                                               FontWeight="Bold" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Celular de WhatsApp del Cliente -->
+                        <StackPanel Spacing="6" IsVisible="{Binding TieneCreditoSeleccionado}">
+                            <TextBlock Classes="label"
+                                       Text="CELULAR WHATSAPP (CON CÓD. PAÍS)" />
+                            <Border Classes="input-slot">
+                                <TextBox Text="{Binding CelularClienteInput}"
+                                         PlaceholderText="Ej. 59170012345"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Monto del Abono a Registrar (PASO 18: UX mejorada) -->
+                        <StackPanel Spacing="8" IsVisible="{Binding TieneCreditoSeleccionado}">
+
+                            <!-- Título destacado -->
+                            <Border Padding="10,8"
+                                    CornerRadius="6"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <materialIcons:MaterialIcon Kind="CashFast"
+                                                                Width="16"
+                                                                Height="16"
+                                                                Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="INGRESE EL MONTO A ABONAR AHORA"
+                                               Classes="label"
+                                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+
+                            <!-- TextBox grande con borde resaltado -->
+                            <Border BorderBrush="{StaticResource PrimaryAccentBrush}"
+                                    BorderThickness="2"
+                                    CornerRadius="10"
+                                    Padding="2">
+                                <TextBox Text="{Binding MontoAbonoTexto}"
+                                         PlaceholderText="Ej. 50.00"
+                                         FontSize="28"
+                                         FontWeight="Bold"
+                                         TextAlignment="Center"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="10,12"
+                                         IsEnabled="{Binding PuedeRegistrarAbono}" />
+                            </Border>
+
+                            <!-- Botón "Saldar deuda completa" con el monto dinámico -->
+                            <Button Classes="ghost"
+                                    Content="{Binding TextoSaldarDeudaCompleta}"
+                                    Command="{Binding SaldarDeudaCompletaCommand}"
+                                    IsEnabled="{Binding PuedeRegistrarAbono}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    FontSize="12"
+                                    Padding="10,7" />
+                        </StackPanel>
+
+                        <!-- Historial de Abonos -->
+                        <StackPanel Spacing="8" IsVisible="{Binding TieneCreditoSeleccionado}">
+                            <TextBlock Classes="label"
+                                       Text="HISTORIAL DE ABONOS" />
+
+                            <ItemsControl ItemsSource="{Binding AbonosDelCreditoSeleccionado}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:AbonoCredito">
+                                        <Border Padding="12,8"
+                                                Margin="0,0,0,6"
+                                                CornerRadius="5"
+                                                Background="{StaticResource PrimaryBackgroundBrush}"
+                                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                BorderThickness="1">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding FechaPagoTexto}"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding MontoPagado, StringFormat='+ Bs {0:N2}'}"
+                                                           FontSize="13"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource SuccessBrush}"
+                                                           VerticalAlignment="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- Mensaje cuando no hay crédito seleccionado -->
+                        <StackPanel Spacing="6"
+                                    Margin="0,30,0,0"
+                                    IsVisible="{Binding SinCreditoSeleccionado}">
+                            <TextBlock Text="Ningún crédito seleccionado"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       HorizontalAlignment="Center" />
+                            <TextBlock Text="Seleccione una fila de la tabla para registrar un abono o enviar un recordatorio de pago por WhatsApp."
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Botones Principales de Acción -->
+                <Border Grid.Row="3"
+                        Padding="22,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,1,0,0">
+                    <StackPanel Spacing="10">
+                        <!-- 1. Botón "Registrar Abono" (Color acento #06B6D4) -->
+                        <Button Content="Registrar Abono"
+                                Command="{Binding RegistrarAbonoCommand}"
+                                IsEnabled="{Binding PuedeRegistrarAbono}"
+                                Height="44"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center" />
+
+                        <!-- 2. Botón "Notificar por WhatsApp" (Verde oficial #25D366) -->
+                        <Button Classes="whatsapp"
+                                Content="Notificar por WhatsApp"
+                                Command="{Binding EnviarRecordatorioCommand}"
+                                CommandParameter="{Binding CreditoSeleccionado}"
+                                IsEnabled="{Binding PuedeNotificarWhatsApp}"
+                                Height="44"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>
+

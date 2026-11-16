@@ -1,0 +1,786 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:converters="using:FerreteriaERP.UI.Desktop.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="820"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.InicioView"
+             x:DataType="vm:InicioViewModel">
+
+    <UserControl.Resources>
+        <converters:StringToBitmapConverter x:Key="ImageConverter" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="28,20">
+
+        <!-- =============================================================== -->
+        <!-- 1. ENCABEZADO DE LA PANTALLA DE INICIO                          -->
+        <!-- =============================================================== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+            <StackPanel Grid.Column="0" Spacing="3">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Classes="h1"
+                               Text="{Binding SaludoUsuario}" />
+                    <Border Padding="10,4"
+                            CornerRadius="999"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource AccentSubtleBgBrush}"
+                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                            BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <materialIcons:MaterialIcon Kind="StorefrontOutline"
+                                                        Width="14"
+                                                        Height="14"
+                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding NombreSucursalActiva}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <TextBlock Classes="subtitle"
+                           Text="{Binding UltimaActualizacionTexto}" />
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Classes="ghost"
+                    Command="{Binding CargarEstadisticasCommand}"
+                    IsEnabled="{Binding ControlesHabilitados}"
+                    VerticalAlignment="Center"
+                    Padding="16,9">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <materialIcons:MaterialIcon Kind="Refresh"
+                                                Width="18"
+                                                Height="18"
+                                                VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding TextoBotonActualizar}"
+                               Foreground="{Binding $parent[Button].Foreground}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- =============================================================== -->
+        <!-- 2. BANNER DE ERROR (SI FALLA LA CONEXIÓN A LA BD)               -->
+        <!-- =============================================================== -->
+        <Border Grid.Row="1"
+                Margin="0,0,0,14"
+                Padding="14,10"
+                CornerRadius="10"
+                Background="{StaticResource DangerSubtleBgBrush}"
+                BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                BorderThickness="1"
+                IsVisible="{Binding MostrarError}">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                            Width="18"
+                                            Height="18"
+                                            Foreground="{StaticResource DangerBrush}"
+                                            VerticalAlignment="Center" />
+                <TextBlock Text="{Binding MensajeError}"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- =============================================================== -->
+        <!-- 3. GRID PRINCIPAL DE DOS COLUMNAS: ColumnDefinitions="*, 340"   -->
+        <!-- =============================================================== -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, 340">
+
+            <!-- =========================================================== -->
+            <!-- COLUMNA IZQUIERDA (*): 6 MÉTRICAS + TOP 7 PRODUCTOS         -->
+            <!-- =========================================================== -->
+            <Grid Grid.Column="0"
+                  RowDefinitions="Auto,16,*"
+                  Margin="0,0,20,0">
+
+                <!-- ARRIBA: UniformGrid de 3 Columnas con las 6 Tarjetas de Métricas -->
+                <UniformGrid Grid.Row="0"
+                             Columns="3"
+                             Rows="2">
+
+                    <!-- TARJETA 1: INGRESOS DE HOY (PASO 18: Contado + Abonos) -->
+                    <Border Classes="Card"
+                            Margin="0,0,12,12"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="INGRESOS DE HOY" />
+                                <TextBlock Text="{Binding VentasDelDiaTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding DetalleVentasHoyTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="CashMultiple"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- TARJETA 2: INGRESOS DEL MES (PASO 18: Contado + Abonos) -->
+                    <Border Classes="Card"
+                            Margin="0,0,12,12"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="INGRESOS DEL MES" />
+                                <TextBlock Text="{Binding VentasDelMesTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding DetalleVentasMesTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="ChartTimelineVariantShimmer"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- TARJETA 3: CUENTAS POR COBRAR -->
+                    <Border Classes="Card"
+                            Margin="0,0,0,12"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="CUENTAS POR COBRAR" />
+                                <TextBlock Text="{Binding TotalCreditosPorCobrarTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="#D97706"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding DetalleCreditosPendientesTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="#FEF3C7"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="AccountClockOutline"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="#D97706"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- TARJETA 4: CLIENTES HOY -->
+                    <Border Classes="Card"
+                            Margin="0,0,12,0"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="CLIENTES HOY" />
+                                <TextBlock Text="{Binding ClientesHoyTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}" />
+                                <TextBlock Text="{Binding DetalleClientesHoyTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="#E0F2FE"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="AccountGroupOutline"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="#0284C7"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- TARJETA 5: LLEGADAS PENDIENTES (CAMIÓN) -->
+                    <Border Classes="Card"
+                            Margin="0,0,12,0"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="LLEGADAS PENDIENTES" />
+                                <TextBlock Text="{Binding LlegadasPendientesTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}" />
+                                <TextBlock Text="{Binding DetalleLlegadasPendientesTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="#EEF2FF"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="#4F46E5"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- TARJETA 6: DESPACHOS PENDIENTES (ENTREGA A OBRA) -->
+                    <Border Classes="Card"
+                            Margin="0,0,0,0"
+                            Padding="16,14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label"
+                                           Text="DESPACHOS PENDIENTES" />
+                                <TextBlock Text="{Binding DespachosPendientesTexto}"
+                                           FontSize="21"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}" />
+                                <TextBlock Text="{Binding DetalleDespachosPendientesTexto}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Width="40"
+                                    Height="40"
+                                    CornerRadius="10"
+                                    Background="#F3E8FF"
+                                    VerticalAlignment="Top">
+                                <materialIcons:MaterialIcon Kind="TruckFastOutline"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="#7C3AED"
+                                                            HorizontalAlignment="Center"
+                                                            VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                </UniformGrid>
+
+                <!-- ABAJO: TARJETA TOP 7 PRODUCTOS MÁS VENDIDOS -->
+                <Border Grid.Row="2"
+                        Classes="Card"
+                        Padding="22,18"
+                        ClipToBounds="True">
+                    <Grid RowDefinitions="Auto,12,*">
+
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Classes="h2"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Text="Top 7 Productos Más Vendidos" />
+                                <TextBlock Classes="subtitle"
+                                           FontSize="12"
+                                           Text="Ranking de artículos con mayor rotación durante el mes actual" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Padding="10,4"
+                                    CornerRadius="999"
+                                    VerticalAlignment="Center"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <materialIcons:MaterialIcon Kind="TrophyOutline"
+                                                                Width="14"
+                                                                Height="14"
+                                                                Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="Mes Actual"
+                                               FontSize="11.5"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Grid.Row="1"
+                                Height="1"
+                                Background="{StaticResource SubtleBorderBrush}"
+                                VerticalAlignment="Top" />
+
+                        <Panel Grid.Row="2">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding TopProductos}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ProductoTop">
+                                            <Border Margin="0,0,0,8"
+                                                    Padding="12,10"
+                                                    CornerRadius="10"
+                                                    Background="#F8FAFC"
+                                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                    BorderThickness="1">
+                                                <Grid ColumnDefinitions="Auto,12,*,12,Auto">
+
+                                                    <!-- Foto pequeña del producto a la izquierda (Width="40") -->
+                                                    <Border Grid.Column="0"
+                                                            Width="40"
+                                                            Height="40"
+                                                            CornerRadius="8"
+                                                            ClipToBounds="True"
+                                                            Background="#E2E8F0"
+                                                            VerticalAlignment="Center">
+                                                        <Panel>
+                                                            <Image Source="{StaticResource ProductPlaceholderDrawing}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                        </Panel>
+                                                    </Border>
+
+                                                    <!-- Nombre del producto y monto generado al medio -->
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="2">
+                                                        <TextBlock Text="{Binding Nombre}"
+                                                                   FontSize="13.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding MontoGeneradoTexto, StringFormat='Recaudado: {0}'}"
+                                                                   FontSize="11.5"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}" />
+                                                    </StackPanel>
+
+                                                    <!-- Cantidad vendida a la derecha -->
+                                                    <Border Grid.Column="4"
+                                                            Padding="12,5"
+                                                            CornerRadius="999"
+                                                            VerticalAlignment="Center"
+                                                            Background="{StaticResource AccentSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                                            BorderThickness="1">
+                                                        <TextBlock Text="{Binding CantidadVendidaTexto}"
+                                                                   FontSize="12"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                                                    </Border>
+
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Estado vacío cuando aún no hay ventas en el mes -->
+                            <Border IsVisible="{Binding SinTopProductos}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Padding="24,18"
+                                    CornerRadius="10"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="PackageVariantClosed"
+                                                                Width="30"
+                                                                Height="30"
+                                                                Foreground="{StaticResource SecondaryTextBrush}"
+                                                                HorizontalAlignment="Center" />
+                                    <TextBlock Text="Sin ventas registradas este mes"
+                                               FontSize="13.5"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                    <TextBlock Text="Las ventas completadas en el POS aparecerán automáticamente en este ranking."
+                                               FontSize="11.5"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Panel>
+
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <!-- =========================================================== -->
+            <!-- COLUMNA DERECHA (340px): SCROLLVIEWER CON 3 CONTENEDORES    -->
+            <!-- =========================================================== -->
+            <ScrollViewer Grid.Column="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
+                <StackPanel Spacing="16" Margin="0,0,0,8">
+
+                    <!-- 1. BANNER DE PROMOCIONES (Height="120") -->
+                    <Border Height="120"
+                            CornerRadius="12"
+                            ClipToBounds="True"
+                            BoxShadow="0 4 15 0 #14000000">
+                        <Grid>
+                            <Border>
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                        <GradientStop Offset="0.0" Color="#0F172A" />
+                                        <GradientStop Offset="0.55" Color="#064E3B" />
+                                        <GradientStop Offset="1.0" Color="#047857" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                            </Border>
+
+                            <!-- Capa 1: Imagen de fondo -->
+                            <Image Source="{Binding PromocionVigente.ImagenFondoUrl, Converter={StaticResource ImageConverter}}"
+                                   Stretch="UniformToFill" />
+
+                            <!-- Capa 2: Overlay negro semitransparente (#80000000) -->
+                            <Border Background="#80000000" />
+
+                            <!-- Capa 3: Textos compactos adaptados a 340px -->
+                            <Grid RowDefinitions="Auto,*,Auto" Margin="14,10">
+                                <StackPanel Grid.Row="0"
+                                            Orientation="Horizontal"
+                                            Spacing="6">
+                                    <materialIcons:MaterialIcon Kind="TagHeartOutline"
+                                                                Width="12"
+                                                                Height="12"
+                                                                Foreground="#34D399"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="PROMOCIÓN VIGENTE"
+                                               FontSize="9.5"
+                                               FontWeight="Bold"
+                                               Foreground="#6EE7B7"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding PromocionVigente.Titulo}"
+                                               FontSize="12.5"
+                                               FontWeight="Bold"
+                                               Foreground="#FFFFFF"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                    <TextBlock Text="{Binding PromocionVigente.Descripcion}"
+                                               FontSize="10.5"
+                                               Foreground="#E2E8F0"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                </StackPanel>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,8,Auto">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding PromocionVigente.VigenciaTexto}"
+                                               FontSize="9.5"
+                                               Foreground="#CBD5E1"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center" />
+
+                                    <Button Grid.Column="2"
+                                            Content="Ver promociones -&gt;"
+                                            Background="{StaticResource PrimaryAccentBrush}"
+                                            Foreground="#FFFFFF"
+                                            FontSize="10"
+                                            FontWeight="Bold"
+                                            CornerRadius="6"
+                                            Padding="8,4" />
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- 2. NUEVA TARJETA: ALERTAS DE INVENTARIO -->
+                    <Border Classes="Card"
+                            Padding="16,14"
+                            ClipToBounds="True">
+                        <StackPanel Spacing="10">
+
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel Grid.Column="0" Spacing="1">
+                                    <TextBlock Classes="h2"
+                                               FontSize="14.5"
+                                               FontWeight="Bold"
+                                               Text="Alertas de Inventario" />
+                                    <TextBlock Classes="subtitle"
+                                               FontSize="11"
+                                               Text="Productos agotados o con stock bajo"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+
+                                <materialIcons:MaterialIcon Grid.Column="1"
+                                                            Kind="BellRingOutline"
+                                                            Width="18"
+                                                            Height="18"
+                                                            Foreground="#D97706"
+                                                            VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1"
+                                    Background="{StaticResource SubtleBorderBrush}" />
+
+                            <!-- Lista compacta de productos en alerta -->
+                            <ItemsControl ItemsSource="{Binding AlertasInventario}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ProductoAlerta">
+                                        <Border Margin="0,0,0,6"
+                                                Padding="10,8"
+                                                CornerRadius="8"
+                                                Background="#F8FAFC"
+                                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                BorderThickness="1">
+                                            <Grid ColumnDefinitions="*,8,Auto">
+
+                                                <!-- Nombre del producto con TextTrimming -->
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding Nombre}"
+                                                           FontSize="12.5"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center" />
+
+                                                <!-- Badge Rojo si es Agotado / Naranja si es Bajo -->
+                                                <Panel Grid.Column="2" VerticalAlignment="Center">
+                                                    <Border Padding="8,2"
+                                                            CornerRadius="999"
+                                                            Background="{StaticResource DangerSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                                                            BorderThickness="1"
+                                                            IsVisible="{Binding EsAgotado}">
+                                                        <TextBlock Text="{Binding BadgeTexto}"
+                                                                   FontSize="10.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource DangerBrush}" />
+                                                    </Border>
+
+                                                    <Border Padding="8,2"
+                                                            CornerRadius="999"
+                                                            Background="#FEF3C7"
+                                                            BorderBrush="#FDE68A"
+                                                            BorderThickness="1"
+                                                            IsVisible="{Binding EsBajo}">
+                                                        <TextBlock Text="{Binding BadgeTexto}"
+                                                                   FontSize="10.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#B45309" />
+                                                    </Border>
+                                                </Panel>
+
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Estado vacío: Stock en niveles óptimos -->
+                            <Border IsVisible="{Binding SinAlertasInventario}"
+                                    Padding="12,10"
+                                    CornerRadius="8"
+                                    Background="{StaticResource SuccessSubtleBgBrush}"
+                                    BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="8"
+                                            HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="CheckCircleOutline"
+                                                                Width="16"
+                                                                Height="16"
+                                                                Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="Stock en niveles óptimos"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 3. TARJETA: PRÓXIMOS VENCIMIENTOS DE CRÉDITO (≤ 3 DÍAS) -->
+                    <Border Classes="Card"
+                            Padding="16,14"
+                            ClipToBounds="True">
+                        <StackPanel Spacing="10">
+
+                            <StackPanel Spacing="2">
+                                <TextBlock Classes="h2"
+                                           FontSize="14.5"
+                                           FontWeight="Bold"
+                                           Text="Próximos Vencimientos de Crédito (≤ 3 días)"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Classes="subtitle"
+                                           FontSize="11"
+                                           Text="Cuentas vencidas o próximas a vencer"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <Border Height="1"
+                                    Background="{StaticResource SubtleBorderBrush}" />
+
+                            <ItemsControl ItemsSource="{Binding CreditosPorVencer}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CreditoAlerta">
+                                        <Border Margin="0,0,0,6"
+                                                Padding="10,8"
+                                                CornerRadius="8"
+                                                Background="#F8FAFC"
+                                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                BorderThickness="1">
+                                            <Grid ColumnDefinitions="*,8,Auto">
+
+                                                <!-- Cliente y Teléfono -->
+                                                <StackPanel Grid.Column="0"
+                                                            VerticalAlignment="Center"
+                                                            Spacing="2">
+                                                    <TextBlock Text="{Binding NombreCliente}"
+                                                               FontSize="12.5"
+                                                               FontWeight="Bold"
+                                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding TelefonoTexto}"
+                                                               FontSize="10.5"
+                                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+
+                                                <!-- Saldo Pendiente + Badge -->
+                                                <StackPanel Grid.Column="2"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Right"
+                                                            Spacing="3">
+                                                    <TextBlock Text="{Binding MontoDeudaTexto}"
+                                                               FontSize="12.5"
+                                                               FontWeight="Bold"
+                                                               Foreground="{StaticResource DangerBrush}"
+                                                               HorizontalAlignment="Right" />
+
+                                                    <!-- Badge Rojo: ¡Vencido! -->
+                                                    <Border Padding="7,2"
+                                                            CornerRadius="999"
+                                                            HorizontalAlignment="Right"
+                                                            Background="{StaticResource DangerSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                                                            BorderThickness="1"
+                                                            IsVisible="{Binding EstaVencido}">
+                                                        <TextBlock Text="{Binding EtiquetaVencimiento}"
+                                                                   FontSize="10"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource DangerBrush}" />
+                                                    </Border>
+
+                                                    <!-- Badge Naranja: Vence en X días -->
+                                                    <Border Padding="7,2"
+                                                            CornerRadius="999"
+                                                            HorizontalAlignment="Right"
+                                                            Background="#FEF3C7"
+                                                            BorderBrush="#FDE68A"
+                                                            BorderThickness="1"
+                                                            IsVisible="{Binding PorVencerPronto}">
+                                                        <TextBlock Text="{Binding EtiquetaVencimiento}"
+                                                                   FontSize="10"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#B45309" />
+                                                    </Border>
+                                                </StackPanel>
+
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Estado vacío cuando no hay créditos próximos a vencer -->
+                            <Border IsVisible="{Binding SinCreditosPorVencer}"
+                                    Padding="12,10"
+                                    CornerRadius="8"
+                                    Background="{StaticResource SuccessSubtleBgBrush}"
+                                    BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Orientation="Horizontal"
+                                            Spacing="8"
+                                            HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="CheckDecagramOutline"
+                                                                Width="16"
+                                                                Height="16"
+                                                                Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="Sin vencimientos críticos (≤ 3 días)"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,1097 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:models="using:FerreteriaERP.UI.Desktop.Models"
+             xmlns:converters="using:FerreteriaERP.UI.Desktop.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="820"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.EmpleadosView"
+             x:DataType="vm:EmpleadosViewModel">
+
+    <UserControl.Resources>
+        <converters:StringToBitmapConverter x:Key="ImageConverter" />
+    </UserControl.Resources>
+
+    <Panel>
+        <!-- ========================================================= -->
+        <!-- CONTENIDO PRINCIPAL DEL MÓDULO DE EMPLEADOS Y RANKING     -->
+        <!-- ========================================================= -->
+        <Grid RowDefinitions="Auto,Auto,*" Margin="28,22">
+
+            <!-- 1. Encabezado + Buscador + Acciones -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Classes="h1"
+                                   Text="Recursos Humanos y Ranking de Ventas" />
+                        <Border Padding="10,4"
+                                CornerRadius="999"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Text="{Binding TotalActivosCount}"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                                <TextBlock Text="activos"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="subtitle"
+                               Text="{Binding SubtituloAlcanceSucursal}" />
+                </StackPanel>
+
+                <!-- Controles Superiores: Buscador + Refrescar + Nuevo Empleado -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Center">
+
+                    <Border Background="{StaticResource SurfaceBrush}"
+                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Width="280"
+                            Padding="10,2">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <materialIcons:MaterialIcon Grid.Column="0"
+                                                        Kind="Magnify"
+                                                        Width="18"
+                                                        Height="18"
+                                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                                        VerticalAlignment="Center"
+                                                        Margin="2,0,8,0" />
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding TextoBusqueda}"
+                                     PlaceholderText="Filtrar por nombre, CI, puesto o sucursal..."
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     FontSize="13"
+                                     Padding="2,7" />
+                        </Grid>
+                    </Border>
+
+                    <Button Classes="ghost"
+                            Command="{Binding InicializarCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}"
+                            ToolTip.Tip="Actualizar personal y ranking"
+                            Padding="12,10">
+                        <materialIcons:MaterialIcon Kind="Refresh"
+                                                    Width="18"
+                                                    Height="18" />
+                    </Button>
+
+                    <Button Command="{Binding AbrirFormularioNuevoCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}"
+                            Padding="16,10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="AccountPlusOutline"
+                                                        Width="18"
+                                                        Height="18"
+                                                        Foreground="#FFFFFF"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Nuevo Empleado"
+                                       Foreground="#FFFFFF"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Alertas de Estado (Éxito / Error) -->
+            <Panel Grid.Row="1">
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource DangerSubtleBgBrush}"
+                        BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarError}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource DangerBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource DangerBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource SuccessSubtleBgBrush}"
+                        BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarExito}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="CheckCircleOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource SuccessBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Panel>
+
+            <!-- 3. TabControl con las 3 Pestañas -->
+            <TabControl Grid.Row="2" Padding="0,12,0,0">
+
+                <!-- ================================================= -->
+                <!-- PESTAÑA 1: PERSONAL ACTIVO                        -->
+                <!-- ================================================= -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="AccountCheckOutline"
+                                                        Width="18"
+                                                        Height="18"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Personal Activo"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <Border Padding="7,2"
+                                    CornerRadius="999"
+                                    Background="{StaticResource AccentSubtleBgBrush}">
+                                <TextBlock Text="{Binding TotalActivosCount}"
+                                           FontSize="11.5"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                            </Border>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Panel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="2,6,2,24">
+                            <ItemsControl ItemsSource="{Binding EmpleadosActivos}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Empleado">
+                                        <!-- TARJETA DE EMPLEADO ACTIVO -->
+                                        <Border Classes="Card"
+                                                Width="320"
+                                                Margin="0,0,18,18"
+                                                Padding="18">
+                                            <StackPanel Spacing="14">
+
+                                                <!-- Fila Superior: Foto Circular + Nombre + Puesto + Sucursal -->
+                                                <Grid ColumnDefinitions="Auto,14,*">
+                                                    <!-- Foto con StringToBitmapConverter o Iniciales -->
+                                                    <Border Grid.Column="0"
+                                                            Width="64"
+                                                            Height="64"
+                                                            CornerRadius="999"
+                                                            ClipToBounds="True"
+                                                            Background="{StaticResource AccentSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                                            BorderThickness="1.5">
+                                                        <Panel>
+                                                            <TextBlock Text="{Binding Iniciales}"
+                                                                       FontSize="20"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                            <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                        </Panel>
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <TextBlock Text="{Binding NombreCompleto}"
+                                                                   FontSize="15.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   TextTrimming="CharacterEllipsis" />
+
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <!-- Badge de Puesto -->
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="{StaticResource AccentSubtleBgBrush}">
+                                                                <TextBlock Text="{Binding Puesto}"
+                                                                           FontSize="11.5"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                                                            </Border>
+
+                                                            <!-- Badge de Sucursal (clave para Sucursal Central) -->
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#F1F5F9"
+                                                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                                    BorderThickness="1">
+                                                                <TextBlock Text="{Binding SucursalNombreMostrar}"
+                                                                           FontSize="11"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <Border Height="1"
+                                                        Background="{StaticResource SubtleBorderBrush}" />
+
+                                                <!-- Datos de Contacto y Salario -->
+                                                <StackPanel Spacing="6">
+                                                    <Grid ColumnDefinitions="Auto,8,*,Auto">
+                                                        <materialIcons:MaterialIcon Grid.Column="0"
+                                                                                    Kind="CardAccountDetailsOutline"
+                                                                                    Width="15"
+                                                                                    Height="15"
+                                                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding Ci, StringFormat='CI: {0}'}"
+                                                                   FontSize="12.5"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                                                   VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{Binding SalarioFormateado}"
+                                                                   FontSize="13"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   VerticalAlignment="Center" />
+                                                    </Grid>
+
+                                                    <Grid ColumnDefinitions="Auto,8,*">
+                                                        <materialIcons:MaterialIcon Grid.Column="0"
+                                                                                    Kind="PhoneOutline"
+                                                                                    Width="15"
+                                                                                    Height="15"
+                                                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding TelefonoMostrar}"
+                                                                   FontSize="12.5"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                    </Grid>
+                                                </StackPanel>
+
+                                                <!-- Botones de Acción: Editar e Inhabilitar -->
+                                                <Grid ColumnDefinitions="*,8,Auto">
+                                                    <Button Grid.Column="0"
+                                                            Classes="ghost"
+                                                            Command="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).AbrirFormularioEdicionCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            Padding="10,7"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="AccountEditOutline"
+                                                                                        Width="16"
+                                                                                        Height="16"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock Text="Editar Ficha"
+                                                                       FontSize="12.5"
+                                                                       Foreground="{Binding $parent[Button].Foreground}"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </Button>
+
+                                                    <Button Grid.Column="2"
+                                                            Classes="danger-ghost"
+                                                            Command="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).CambiarEstadoCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            Padding="12,7"
+                                                            ToolTip.Tip="Mover a Ex-Trabajadores (Inhabilitar)">
+                                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                                            <materialIcons:MaterialIcon Kind="AccountCancelOutline"
+                                                                                        Width="16"
+                                                                                        Height="16"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock Text="Inhabilitar"
+                                                                       FontSize="12.5"
+                                                                       Foreground="{Binding $parent[Button].Foreground}"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Grid>
+
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!-- Estado vacío Personal Activo -->
+                        <Border Classes="Card"
+                                Padding="32,24"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding SinEmpleadosActivos}">
+                            <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                <materialIcons:MaterialIcon Kind="AccountGroupOutline"
+                                                            Width="38"
+                                                            Height="38"
+                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                            HorizontalAlignment="Center" />
+                                <TextBlock Text="No se encontraron empleados activos"
+                                           FontSize="15"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="Registra nuevos trabajadores con el botón 'Nuevo Empleado' arriba a la derecha."
+                                           FontSize="12.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </Panel>
+                </TabItem>
+
+                <!-- ================================================= -->
+                <!-- PESTAÑA 2: EX-TRABAJADORES                        -->
+                <!-- ================================================= -->
+                <TabItem>
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="AccountOffOutline"
+                                                        Width="18"
+                                                        Height="18"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Ex-Trabajadores"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <Border Padding="7,2"
+                                    CornerRadius="999"
+                                    Background="#F1F5F9">
+                                <TextBlock Text="{Binding TotalExEmpleadosCount}"
+                                           FontSize="11.5"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                            </Border>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Panel>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="2,6,2,24">
+                            <ItemsControl ItemsSource="{Binding ExEmpleados}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Empleado">
+                                        <!-- TARJETA DE EX-TRABAJADOR -->
+                                        <Border Classes="Card"
+                                                Width="320"
+                                                Margin="0,0,18,18"
+                                                Padding="18"
+                                                Opacity="0.92">
+                                            <StackPanel Spacing="14">
+
+                                                <Grid ColumnDefinitions="Auto,14,*">
+                                                    <Border Grid.Column="0"
+                                                            Width="64"
+                                                            Height="64"
+                                                            CornerRadius="999"
+                                                            ClipToBounds="True"
+                                                            Background="#F1F5F9"
+                                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                            BorderThickness="1.5">
+                                                        <Panel>
+                                                            <TextBlock Text="{Binding Iniciales}"
+                                                                       FontSize="20"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                            <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                        </Panel>
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <TextBlock Text="{Binding NombreCompleto}"
+                                                                   FontSize="15.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   TextTrimming="CharacterEllipsis" />
+
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="{StaticResource DangerSubtleBgBrush}">
+                                                                <TextBlock Text="Inhabilitado"
+                                                                           FontSize="11"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="{StaticResource DangerBrush}" />
+                                                            </Border>
+
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#F1F5F9">
+                                                                <TextBlock Text="{Binding SucursalNombreMostrar}"
+                                                                           FontSize="11"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <Border Height="1"
+                                                        Background="{StaticResource SubtleBorderBrush}" />
+
+                                                <StackPanel Spacing="5">
+                                                    <TextBlock Text="{Binding Puesto, StringFormat='Último puesto: {0}'}"
+                                                               FontSize="12.5"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource SecondaryTextBrush}" />
+                                                    <TextBlock Text="{Binding Ci, StringFormat='CI: {0}'}"
+                                                               FontSize="12"
+                                                               Foreground="{StaticResource SecondaryTextBrush}" />
+                                                </StackPanel>
+
+                                                <!-- Botón para Rehabilitar / Reincorporar -->
+                                                <Button Command="{Binding $parent[UserControl].((vm:EmpleadosViewModel)DataContext).CambiarEstadoCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Padding="12,8"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                                        <materialIcons:MaterialIcon Kind="AccountReactivateOutline"
+                                                                                    Width="16"
+                                                                                    Height="16"
+                                                                                    Foreground="#FFFFFF"
+                                                                                    VerticalAlignment="Center" />
+                                                        <TextBlock Text="Habilitar / Reincorporar"
+                                                                   FontSize="12.5"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="#FFFFFF"
+                                                                   VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Button>
+
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <Border Classes="Card"
+                                Padding="32,24"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding SinExEmpleados}">
+                            <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                <materialIcons:MaterialIcon Kind="AccountCheckOutline"
+                                                            Width="36"
+                                                            Height="36"
+                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                            HorizontalAlignment="Center" />
+                                <TextBlock Text="No hay registros en Ex-Trabajadores"
+                                           FontSize="15"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           HorizontalAlignment="Center" />
+                                <TextBlock Text="Aquí aparecerán los empleados cuyo estado cambie a Inhabilitado."
+                                           FontSize="12.5"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </Panel>
+                </TabItem>
+
+                <!-- ================================================= -->
+                <!-- PESTAÑA 3: RANKING DE VENTAS (SOLO ADMINISTRADOR) -->
+                <!-- ================================================= -->
+                <TabItem IsVisible="{Binding EsAdmin}">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="TrophyOutline"
+                                                        Width="18"
+                                                        Height="18"
+                                                        Foreground="#F59E0B"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Ranking de Ventas (Admin)"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <Grid RowDefinitions="Auto,14,*">
+
+                        <!-- Banner superior del Ranking / Tier List -->
+                        <Border Grid.Row="0"
+                                Classes="Card"
+                                Padding="20,14">
+                            <Grid ColumnDefinitions="Auto,14,*,Auto">
+                                <Border Grid.Column="0"
+                                        Width="46"
+                                        Height="46"
+                                        CornerRadius="12"
+                                        Background="#FEF3C7"
+                                        BorderBrush="#FDE68A"
+                                        BorderThickness="1">
+                                    <materialIcons:MaterialIcon Kind="TrophyAward"
+                                                                Width="26"
+                                                                Height="26"
+                                                                Foreground="#F59E0B"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center" />
+                                </Border>
+
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="Tier List de Vendedores y Desempeño Comercial"
+                                               FontSize="15.5"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}" />
+                                    <TextBlock Text="Clasificación oficial calculada según ventas concretadas en Caja (POS) y monto total recaudado."
+                                               FontSize="12.5"
+                                               Foreground="{StaticResource SecondaryTextBrush}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3"
+                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            Spacing="2">
+                                    <TextBlock Classes="label"
+                                               Text="TOTAL RECAUDADO EQUIPO"
+                                               HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding TotalRecaudadoVendedoresFormateado}"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryAccentBrush}"
+                                               HorizontalAlignment="Right" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Lista Tipo Tier List de Vendedores -->
+                        <Panel Grid.Row="2">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          Padding="2,2,2,24">
+                                <ItemsControl ItemsSource="{Binding RankingVendedores}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="models:VendedorRankingItem">
+                                            <Border Classes="Card"
+                                                    Margin="0,0,0,12"
+                                                    Padding="20,16">
+                                                <Grid ColumnDefinitions="72,Auto,16,*,Auto,24,Auto">
+
+                                                    <!-- 1. Posición (#1, #2, #3...) + Trofeo Oro/Plata/Bronce -->
+                                                    <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal"
+                                                                Spacing="8"
+                                                                VerticalAlignment="Center">
+                                                        <!-- Trofeo #1 ORO -->
+                                                        <materialIcons:MaterialIcon Kind="Trophy"
+                                                                                    Width="28"
+                                                                                    Height="28"
+                                                                                    Foreground="#F59E0B"
+                                                                                    IsVisible="{Binding EsTop1}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <!-- Trofeo #2 PLATA -->
+                                                        <materialIcons:MaterialIcon Kind="Trophy"
+                                                                                    Width="26"
+                                                                                    Height="26"
+                                                                                    Foreground="#94A3B8"
+                                                                                    IsVisible="{Binding EsTop2}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <!-- Trofeo #3 BRONCE -->
+                                                        <materialIcons:MaterialIcon Kind="Trophy"
+                                                                                    Width="24"
+                                                                                    Height="24"
+                                                                                    Foreground="#D97706"
+                                                                                    IsVisible="{Binding EsTop3}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <!-- Ícono para puestos #4 en adelante -->
+                                                        <materialIcons:MaterialIcon Kind="MedalOutline"
+                                                                                    Width="22"
+                                                                                    Height="22"
+                                                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                    IsVisible="{Binding NoEsPodio}"
+                                                                                    VerticalAlignment="Center" />
+
+                                                        <TextBlock Text="{Binding PosicionTexto}"
+                                                                   FontSize="20"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   VerticalAlignment="Center" />
+                                                    </StackPanel>
+
+                                                    <!-- 2. Foto del Vendedor -->
+                                                    <Border Grid.Column="1"
+                                                            Width="54"
+                                                            Height="54"
+                                                            CornerRadius="999"
+                                                            ClipToBounds="True"
+                                                            Background="{StaticResource AccentSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                                            BorderThickness="1.5"
+                                                            VerticalAlignment="Center">
+                                                        <Panel>
+                                                            <TextBlock Text="{Binding Iniciales}"
+                                                                       FontSize="17"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                            <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                        </Panel>
+                                                    </Border>
+
+                                                    <!-- 3. Nombre del Vendedor, Tier Badge y Sucursal -->
+                                                    <StackPanel Grid.Column="3"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                                            <TextBlock Text="{Binding NombreCompleto}"
+                                                                       FontSize="16"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                                       VerticalAlignment="Center" />
+
+                                                            <!-- Badge Oro (#1) -->
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#FEF3C7"
+                                                                    BorderBrush="#F59E0B"
+                                                                    BorderThickness="1"
+                                                                    IsVisible="{Binding EsTop1}">
+                                                                <TextBlock Text="{Binding TierBadgeTexto}"
+                                                                           FontSize="10.5"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#B45309" />
+                                                            </Border>
+
+                                                            <!-- Badge Plata (#2) -->
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#F1F5F9"
+                                                                    BorderBrush="#94A3B8"
+                                                                    BorderThickness="1"
+                                                                    IsVisible="{Binding EsTop2}">
+                                                                <TextBlock Text="{Binding TierBadgeTexto}"
+                                                                           FontSize="10.5"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#475569" />
+                                                            </Border>
+
+                                                            <!-- Badge Bronce (#3) -->
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#FFEDD5"
+                                                                    BorderBrush="#D97706"
+                                                                    BorderThickness="1"
+                                                                    IsVisible="{Binding EsTop3}">
+                                                                <TextBlock Text="{Binding TierBadgeTexto}"
+                                                                           FontSize="10.5"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#9A3412" />
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{Binding SucursalNombre}"
+                                                                       FontSize="12.5"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="•"
+                                                                       FontSize="12.5"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="{Binding Puesto}"
+                                                                       FontSize="12.5"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <!-- 4. Cantidad de Ventas Concretadas -->
+                                                    <Border Grid.Column="4"
+                                                            Padding="14,8"
+                                                            CornerRadius="10"
+                                                            Background="#F8FAFC"
+                                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                                            BorderThickness="1"
+                                                            VerticalAlignment="Center">
+                                                        <StackPanel Spacing="1" HorizontalAlignment="Center">
+                                                            <TextBlock Text="{Binding CantidadVentas}"
+                                                                       FontSize="18"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                                       HorizontalAlignment="Center" />
+                                                            <TextBlock Text="{Binding CantidadVentasTexto}"
+                                                                       FontSize="11"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                                                       HorizontalAlignment="Center" />
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <!-- 5. Monto Total Recaudado en Bs -->
+                                                    <StackPanel Grid.Column="6"
+                                                                MinWidth="150"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Right"
+                                                                Spacing="2">
+                                                        <TextBlock Classes="label"
+                                                                   Text="TOTAL VENDIDO"
+                                                                   HorizontalAlignment="Right" />
+                                                        <TextBlock Text="{Binding MontoTotalFormateado}"
+                                                                   FontSize="20"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{StaticResource PrimaryAccentBrush}"
+                                                                   HorizontalAlignment="Right" />
+                                                    </StackPanel>
+
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Estado vacío del Ranking -->
+                            <Border Classes="Card"
+                                    Padding="32,24"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding SinRankingVendedores}">
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="TrophyOutline"
+                                                                Width="38"
+                                                                Height="38"
+                                                                Foreground="#F59E0B"
+                                                                HorizontalAlignment="Center" />
+                                    <TextBlock Text="Aún no hay vendedores registrados para el ranking"
+                                               FontSize="15"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                    <TextBlock Text="Registra empleados con el puesto 'Vendedor' para evaluar su desempeño en el POS."
+                                               FontSize="12.5"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Panel>
+
+                    </Grid>
+                </TabItem>
+
+            </TabControl>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- MODAL / SLIDE-OVER: CREAR O EDITAR EMPLEADO               -->
+        <!-- ========================================================= -->
+        <Border Background="#660F172A"
+                IsVisible="{Binding FormularioVisible}"
+                ZIndex="30">
+            <Border Classes="Card"
+                    Width="480"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    CornerRadius="16,0,0,16"
+                    Padding="26,24">
+                <Grid RowDefinitions="Auto,16,*,16,Auto">
+
+                    <!-- Encabezado del Formulario -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock Classes="h2"
+                                       Text="{Binding TituloFormulario}" />
+                            <TextBlock Classes="subtitle"
+                                       FontSize="12"
+                                       Text="Complete los datos personales, cargo, sucursal y fotografía." />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="ghost"
+                                Command="{Binding CerrarFormularioCommand}"
+                                Padding="8"
+                                VerticalAlignment="Top">
+                            <materialIcons:MaterialIcon Kind="Close"
+                                                        Width="18"
+                                                        Height="18" />
+                        </Button>
+                    </Grid>
+
+                    <!-- Cuerpo del Formulario -->
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <StackPanel Spacing="14" Margin="0,0,6,0">
+
+                            <!-- Selector y Previsualización de Fotografía -->
+                            <Border Padding="14"
+                                    CornerRadius="12"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,14,*">
+                                    <Border Grid.Column="0"
+                                            Width="68"
+                                            Height="68"
+                                            CornerRadius="999"
+                                            ClipToBounds="True"
+                                            Background="{StaticResource AccentSubtleBgBrush}"
+                                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                            BorderThickness="1.5">
+                                        <Panel>
+                                            <materialIcons:MaterialIcon Kind="AccountOutline"
+                                                                        Width="32"
+                                                                        Height="32"
+                                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                        HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center" />
+                                            <Image Source="{Binding ImagenUrlForm, Converter={StaticResource ImageConverter}}"
+                                                   Stretch="UniformToFill" />
+                                        </Panel>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Spacing="6">
+                                        <TextBlock Classes="label"
+                                                   Text="FOTOGRAFÍA DEL EMPLEADO" />
+                                        <TextBlock Text="{Binding NombreArchivoFotoTexto}"
+                                                   FontSize="11.5"
+                                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Classes="ghost"
+                                                    Command="{Binding SubirFotoCommand}"
+                                                    Padding="12,6">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <materialIcons:MaterialIcon Kind="CameraOutline"
+                                                                                Width="16"
+                                                                                Height="16"
+                                                                                VerticalAlignment="Center" />
+                                                    <TextBlock Text="Subir Foto..."
+                                                               FontSize="12"
+                                                               Foreground="{Binding $parent[Button].Foreground}"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Classes="danger-ghost"
+                                                    Content="Quitar"
+                                                    Command="{Binding QuitarFotoFormularioCommand}"
+                                                    IsVisible="{Binding TieneFotoSeleccionada}"
+                                                    Padding="10,6"
+                                                    FontSize="12" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Nombre y Apellidos -->
+                            <Grid ColumnDefinitions="*,12,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="NOMBRES *" />
+                                    <TextBox Text="{Binding NombreForm}"
+                                             PlaceholderText="Ej. Carlos" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="APELLIDOS *" />
+                                    <TextBox Text="{Binding ApellidosForm}"
+                                             PlaceholderText="Ej. Mendoza Ríos" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- CI y Teléfono -->
+                            <Grid ColumnDefinitions="*,12,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="CARNET DE IDENTIDAD (CI) *" />
+                                    <TextBox Text="{Binding CiForm}"
+                                             PlaceholderText="Ej. 7120458" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="TELÉFONO / WHATSAPP" />
+                                    <TextBox Text="{Binding TelefonoForm}"
+                                             PlaceholderText="Ej. 59171234567" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Puesto y Salario -->
+                            <Grid ColumnDefinitions="*,12,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="PUESTO / CARGO *" />
+                                    <ComboBox ItemsSource="{Binding PuestosDisponibles}"
+                                              SelectedItem="{Binding PuestoSeleccionado}"
+                                              HorizontalAlignment="Stretch" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="SALARIO MENSUAL (BS) *" />
+                                    <TextBox Text="{Binding SalarioTexto}"
+                                             PlaceholderText="3200.00" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Sucursal Asignada -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="SUCURSAL ASIGNADA *" />
+                                <ComboBox ItemsSource="{Binding SucursalesDisponibles}"
+                                          SelectedItem="{Binding SucursalSeleccionadaForm}"
+                                          HorizontalAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:Sucursal">
+                                            <TextBlock Text="{Binding Nombre}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Credenciales de Acceso al Sistema (PASO 20) -->
+                            <Border Padding="14,12"
+                                    CornerRadius="12"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1"
+                                    IsVisible="{Binding EsNuevoRegistro}">
+                                <StackPanel Spacing="10">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <materialIcons:MaterialIcon Kind="ShieldKeyOutline"
+                                                                    Width="16"
+                                                                    Height="16"
+                                                                    Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                    VerticalAlignment="Center" />
+                                        <TextBlock Classes="label"
+                                                   Text="CREDENCIALES DE ACCESO AL SISTEMA"
+                                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <Grid ColumnDefinitions="*,12,*">
+                                        <StackPanel Grid.Column="0" Spacing="5">
+                                            <TextBlock Classes="label" Text="USUARIO *" />
+                                            <TextBox Text="{Binding NuevoUsuarioAcceso}"
+                                                     Watermark="Ej. jvargas" />
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" Spacing="5">
+                                            <TextBlock Classes="label" Text="CONTRASEÑA *" />
+                                            <TextBox Text="{Binding NuevaPasswordAcceso}"
+                                                     PasswordChar="*"
+                                                     Watermark="Mínimo 6 caracteres" />
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Dirección de Domicilio -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="DIRECCIÓN DE DOMICILIO" />
+                                <TextBox Text="{Binding DireccionForm}"
+                                         PlaceholderText="Ej. Av. Las Américas #450" />
+                            </StackPanel>
+
+                            <!-- Seguridad y Accesos: Gestor de Credenciales Completo (PASO 22 - Exclusivo Admin en Edición) -->
+                            <Panel IsVisible="{Binding EsModoEdicion}">
+                                <Border Padding="14,12"
+                                        CornerRadius="12"
+                                        Background="#F8FAFC"
+                                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                                        BorderThickness="1"
+                                        IsVisible="{Binding EsAdmin}">
+                                    <StackPanel Spacing="10">
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <materialIcons:MaterialIcon Kind="LockOutline"
+                                                                        Width="16"
+                                                                        Height="16"
+                                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                        VerticalAlignment="Center" />
+                                            <TextBlock Classes="label"
+                                                       Text="Seguridad y Accesos"
+                                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="5">
+                                            <TextBlock Classes="label"
+                                                       Text="USUARIO DEL SISTEMA" />
+                                            <TextBox Text="{Binding UsuarioAccesoActual}"
+                                                     Watermark="Ej. jvargas" />
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="5">
+                                            <TextBlock Classes="label"
+                                                       Text="RESETEAR CONTRASEÑA (Opcional)" />
+                                            <TextBox Text="{Binding NuevaPasswordReseteo}"
+                                                     PasswordChar="*"
+                                                     Watermark="Escriba la nueva contraseña" />
+                                        </StackPanel>
+
+                                        <Button Content="Actualizar Credenciales"
+                                                Command="{Binding ActualizarCredencialesCommand}"
+                                                IsEnabled="{Binding ControlesHabilitados}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Center" />
+                                    </StackPanel>
+                                </Border>
+                            </Panel>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Pie del Formulario -->
+                    <Grid Grid.Row="4" ColumnDefinitions="*,10,*">
+                        <Button Grid.Column="0"
+                                Classes="ghost"
+                                Content="Cancelar"
+                                Command="{Binding CerrarFormularioCommand}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+
+                        <Button Grid.Column="2"
+                                Content="{Binding TextoBotonGuardar}"
+                                Command="{Binding GuardarEmpleadoCommand}"
+                                IsEnabled="{Binding PuedeGuardarEmpleado}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+                    </Grid>
+
+                </Grid>
+            </Border>
+        </Border>
+    </Panel>
+</UserControl>
+

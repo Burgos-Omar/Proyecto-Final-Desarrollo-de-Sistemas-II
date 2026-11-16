@@ -1,0 +1,879 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="820"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.LogisticaView"
+             x:DataType="vm:LogisticaViewModel">
+
+    <UserControl.Styles>
+        <!-- Badges de Estado para Cargas Entrantes y Despachos (Verde, Amarillo/Ámbar, Azul y Rojo) -->
+        <Style Selector="Border.badge-logistica">
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="12,4" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="#E0F2FE" />
+            <Setter Property="BorderBrush" Value="#BAE6FD" />
+        </Style>
+        <Style Selector="Border.badge-logistica TextBlock">
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="#0284C7" />
+        </Style>
+
+        <!-- Amarillo / Ámbar (En Terminal / Entregado Parcial / Pendiente) -->
+        <Style Selector="Border.badge-logistica.amarillo">
+            <Setter Property="Background" Value="#FEF3C7" />
+            <Setter Property="BorderBrush" Value="#FDE68A" />
+        </Style>
+        <Style Selector="Border.badge-logistica.amarillo TextBlock">
+            <Setter Property="Foreground" Value="#D97706" />
+        </Style>
+
+        <!-- Verde (Recibido / Entregado Completo) -->
+        <Style Selector="Border.badge-logistica.verde">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+        </Style>
+        <Style Selector="Border.badge-logistica.verde TextBlock">
+            <Setter Property="Foreground" Value="#059669" />
+        </Style>
+
+        <!-- Rojo (Con Observaciones) -->
+        <Style Selector="Border.badge-logistica.rojo">
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="BorderBrush" Value="#FECACA" />
+        </Style>
+        <Style Selector="Border.badge-logistica.rojo TextBlock">
+            <Setter Property="Foreground" Value="#EF4444" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="28,22">
+
+        <!-- ========================================================= -->
+        <!-- 1. ENCABEZADO DEL MÓDULO + INDICADORES OPERATIVOS         -->
+        <!-- ========================================================= -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+            <StackPanel Grid.Column="0" Spacing="4">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <TextBlock Classes="title"
+                               Text="Logística, Flotas y Despachos a Obra" />
+                    <Border Padding="12,4"
+                            CornerRadius="999"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource AccentSubtleBgBrush}"
+                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                            BorderThickness="1">
+                        <TextBlock Text="{Binding NombreSucursalActiva}"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                   FontSize="12"
+                                   FontWeight="Bold" />
+                    </Border>
+                </StackPanel>
+
+                <TextBlock Classes="subtitle"
+                           Text="Control de guías de carga interdepartamentales por flota/camión y entregas parciales o completas en obras." />
+            </StackPanel>
+
+            <!-- Resumen de Costos Operativos de Flete y Acciones -->
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        VerticalAlignment="Center">
+
+                <Border Classes="Card" Padding="14,8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="CashMultiple"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="Fletes Operativos:"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   FontSize="12"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding CostosOperativosTexto}"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Button Classes="ghost"
+                        Command="{Binding RecargarTodoCommand}"
+                        IsEnabled="{Binding ControlesHabilitados}">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <materialIcons:MaterialIcon Kind="Refresh"
+                                                    Width="17"
+                                                    Height="17"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="Actualizar"
+                                   Foreground="{Binding $parent[Button].Foreground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- 2. ALERTAS DE ESTADO + MODALES DE CONFIRMACIÓN            -->
+        <!-- ========================================================= -->
+        <StackPanel Grid.Row="1" Spacing="12">
+
+            <!-- Banner de Error -->
+            <Border Padding="14,10"
+                    CornerRadius="10"
+                    Background="{StaticResource DangerSubtleBgBrush}"
+                    BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                    BorderThickness="1"
+                    IsVisible="{Binding MostrarError}">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <materialIcons:MaterialIcon Kind="AlertOctagonOutline"
+                                                Width="18"
+                                                Height="18"
+                                                Foreground="{StaticResource DangerBrush}"
+                                                VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- Banner de Éxito -->
+            <Border Padding="14,10"
+                    CornerRadius="10"
+                    Background="{StaticResource SuccessSubtleBgBrush}"
+                    BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                    BorderThickness="1"
+                    IsVisible="{Binding MostrarExito}">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <materialIcons:MaterialIcon Kind="CheckCircleOutline"
+                                                Width="18"
+                                                Height="18"
+                                                Foreground="{StaticResource SuccessBrush}"
+                                                VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <!-- CUADRO DE CONFIRMACIÓN AL CAMBIAR CARGA A "RECIBIDO" -->
+            <Border Classes="Card"
+                    Padding="20,16"
+                    Margin="0,0,0,10"
+                    BorderBrush="{StaticResource PrimaryAccentBrush}"
+                    BorderThickness="1.5"
+                    IsVisible="{Binding MostrarConfirmacionRecepcion}">
+                <Grid ColumnDefinitions="*,20,Auto">
+                    <StackPanel Grid.Column="0" Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="PackageCheck"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Confirmar Recepción de Mercadería y Costo de Flete"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding ResumenCargaARecibirTexto}"
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryTextBrush}" />
+
+                        <Grid ColumnDefinitions="Auto,16,*,12,130,12,*">
+                            <CheckBox Grid.Column="0"
+                                      IsChecked="{Binding ActualizarStockAutomaticamente}"
+                                      Content="¿Actualizar el stock automáticamente en esta sucursal?"
+                                      FontWeight="SemiBold"
+                                      VerticalAlignment="Center" />
+
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding ProductosDisponibles}"
+                                      SelectedItem="{Binding ProductoRecepcionSeleccionado}"
+                                      IsEnabled="{Binding ActualizarStockAutomaticamente}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Producto">
+                                        <TextBlock Text="{Binding Nombre}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <TextBox Grid.Column="4"
+                                     Text="{Binding CantidadRecibidaTexto}"
+                                     PlaceholderText="Unidades"
+                                     IsEnabled="{Binding ActualizarStockAutomaticamente}" />
+
+                            <TextBox Grid.Column="6"
+                                     Text="{Binding ObservacionesRecepcionTexto}"
+                                     PlaceholderText="Observaciones de recepción (opcional)" />
+                        </Grid>
+
+                        <TextBlock FontSize="12">
+                            <Run Text="Flete en destino a contabilizar: " Foreground="{StaticResource SecondaryTextBrush}" />
+                            <Run Text="{Binding FleteCargaARecibirTexto}" FontWeight="Bold" Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Center">
+                        <Button Classes="ghost"
+                                Content="Cancelar"
+                                Command="{Binding CancelarRecepcionCargaCommand}" />
+                        <Button Content="Confirmar Recepción"
+                                Command="{Binding ConfirmarRecepcionCargaCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- CUADRO DE DESPACHO PARCIAL A OBRA -->
+            <Border Classes="Card"
+                    Padding="20,16"
+                    Margin="0,0,0,10"
+                    BorderBrush="#F59E0B"
+                    BorderThickness="1.5"
+                    IsVisible="{Binding MostrarPanelDespachoParcial}">
+                <Grid ColumnDefinitions="*,20,Auto">
+                    <StackPanel Grid.Column="0" Spacing="10">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="TruckCargoContainer"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="#D97706"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Registrar Despacho Parcial en Obra (sin cerrar la orden completa)"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding ResumenOrdenParcialTexto}"
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryTextBrush}" />
+
+                        <Grid ColumnDefinitions="180,14,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label" Text="UNIDADES ENTREGADAS HOY" />
+                                <TextBox Text="{Binding CantidadDespachoParcialTexto}"
+                                         PlaceholderText="Cantidad" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Classes="label" Text="NOMBRE DEL RECEPTOR EN OBRA (CAPATAZ / ENCARGADO)" />
+                                <TextBox Text="{Binding NombreReceptorObraInput}"
+                                         PlaceholderText="Ej. Ing. Carlos Méndez / Maestro Albañil" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Bottom">
+                        <Button Classes="ghost"
+                                Content="Cancelar"
+                                Command="{Binding CancelarDespachoParcialCommand}" />
+                        <Button Content="Registrar Entrega Parcial"
+                                Command="{Binding RegistrarDespachoParcialCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+
+        <!-- ========================================================= -->
+        <!-- 3. TABCONTROL SUPERIOR: LLEGADAS (PROVEEDORES) / ENVÍOS   -->
+        <!-- ========================================================= -->
+        <TabControl Grid.Row="2"
+                    SelectedIndex="{Binding TabSeleccionadoIndex}"
+                    Padding="0,12,0,0">
+
+            <!-- ===================================================== -->
+            <!-- TAB 1: LLEGADAS (PROVEEDORES / FLOTAS)                -->
+            <!-- ===================================================== -->
+            <TabItem Header="Llegadas (Proveedores)">
+                <Grid ColumnDefinitions="*,Auto">
+
+                    <!-- Lista de Tarjetas Horizontales de Cargas Entrantes -->
+                    <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                            <TextBlock Grid.Column="0"
+                                       Classes="subtitle"
+                                       VerticalAlignment="Center"
+                                       Text="Guías de carga enviadas desde proveedores por flota interdepartamental o transporte pesado." />
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding AbrirFormularioNuevaCargaCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <materialIcons:MaterialIcon Kind="Plus"
+                                                                Width="18"
+                                                                Height="18"
+                                                                Foreground="#FFFFFF"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="+ Registrar Carga Entrante"
+                                               Foreground="#FFFFFF"
+                                               FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Panel Grid.Row="1">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding CargasEntrantes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:CargaEntrante">
+                                            <!-- TARJETA HORIZONTAL DE CARGA ENTRANTE -->
+                                            <Border Classes="Card"
+                                                    Margin="0,0,0,12"
+                                                    Padding="20,16">
+                                                <Grid ColumnDefinitions="Auto,16,2.2*,1.5*,1.2*,Auto">
+
+                                                    <!-- Ícono de Flota / Camión -->
+                                                    <Border Grid.Column="0"
+                                                            Width="46"
+                                                            Height="46"
+                                                            CornerRadius="12"
+                                                            VerticalAlignment="Center"
+                                                            Background="{StaticResource AccentSubtleBgBrush}"
+                                                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                                            BorderThickness="1">
+                                                        <materialIcons:MaterialIcon Kind="BusArticulatedFront"
+                                                                                    Width="24"
+                                                                                    Height="24"
+                                                                                    Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                                    HorizontalAlignment="Center"
+                                                                                    VerticalAlignment="Center" />
+                                                    </Border>
+
+                                                    <!-- Proveedor, Guía y Producto -->
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{Binding NombreProveedorMostrar}"
+                                                                       FontSize="15.5"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}" />
+                                                            <Border Padding="8,2"
+                                                                    CornerRadius="6"
+                                                                    Background="#F1F5F9">
+                                                                <TextBlock Text="{Binding NumeroGuia, StringFormat='Guía #{0}'}"
+                                                                           FontSize="11.5"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <TextBlock Text="{Binding DetalleProductoTexto}"
+                                                                   FontSize="12.5"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}" />
+                                                    </StackPanel>
+
+                                                    <!-- Transportista y Fecha Estimada -->
+                                                    <StackPanel Grid.Column="3"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="TruckFastOutline"
+                                                                                        Width="15"
+                                                                                        Height="15"
+                                                                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding EmpresaTransporte}"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+
+                                                        <TextBlock FontSize="12"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}">
+                                                            <Run Text="Llegada est.: " />
+                                                            <Run Text="{Binding FechaEstimadaTexto}" FontWeight="SemiBold" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <!-- Flete a pagar en Destino + Badge de Estado -->
+                                                    <StackPanel Grid.Column="4"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="6">
+                                                        <StackPanel>
+                                                            <TextBlock Text="FLETE EN DESTINO"
+                                                                       FontSize="9.5"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="{Binding CostoFleteDestino, StringFormat='Bs. {0:N2}'}"
+                                                                       FontSize="16"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}" />
+                                                        </StackPanel>
+
+                                                        <!-- Badge Verde / Amarillo / Azul / Rojo según el estado -->
+                                                        <Border Classes="badge-logistica"
+                                                                Classes.amarillo="{Binding EsEnTerminal}"
+                                                                Classes.verde="{Binding EsRecibido}"
+                                                                Classes.rojo="{Binding EsConObservaciones}"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding Estado}" />
+                                                        </Border>
+                                                    </StackPanel>
+
+                                                    <!-- Botones de Acción Rápida -->
+                                                    <StackPanel Grid.Column="5"
+                                                                Orientation="Horizontal"
+                                                                Spacing="8"
+                                                                VerticalAlignment="Center"
+                                                                IsVisible="{Binding NoEstaRecibido}">
+                                                        <Button Classes="ghost"
+                                                                Content="En Terminal"
+                                                                Padding="10,7"
+                                                                FontSize="12"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).MarcarCargaEnTerminalCommand}"
+                                                                CommandParameter="{Binding}" />
+
+                                                        <Button Classes="ghost"
+                                                                Content="Con Obs."
+                                                                Padding="10,7"
+                                                                FontSize="12"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).MarcarCargaConObservacionCommand}"
+                                                                CommandParameter="{Binding}" />
+
+                                                        <Button Content="✓ Recibido"
+                                                                Padding="14,7"
+                                                                FontSize="12.5"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).CambiarEstadoCargaCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                    </StackPanel>
+
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Estado Vacío Llegadas -->
+                            <Border Classes="Card"
+                                    Padding="36,28"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding SinCargasEntrantes}"
+                                    IsHitTestVisible="False">
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="TruckOutline"
+                                                                Width="42"
+                                                                Height="42"
+                                                                Foreground="{StaticResource SecondaryTextBrush}"
+                                                                HorizontalAlignment="Center" />
+                                    <TextBlock Text="No hay cargas entrantes registradas"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center" />
+                                    <TextBlock Text="Haz clic en '+ Registrar Carga Entrante' para hacer seguimiento a envíos por flota o camión."
+                                               FontSize="13"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Panel>
+                    </Grid>
+
+                    <!-- Panel Lateral: Formulario Nueva Carga Entrante -->
+                    <Border Grid.Column="1"
+                            Width="390"
+                            Margin="20,0,0,0"
+                            Classes="Card"
+                            Padding="22,18"
+                            IsVisible="{Binding MostrarFormularioNuevaCarga}">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0"
+                                           Text="Nueva Carga Entrante"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Classes="ghost"
+                                        Width="30"
+                                        Height="30"
+                                        Padding="0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding CerrarFormularioNuevaCargaCommand}">
+                                    <materialIcons:MaterialIcon Kind="Close"
+                                                                Width="16"
+                                                                Height="16"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center" />
+                                </Button>
+                            </Grid>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="PROVEEDOR REMITENTE" />
+                                <ComboBox ItemsSource="{Binding ProveedoresDisponibles}"
+                                          SelectedItem="{Binding ProveedorNuevaCarga}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:Proveedor">
+                                            <TextBlock Text="{Binding NombreEmpresa}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="PRODUCTO PRINCIPAL DE LA GUÍA (OPCIONAL)" />
+                                <ComboBox ItemsSource="{Binding ProductosDisponibles}"
+                                          SelectedItem="{Binding ProductoNuevaCarga}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:Producto">
+                                            <TextBlock Text="{Binding Nombre}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,10,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="Nº DE GUÍA / REMITO" />
+                                    <TextBox Text="{Binding NumeroGuiaForm}"
+                                             PlaceholderText="Ej. G-90421" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="UNIDADES / BULTOS" />
+                                    <TextBox Text="{Binding CantidadUnidadesCargaForm}"
+                                             PlaceholderText="20" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="EMPRESA DE TRANSPORTE / FLOTA" />
+                                <TextBox Text="{Binding EmpresaTransporteForm}"
+                                         PlaceholderText="Ej. Flota Expreso Tarija / Trans Sur" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,10,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="FLETE EN DESTINO (BS)" />
+                                    <TextBox Text="{Binding CostoFleteDestinoForm}"
+                                             PlaceholderText="0.00" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="LLEGADA EN (DÍAS)" />
+                                    <TextBox Text="{Binding DiasEstimadosLlegadaForm}"
+                                             PlaceholderText="2" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="OBSERVACIONES" />
+                                <TextBox Text="{Binding ObservacionesCargaForm}"
+                                         PlaceholderText="Detalle de bultos o instrucciones de recojo en terminal..." />
+                            </StackPanel>
+
+                            <Button Content="Guardar Guía de Carga"
+                                    Command="{Binding GuardarNuevaCargaCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+            </TabItem>
+
+            <!-- ===================================================== -->
+            <!-- TAB 2: ENVÍOS (DESPACHOS A OBRAS)                     -->
+            <!-- ===================================================== -->
+            <TabItem Header="Envíos (Obras)">
+                <Grid ColumnDefinitions="*,Auto">
+
+                    <!-- Lista de Tarjetas Horizontales de Órdenes de Despacho a Obra -->
+                    <Grid Grid.Column="0" RowDefinitions="Auto,*">
+                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+                            <TextBlock Grid.Column="0"
+                                       Classes="subtitle"
+                                       VerticalAlignment="Center"
+                                       Text="Programación de entregas de material en obra, asignación de vehículos/choferes y control de despachos parciales." />
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding AbrirFormularioNuevoDespachoCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <materialIcons:MaterialIcon Kind="Plus"
+                                                                Width="18"
+                                                                Height="18"
+                                                                Foreground="#FFFFFF"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="+ Nueva Orden de Despacho"
+                                               Foreground="#FFFFFF"
+                                               FontWeight="Bold"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Panel Grid.Row="1">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl ItemsSource="{Binding OrdenesDespacho}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:OrdenDespacho">
+                                            <!-- TARJETA HORIZONTAL DE DESPACHO A OBRA -->
+                                            <Border Classes="Card"
+                                                    Margin="0,0,0,12"
+                                                    Padding="20,16">
+                                                <Grid ColumnDefinitions="Auto,16,2.2*,1.6*,1.2*,Auto">
+
+                                                    <!-- Ícono de Obra / Camión -->
+                                                    <Border Grid.Column="0"
+                                                            Width="46"
+                                                            Height="46"
+                                                            CornerRadius="12"
+                                                            VerticalAlignment="Center"
+                                                            Background="#E0F2FE"
+                                                            BorderBrush="#BAE6FD"
+                                                            BorderThickness="1">
+                                                        <materialIcons:MaterialIcon Kind="DumpTruck"
+                                                                                    Width="24"
+                                                                                    Height="24"
+                                                                                    Foreground="#0284C7"
+                                                                                    HorizontalAlignment="Center"
+                                                                                    VerticalAlignment="Center" />
+                                                    </Border>
+
+                                                    <!-- Dirección de la Obra y Venta/Cliente -->
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="MapMarkerRadiusOutline"
+                                                                                        Width="16"
+                                                                                        Height="16"
+                                                                                        Foreground="{StaticResource DangerBrush}"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding DireccionEntrega}"
+                                                                       FontSize="15"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                        </StackPanel>
+
+                                                        <TextBlock Text="{Binding VentaClienteTexto}"
+                                                                   FontSize="12.5"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}" />
+
+                                                        <TextBlock Text="{Binding ReceptorMostrar}"
+                                                                   FontSize="11.5"
+                                                                   Foreground="{StaticResource SecondaryTextBrush}" />
+                                                    </StackPanel>
+
+                                                    <!-- Vehículo Asignado y Avance de Unidades -->
+                                                    <StackPanel Grid.Column="3"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="4">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <materialIcons:MaterialIcon Kind="AccountHardHatOutline"
+                                                                                        Width="15"
+                                                                                        Height="15"
+                                                                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                        VerticalAlignment="Center" />
+                                                            <TextBlock Text="{Binding VehiculoChofer}"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       VerticalAlignment="Center" />
+                                                        </StackPanel>
+
+                                                        <TextBlock Text="{Binding ProgresoEntregaTexto}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                                                    </StackPanel>
+
+                                                    <!-- Costo de Flete + Badge de Estado -->
+                                                    <StackPanel Grid.Column="4"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="6">
+                                                        <StackPanel>
+                                                            <TextBlock Text="FLETE FERRETERÍA"
+                                                                       FontSize="9.5"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="{Binding CostoFleteFerreteria, StringFormat='Bs. {0:N2}'}"
+                                                                       FontSize="15.5"
+                                                                       FontWeight="Bold" />
+                                                        </StackPanel>
+
+                                                        <Border Classes="badge-logistica"
+                                                                Classes.amarillo="{Binding EsEntregadoParcial}"
+                                                                Classes.verde="{Binding EsEntregadoCompleto}"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding Estado}" />
+                                                        </Border>
+                                                    </StackPanel>
+
+                                                    <!-- Botones Rápidos: "En Ruta", "Entrega Parcial" y "Entregado" -->
+                                                    <StackPanel Grid.Column="5"
+                                                                Orientation="Horizontal"
+                                                                Spacing="8"
+                                                                VerticalAlignment="Center"
+                                                                IsVisible="{Binding PuedeDespachar}">
+                                                        <Button Classes="ghost"
+                                                                Content="En Ruta"
+                                                                Padding="10,7"
+                                                                FontSize="12"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).MarcarDespachoEnRutaCommand}"
+                                                                CommandParameter="{Binding}" />
+
+                                                        <Button Classes="secondary-accent"
+                                                                Content="Entrega Parcial"
+                                                                Padding="11,7"
+                                                                FontSize="12"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).AbrirPanelDespachoParcialCommand}"
+                                                                CommandParameter="{Binding}" />
+
+                                                        <Button Content="✓ Entregado"
+                                                                Padding="12,7"
+                                                                FontSize="12.5"
+                                                                Command="{Binding $parent[UserControl].((vm:LogisticaViewModel)DataContext).MarcarDespachoEntregadoCompletoCommand}"
+                                                                CommandParameter="{Binding}" />
+                                                    </StackPanel>
+
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <!-- Estado Vacío Envíos -->
+                            <Border Classes="Card"
+                                    Padding="36,28"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding SinOrdenesDespacho}"
+                                    IsHitTestVisible="False">
+                                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="HomeCityOutline"
+                                                                Width="42"
+                                                                Height="42"
+                                                                Foreground="{StaticResource SecondaryTextBrush}"
+                                                                HorizontalAlignment="Center" />
+                                    <TextBlock Text="No hay órdenes de despacho a obras"
+                                               FontSize="16"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center" />
+                                    <TextBlock Text="Usa '+ Nueva Orden de Despacho' para programar envíos de material a obras de clientes."
+                                               FontSize="13"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               HorizontalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Panel>
+                    </Grid>
+
+                    <!-- Panel Lateral: Formulario Nueva Orden de Despacho -->
+                    <Border Grid.Column="1"
+                            Width="390"
+                            Margin="20,0,0,0"
+                            Classes="Card"
+                            Padding="22,18"
+                            IsVisible="{Binding MostrarFormularioNuevoDespacho}">
+                        <StackPanel Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0"
+                                           Text="Nueva Orden de Despacho"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Classes="ghost"
+                                        Width="30"
+                                        Height="30"
+                                        Padding="0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Command="{Binding CerrarFormularioNuevoDespachoCommand}">
+                                    <materialIcons:MaterialIcon Kind="Close"
+                                                                Width="16"
+                                                                Height="16"
+                                                                HorizontalAlignment="Center"
+                                                                VerticalAlignment="Center" />
+                                </Button>
+                            </Grid>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="VENTA ASOCIADA" />
+                                <ComboBox ItemsSource="{Binding VentasRecientes}"
+                                          SelectedItem="{Binding VentaSeleccionadaDespacho}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate x:DataType="entities:Venta">
+                                            <TextBlock Text="{Binding Id, StringFormat='Venta #{0}'}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="DIRECCIÓN DE LA OBRA / ENTREGA" />
+                                <TextBox Text="{Binding DireccionEntregaForm}"
+                                         PlaceholderText="Ej. Barrio Senac, Calle 4 (Obra Edificio Sur)" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="VEHÍCULO Y CHOFER (PROPIO O EXTERNO)" />
+                                <TextBox Text="{Binding VehiculoChoferForm}"
+                                         PlaceholderText="Ej. Propio - Camioneta / Externo - Camión Grúa" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,10,*">
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="COSTO FLETE (BS)" />
+                                    <TextBox Text="{Binding CostoFleteFerreteriaForm}"
+                                             PlaceholderText="50.00" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="TOTAL UNIDADES OBRA" />
+                                    <TextBox Text="{Binding UnidadesTotalesDespachoForm}"
+                                             PlaceholderText="10" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="RECEPTOR EN OBRA (OPCIONAL)" />
+                                <TextBox Text="{Binding NombreReceptorForm}"
+                                         PlaceholderText="Nombre del encargado o cliente" />
+                            </StackPanel>
+
+                            <Button Content="Programar Orden de Despacho"
+                                    Command="{Binding GuardarNuevoDespachoCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+
+    </Grid>
+</UserControl>
+

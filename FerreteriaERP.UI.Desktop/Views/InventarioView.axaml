@@ -1,0 +1,689 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:models="using:FerreteriaERP.UI.Desktop.Models"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:converters="using:FerreteriaERP.UI.Desktop.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1220" d:DesignHeight="780"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.InventarioView"
+             x:DataType="vm:InventarioViewModel">
+
+    <UserControl.Resources>
+        <converters:StringToBitmapConverter x:Key="ImageConverter" />
+    </UserControl.Resources>
+
+    <Grid ColumnDefinitions="*,Auto" Margin="28,22">
+
+        <!-- ========================================================= -->
+        <!-- ÁREA PRINCIPAL: ENCABEZADO + CUADRÍCULA DE TARJETAS + FAB -->
+        <!-- ========================================================= -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*">
+
+            <!-- 1. Encabezado del Módulo e Indicadores -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,18">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <TextBlock Classes="title"
+                                   Text="Catálogo de Inventario" />
+                        <Border Padding="12,4"
+                                CornerRadius="999"
+                                VerticalAlignment="Center"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <materialIcons:MaterialIcon Kind="StoreOutline"
+                                                            Width="14"
+                                                            Height="14"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding NombreSucursalActiva}"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <TextBlock Classes="subtitle"
+                               Text="Explora las tarjetas de productos, verifica existencias en tiempo real y gestiona precios." />
+                </StackPanel>
+
+                <!-- Resumen de Contadores y Acciones Secundarias -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Center">
+
+                    <Border Classes="Card" Padding="14,8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="CubeOutline"
+                                                        Width="17"
+                                                        Height="17"
+                                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Productos:"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       FontSize="12.5"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TotalProductosCount}"
+                                       FontWeight="Bold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="14,8"
+                            CornerRadius="12"
+                            Background="{StaticResource DangerSubtleBgBrush}"
+                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                            BorderThickness="1">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                                        Width="17"
+                                                        Height="17"
+                                                        Foreground="{StaticResource DangerBrush}"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Stock Bajo:"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontSize="12.5"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ProductosStockBajoCount}"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontWeight="Bold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Barra de Filtro Local y Acciones Rápidas (Importar CSV / Actualizar) -->
+            <Border Grid.Row="1"
+                    Classes="Card"
+                    Padding="14,10"
+                    Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,12,Auto,10,Auto">
+                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*">
+                        <materialIcons:MaterialIcon Grid.Column="0"
+                                                    Kind="FilterVariant"
+                                                    Width="20"
+                                                    Height="20"
+                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="8,0,10,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding TextoBusqueda}"
+                                 PlaceholderText="Filtrar tarjetas por nombre, código de barras o categoría..."
+                                 Background="Transparent"
+                                 BorderThickness="0" />
+                    </Grid>
+
+                    <Button Grid.Column="2"
+                            Classes="ghost"
+                            Command="{Binding RecargarCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="Refresh"
+                                                        Width="17"
+                                                        Height="17"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Actualizar"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="4"
+                            Classes="secondary-accent"
+                            Command="{Binding ImportarDesdeCsvCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="FileDelimitedOutline"
+                                                        Width="18"
+                                                        Height="18"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Importar CSV"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 3. Alertas de Estado (Éxito / Error) -->
+            <Panel Grid.Row="2">
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource DangerSubtleBgBrush}"
+                        BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarError}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <materialIcons:MaterialIcon Kind="AlertOctagonOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource DangerBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource DangerBrush}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource SuccessSubtleBgBrush}"
+                        BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarExito}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <materialIcons:MaterialIcon Kind="CheckCircleOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource SuccessBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Panel>
+
+            <!-- 4. Contenedor Principal: Cuadrícula Fluida de Tarjetas (WrapPanel) + FAB -->
+            <Panel Grid.Row="3">
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="0,2,0,84">
+                    <ItemsControl ItemsSource="{Binding Productos}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:ProductoInventarioItem">
+                                <!-- TARJETA DE PRODUCTO (Estilo Card) -->
+                                <Border Classes="Card"
+                                        Width="248"
+                                        Margin="0,0,18,18"
+                                        Padding="14">
+
+                                    <StackPanel Spacing="12">
+
+                                        <!-- ARRIBA: Imagen del Producto + Código de Barras y Badge de Stock -->
+                                        <Border Height="138"
+                                                CornerRadius="10"
+                                                ClipToBounds="True"
+                                                Background="#F1F5F9">
+                                            <Panel>
+                                                <!-- Ilustración base de respaldo -->
+                                                <Image Source="{StaticResource ProductPlaceholderDrawing}"
+                                                       Stretch="UniformToFill" />
+
+                                                <!-- Imagen local convertida desde ImagenUrl vía StringToBitmapConverter -->
+                                                <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                       Stretch="UniformToFill" />
+
+                                                <!-- Etiqueta de Código de Barras (Esquina Superior Izquierda) -->
+                                                <Border HorizontalAlignment="Left"
+                                                        VerticalAlignment="Top"
+                                                        Margin="8"
+                                                        Padding="8,3"
+                                                        CornerRadius="6"
+                                                        Background="#D9FFFFFF">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <materialIcons:MaterialIcon Kind="Barcode"
+                                                                                    Width="13"
+                                                                                    Height="13"
+                                                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                                                    VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding CodigoBarras}"
+                                                                   FontSize="10.5"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   VerticalAlignment="Center" />
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- BADGE DE STOCK: "En Stock" (Verde) o "Stock Bajo" (Rojo) -->
+                                                <Border Classes="badge-stock"
+                                                        Classes.stock-bajo="{Binding EsStockBajo}"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top"
+                                                        Margin="8">
+                                                    <TextBlock Text="{Binding EstadoStockBadgeTexto}" />
+                                                </Border>
+                                            </Panel>
+                                        </Border>
+
+                                        <!-- MEDIO: Nombre del Producto (Negrita) y Categoría (Gris Claro) -->
+                                        <StackPanel Spacing="3">
+                                            <TextBlock Text="{Binding Nombre}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxLines="1" />
+
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <materialIcons:MaterialIcon Kind="TagOutline"
+                                                                            Width="13"
+                                                                            Height="13"
+                                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding CategoriaNombre}"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Border Height="1"
+                                                Background="#F1F5F9" />
+
+                                        <!-- ABAJO: Precio en Verde Esmeralda, Botón Circular WhatsApp (si Stock Bajo) y Botón Editar (...) -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="PRECIO VENTA"
+                                                           FontSize="9.5"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                                <TextBlock Text="{Binding PrecioVenta, StringFormat='Bs. {0:N2}'}"
+                                                           FontSize="17"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource PrimaryAccentBrush}" />
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1"
+                                                        Orientation="Horizontal"
+                                                        Spacing="6"
+                                                        VerticalAlignment="Center">
+
+                                                <!-- Botón Circular Pequeño de WhatsApp (#25D366) visible cuando StockActual <= StockMinimo -->
+                                                <Button Classes="whatsapp"
+                                                        Width="34"
+                                                        Height="34"
+                                                        Padding="0"
+                                                        CornerRadius="999"
+                                                        ToolTip.Tip="Solicitar reabastecimiento al proveedor por WhatsApp"
+                                                        HorizontalContentAlignment="Center"
+                                                        VerticalContentAlignment="Center"
+                                                        IsVisible="{Binding EsStockBajo}"
+                                                        Command="{Binding $parent[UserControl].((vm:InventarioViewModel)DataContext).SolicitarReabastecimientoCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <materialIcons:MaterialIcon Kind="Whatsapp"
+                                                                                Width="18"
+                                                                                Height="18"
+                                                                                Foreground="#FFFFFF" />
+                                                </Button>
+
+                                                <!-- Botón de Opciones / Editar (...) -->
+                                                <Button Classes="card-action"
+                                                        ToolTip.Tip="Editar producto y stock"
+                                                        VerticalAlignment="Center"
+                                                        Command="{Binding $parent[UserControl].((vm:InventarioViewModel)DataContext).EditarProductoCommand}"
+                                                        CommandParameter="{Binding}">
+                                                    <materialIcons:MaterialIcon Kind="DotsHorizontal"
+                                                                                Width="18"
+                                                                                Height="18" />
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Estado Vacío cuando no hay resultados -->
+                <Border Classes="Card"
+                        Padding="36,28"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding SinResultados}"
+                        IsHitTestVisible="False">
+                    <StackPanel Spacing="10" HorizontalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="PackageVariant"
+                                                    Width="44"
+                                                    Height="44"
+                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                    HorizontalAlignment="Center" />
+                        <TextBlock Text="No se encontraron productos"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Usa el botón flotante '+ Nuevo Producto' o 'Importar CSV' para agregar artículos."
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- FLOATING ACTION BUTTON (FAB): Esquina Inferior Derecha -->
+                <Border HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,16,16"
+                        CornerRadius="999"
+                        BoxShadow="0 10 25 0 #4D10B981">
+                    <Button Classes="fab"
+                            Command="{Binding NuevoProductoCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <materialIcons:MaterialIcon Kind="Plus"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="#FFFFFF"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="+ Nuevo Producto"
+                                       Foreground="#FFFFFF"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+
+            </Panel>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- PANEL LATERAL: FORMULARIO NUEVO / EDITAR PRODUCTO         -->
+        <!-- ========================================================= -->
+        <Border Grid.Column="1"
+                Width="395"
+                Margin="22,0,0,0"
+                Classes="Card"
+                ClipToBounds="True"
+                IsVisible="{Binding FormularioVisible}">
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <!-- Barra superior Verde Esmeralda -->
+                <Border Grid.Row="0"
+                        Height="4"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <!-- Cabecera del Formulario -->
+                <Border Grid.Row="1"
+                        Padding="22,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock Text="{Binding TituloFormulario}"
+                                       FontSize="18"
+                                       FontWeight="Bold" />
+                            <TextBlock Text="{Binding NombreSucursalActiva}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="ghost"
+                                Width="32"
+                                Height="32"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding CerrarFormularioCommand}">
+                            <materialIcons:MaterialIcon Kind="Close"
+                                                        Width="16"
+                                                        Height="16" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Campos del Formulario -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="15" Margin="22,18">
+
+                        <!-- Selector Visual de Fotografía del Producto + Vista Previa -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label"
+                                       Text="FOTOGRAFÍA DEL PRODUCTO" />
+
+                            <Border Padding="12"
+                                    CornerRadius="10"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <Grid ColumnDefinitions="Auto,14,*">
+                                    <!-- Control <Image> de Previsualización -->
+                                    <Border Grid.Column="0"
+                                            Width="72"
+                                            Height="72"
+                                            CornerRadius="8"
+                                            ClipToBounds="True"
+                                            Background="#F1F5F9"
+                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                            BorderThickness="1">
+                                        <Panel>
+                                            <Image Source="{StaticResource ProductPlaceholderDrawing}"
+                                                   Stretch="UniformToFill" />
+                                            <Image Source="{Binding RutaImagenSeleccionada, Converter={StaticResource ImageConverter}}"
+                                                   Stretch="UniformToFill" />
+                                        </Panel>
+                                    </Border>
+
+                                    <!-- Botón "Subir Foto" + Nombre del archivo -->
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Spacing="6">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Classes="secondary-accent"
+                                                    Command="{Binding SeleccionarImagenCommand}"
+                                                    IsEnabled="{Binding ControlesHabilitados}"
+                                                    Padding="12,7">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <materialIcons:MaterialIcon Kind="CameraPlusOutline"
+                                                                                Width="16"
+                                                                                Height="16"
+                                                                                VerticalAlignment="Center" />
+                                                    <TextBlock Text="Subir Foto"
+                                                               Foreground="{Binding $parent[Button].Foreground}"
+                                                               FontSize="12.5"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Classes="link"
+                                                    Content="Quitar"
+                                                    Command="{Binding QuitarImagenCommand}"
+                                                    IsVisible="{Binding TieneImagenSeleccionada}"
+                                                    VerticalAlignment="Center" />
+                                        </StackPanel>
+
+                                        <TextBlock Text="{Binding NombreArchivoImagenTexto}"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   MaxLines="1" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Código de Barras -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label"
+                                       Text="CÓDIGO DE BARRAS" />
+                            <TextBox Text="{Binding CodigoBarrasForm}"
+                                     PlaceholderText="Escanee o escriba el código (ej. 77712345)"
+                                     IsEnabled="{Binding ControlesHabilitados}" />
+                        </StackPanel>
+
+                        <!-- Nombre del Producto -->
+                        <StackPanel Spacing="6">
+                            <TextBlock Classes="label"
+                                       Text="NOMBRE DEL PRODUCTO" />
+                            <TextBox Text="{Binding NombreForm}"
+                                     PlaceholderText="Ej. Amoladora Angular 850W"
+                                     IsEnabled="{Binding ControlesHabilitados}" />
+                        </StackPanel>
+
+                        <!-- Categoría -->
+                        <StackPanel Spacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0"
+                                           Classes="label"
+                                           Text="CATEGORÍA"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                         Classes="link"
+                                         Content="+ Nueva"
+                                         Command="{Binding AlternarNuevaCategoriaCommand}" />
+                            </Grid>
+
+                            <ComboBox ItemsSource="{Binding Categorias}"
+                                      SelectedItem="{Binding CategoriaSeleccionada}"
+                                      IsEnabled="{Binding ControlesHabilitados}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Categoria">
+                                        <TextBlock Text="{Binding Nombre}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Grid ColumnDefinitions="*,8,Auto"
+                                  IsVisible="{Binding MostrarNuevaCategoria}"
+                                  Margin="0,4,0,0">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding NuevaCategoriaNombre}"
+                                         PlaceholderText="Nombre de nueva categoría" />
+                                <Button Grid.Column="2"
+                                        Content="Crear"
+                                        Command="{Binding GuardarNuevaCategoriaCommand}"
+                                        Padding="12,8"
+                                        FontSize="12" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Proveedor -->
+                        <StackPanel Spacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Column="0"
+                                           Classes="label"
+                                           Text="PROVEEDOR"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1"
+                                         Classes="link"
+                                         Content="+ Nuevo"
+                                         Command="{Binding AlternarNuevoProveedorCommand}" />
+                            </Grid>
+
+                            <ComboBox ItemsSource="{Binding Proveedores}"
+                                      SelectedItem="{Binding ProveedorSeleccionado}"
+                                      IsEnabled="{Binding ControlesHabilitados}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Proveedor">
+                                        <TextBlock Text="{Binding NombreEmpresa}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <Grid ColumnDefinitions="*,8,Auto"
+                                  IsVisible="{Binding MostrarNuevoProveedor}"
+                                  Margin="0,4,0,0">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding NuevoProveedorNombre}"
+                                         PlaceholderText="Empresa proveedora" />
+                                <Button Grid.Column="2"
+                                        Content="Crear"
+                                        Command="{Binding GuardarNuevoProveedorCommand}"
+                                        Padding="12,8"
+                                        FontSize="12" />
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- Precios (Compra y Venta) -->
+                        <Grid ColumnDefinitions="*,12,*">
+                            <StackPanel Grid.Column="0" Spacing="6">
+                                <TextBlock Classes="label"
+                                           Text="PRECIO COMPRA (BS)" />
+                                <TextBox Text="{Binding PrecioCompraTexto}"
+                                         PlaceholderText="0.00"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="6">
+                                <TextBlock Classes="label"
+                                           Text="PRECIO VENTA (BS)" />
+                                <TextBox Text="{Binding PrecioVentaTexto}"
+                                         PlaceholderText="0.00"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Stock Inicial / Actual y Stock Mínimo -->
+                        <Grid ColumnDefinitions="*,12,*">
+                            <StackPanel Grid.Column="0" Spacing="6">
+                                <TextBlock Classes="label"
+                                           Text="{Binding EtiquetaCampoStock}"
+                                           TextWrapping="Wrap" />
+                                <TextBox Text="{Binding StockSucursalTexto}"
+                                         PlaceholderText="0"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="6">
+                                <TextBlock Classes="label"
+                                           Text="STOCK MÍNIMO" />
+                                <TextBox Text="{Binding StockMinimoTexto}"
+                                         PlaceholderText="5"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+                        </Grid>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Pie del Formulario: Guardar y Cancelar -->
+                <Border Grid.Row="3"
+                        Padding="22,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,1,0,0">
+                    <StackPanel Spacing="10">
+                        <Button Content="{Binding TextoBotonGuardar}"
+                                Command="{Binding GuardarProductoCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+
+                        <Button Classes="ghost"
+                                Content="Cancelar"
+                                Command="{Binding CerrarFormularioCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

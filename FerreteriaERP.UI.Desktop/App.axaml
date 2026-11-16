@@ -1,0 +1,517 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="FerreteriaERP.UI.Desktop.App"
+             xmlns:local="using:FerreteriaERP.UI.Desktop"
+             xmlns:converters="using:FerreteriaERP.UI.Desktop.Converters"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             RequestedThemeVariant="Light">
+
+    <Application.DataTemplates>
+        <local:ViewLocator />
+    </Application.DataTemplates>
+
+    <!-- 1. Diccionario Global de Recursos (Paleta Light Minimalista, Tipografía y Activos Vectoriales) -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Convertidor de Rutas Locales de Imagen a Bitmap -->
+            <converters:StringToBitmapConverter x:Key="ImageConverter" />
+            <!-- Paleta de Colores Light Mode (Estilo Web / macOS) -->
+            <Color x:Key="PrimaryBackgroundColor">#F4F7F6</Color>
+            <Color x:Key="SurfaceColor">#FFFFFF</Color>
+            <Color x:Key="SubtleBorderColor">#E2E8F0</Color>
+            <Color x:Key="PrimaryAccentColor">#10B981</Color>
+            <Color x:Key="PrimaryAccentHoverColor">#059669</Color>
+            <Color x:Key="PrimaryAccentPressedColor">#047857</Color>
+            <Color x:Key="SecondaryAccentColor">#0EA5E9</Color>
+            <Color x:Key="PrimaryTextColor">#1E293B</Color>
+            <Color x:Key="SecondaryTextColor">#64748B</Color>
+            <Color x:Key="DangerColor">#EF4444</Color>
+            <Color x:Key="SuccessColor">#10B981</Color>
+
+            <!-- Color Oficial de WhatsApp (#25D366) -->
+            <Color x:Key="WhatsAppGreenColor">#25D366</Color>
+            <Color x:Key="WhatsAppGreenHoverColor">#1EBE5D</Color>
+            <Color x:Key="WhatsAppGreenPressedColor">#128C7E</Color>
+
+            <!-- Brushes Principales -->
+            <SolidColorBrush x:Key="PrimaryBackgroundBrush" Color="{StaticResource PrimaryBackgroundColor}" />
+            <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource SurfaceColor}" />
+            <SolidColorBrush x:Key="SubtleBorderBrush" Color="{StaticResource SubtleBorderColor}" />
+            <SolidColorBrush x:Key="PrimaryAccentBrush" Color="{StaticResource PrimaryAccentColor}" />
+            <SolidColorBrush x:Key="PrimaryAccentHoverBrush" Color="{StaticResource PrimaryAccentHoverColor}" />
+            <SolidColorBrush x:Key="PrimaryAccentPressedBrush" Color="{StaticResource PrimaryAccentPressedColor}" />
+            <SolidColorBrush x:Key="SecondaryAccentBrush" Color="{StaticResource SecondaryAccentColor}" />
+            <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
+            <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />
+            <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+            <SolidColorBrush x:Key="WhatsAppGreenBrush" Color="{StaticResource WhatsAppGreenColor}" />
+            <SolidColorBrush x:Key="WhatsAppGreenHoverBrush" Color="{StaticResource WhatsAppGreenHoverColor}" />
+            <SolidColorBrush x:Key="WhatsAppGreenPressedBrush" Color="{StaticResource WhatsAppGreenPressedColor}" />
+
+            <!-- Brushes Sutiles para Badges, Banners y Estados -->
+            <SolidColorBrush x:Key="AccentSubtleBgBrush" Color="#ECFDF5" />
+            <SolidColorBrush x:Key="AccentSubtleBorderBrush" Color="#A7F3D0" />
+            <SolidColorBrush x:Key="DangerSubtleBgBrush" Color="#FEF2F2" />
+            <SolidColorBrush x:Key="DangerSubtleBorderBrush" Color="#FECACA" />
+            <SolidColorBrush x:Key="SuccessSubtleBgBrush" Color="#ECFDF5" />
+            <SolidColorBrush x:Key="SuccessSubtleBorderBrush" Color="#A7F3D0" />
+
+            <!-- 2. Tipografía Geométrica -->
+            <FontFamily x:Key="GeometricFontFamily">Inter, Montserrat, Poppins, Segoe UI, sans-serif</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">Inter, Montserrat, Poppins, Segoe UI, sans-serif</FontFamily>
+
+            <!-- Placeholder vectorial de Producto (para tarjetas cuando ImagenUrl es null) -->
+            <DrawingImage x:Key="ProductPlaceholderDrawing">
+                <DrawingImage.Drawing>
+                    <DrawingGroup>
+                        <GeometryDrawing Brush="#F1F5F9"
+                                         Geometry="M 0,0 L 200,0 L 200,140 L 0,140 Z" />
+                        <GeometryDrawing Brush="#E2E8F0"
+                                         Geometry="M 66,34 H 134 C 138,34 142,38 142,42 V 98 C 142,102 138,106 134,106 H 66 C 62,106 58,102 58,98 V 42 C 58,38 62,34 66,34 Z" />
+                        <GeometryDrawing Brush="#10B981"
+                                         Geometry="M 85,54 A 9,9 0 1 1 85,72 A 9,9 0 1 1 85,54 Z M 68,94 L 88,74 L 102,86 L 114,72 L 132,94 Z" />
+                    </DrawingGroup>
+                </DrawingImage.Drawing>
+            </DrawingImage>
+
+            <!-- Placeholder vectorial QR -->
+            <DrawingImage x:Key="QrPlaceholderDrawing">
+                <DrawingImage.Drawing>
+                    <DrawingGroup>
+                        <GeometryDrawing Brush="#FFFFFF"
+                                         Geometry="M 0,0 L 120,0 L 120,120 L 0,120 Z" />
+                        <GeometryDrawing Brush="#1E293B"
+                                         Geometry="M 10,10 H 38 V 38 H 10 Z M 14,14 V 34 H 34 V 14 Z M 18,18 H 30 V 30 H 18 Z
+                                                   M 82,10 H 110 V 38 H 82 Z M 86,14 V 34 H 106 V 14 Z M 90,18 H 102 V 30 H 90 Z
+                                                   M 10,82 H 38 V 110 H 10 Z M 14,86 V 106 H 34 V 86 Z M 18,90 H 30 V 102 H 18 Z
+                                                   M 46,10 H 54 V 18 H 46 Z M 62,10 H 74 V 18 H 62 Z M 46,24 H 58 V 32 H 46 Z M 66,24 H 74 V 38 H 66 Z
+                                                   M 10,46 H 22 V 54 H 10 Z M 28,46 H 38 V 58 H 28 Z M 10,62 H 18 V 74 H 10 Z M 24,66 H 36 V 74 H 24 Z
+                                                   M 82,46 H 94 V 54 H 82 Z M 100,46 H 110 V 62 H 100 Z M 84,64 H 96 V 74 H 84 Z
+                                                   M 46,82 H 58 V 90 H 46 Z M 66,82 H 78 V 94 H 66 Z M 46,98 H 62 V 110 H 46 Z
+                                                   M 84,84 H 108 V 92 H 84 Z M 84,98 H 94 V 110 H 84 Z M 100,98 H 110 V 110 H 100 Z" />
+                        <GeometryDrawing Brush="#10B981"
+                                         Geometry="M 46,46 H 74 V 74 H 46 Z M 52,52 V 68 H 68 V 52 Z" />
+                    </DrawingGroup>
+                </DrawingImage.Drawing>
+            </DrawingImage>
+        </ResourceDictionary>
+    </Application.Resources>
+
+    <!-- 3. Estilos Globales del Design System Light Mode -->
+    <Application.Styles>
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light"
+                                       Accent="#10B981"
+                                       RegionColor="#F4F7F6"
+                                       ErrorText="#EF4444" />
+                <ColorPaletteResources x:Key="Dark"
+                                       Accent="#10B981"
+                                       RegionColor="#0F172A"
+                                       ErrorText="#EF4444" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+
+        <!-- Inicialización de Material.Icons.Avalonia -->
+        <materialIcons:MaterialIconStyles />
+
+        <!-- Estilos base del DataGrid para vistas legadas -->
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+        <!-- Ventana Principal -->
+        <Style Selector="Window">
+            <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+        </Style>
+
+        <!-- Tipografía Base, Títulos y Subtítulos -->
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+        </Style>
+
+        <Style Selector="TextBlock.title">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="TextBlock.subtitle">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+        </Style>
+
+        <Style Selector="TextBlock.label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+        </Style>
+
+        <Style Selector="TextBlock.texto-stock-bajo, TextBlock.texto-vencido">
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <!-- Estilo Principal de Tarjeta (Card): Fondo Blanco, CornerRadius 12 y Sombra Suave -->
+        <Style Selector="Border.Card, Border.card">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 4 15 0 #0D000000" />
+            <Setter Property="BorderBrush" Value="#EEF2F6" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BoxShadowsTransition Property="BoxShadow" Duration="0:0:0.18" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.18" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Border.Card:pointerover">
+            <Setter Property="BoxShadow" Value="0 10 24 0 #16000000" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+        </Style>
+
+        <Style Selector="Border.panel">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="BoxShadow" Value="0 4 15 0 #0D000000" />
+        </Style>
+
+        <!-- Badges de Stock (En Stock Verde / Stock Bajo Rojo) -->
+        <Style Selector="Border.badge-stock">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="10,4" />
+        </Style>
+
+        <Style Selector="Border.badge-stock TextBlock">
+            <Setter Property="Foreground" Value="#059669" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+
+        <Style Selector="Border.badge-stock.stock-bajo">
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="BorderBrush" Value="#FECACA" />
+        </Style>
+
+        <Style Selector="Border.badge-stock.stock-bajo TextBlock">
+            <Setter Property="Foreground" Value="#EF4444" />
+        </Style>
+
+        <!-- Badges de Estado de Crédito -->
+        <Style Selector="Border.badge-credito">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="10,3" />
+        </Style>
+
+        <Style Selector="Border.badge-credito TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="11" />
+        </Style>
+
+        <Style Selector="Border.badge-credito.vencido">
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="BorderBrush" Value="#FECACA" />
+        </Style>
+
+        <Style Selector="Border.badge-credito.vencido TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+        </Style>
+
+        <Style Selector="Border.badge-credito.pagado">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+        </Style>
+
+        <Style Selector="Border.badge-credito.pagado TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+        </Style>
+
+        <!-- Slot para entradas de formulario -->
+        <Style Selector="Border.input-slot">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+
+        <!-- Botones: Primario (Verde Esmeralda #10B981) con bordes redondeados y sin bordes toscos -->
+        <Style Selector="Button">
+            <Setter Property="Background" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+
+        <Style Selector="Button /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.18" />
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.18" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource PrimaryAccentHoverBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style Selector="Button:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource PrimaryAccentPressedBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#E2E8F0" />
+            <Setter Property="Foreground" Value="#94A3B8" />
+        </Style>
+
+        <!-- Floating Action Button (FAB) -->
+        <Style Selector="Button.fab">
+            <Setter Property="Background" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="22,14" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="Button.fab /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="CornerRadius" Value="999" />
+        </Style>
+
+        <!-- Botón Oficial de WhatsApp (#25D366) -->
+        <Style Selector="Button.whatsapp">
+            <Setter Property="Background" Value="{StaticResource WhatsAppGreenBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="Button.whatsapp:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource WhatsAppGreenHoverBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <Style Selector="Button.whatsapp:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource WhatsAppGreenPressedBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Botón Secundario / Ghost Minimalista -->
+        <Style Selector="Button.ghost">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+        </Style>
+
+        <Style Selector="Button.ghost:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#D1FAE5" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentPressedBrush}" />
+        </Style>
+
+        <!-- Botón Secundario con Borde Acento -->
+        <Style Selector="Button.secondary-accent">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+            <Setter Property="BorderBrush" Value="#A7F3D0" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style Selector="Button.secondary-accent:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentPressedBrush}" />
+        </Style>
+
+        <!-- Botón Peligro Sutil -->
+        <Style Selector="Button.danger-ghost">
+            <Setter Property="Background" Value="#FEF2F2" />
+            <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+            <Setter Property="BorderBrush" Value="#FECACA" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style Selector="Button.danger-ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- Botones de Navegación del Sidebar (Sin fondo, limpios con ícono y texto) -->
+        <Style Selector="Button.nav">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="14,11" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+
+        <Style Selector="Button.nav:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#F1F5F9" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+        </Style>
+
+        <Style Selector="Button.nav-active">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="Button.nav-active:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#D1FAE5" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentPressedBrush}" />
+        </Style>
+
+        <!-- Botón de Opciones de Tarjeta (...) -->
+        <Style Selector="Button.card-action">
+            <Setter Property="Background" Value="#F1F5F9" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style Selector="Button.card-action:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+        </Style>
+
+        <!-- Botones Rápidos de Billetes en el POS -->
+        <Style Selector="Button.quick-bill">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="8,9" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style Selector="Button.quick-bill:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+        </Style>
+
+        <!-- Botón Enlace Transparente sin borde -->
+        <Style Selector="Button.link">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentHoverBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#ECFDF5" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryAccentPressedBrush}" />
+        </Style>
+
+        <!-- TextBox: Bordes redondeados, fondo claro, sin bordes toscos -->
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="PlaceholderForeground" Value="#94A3B8" />
+            <Setter Property="CaretBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="SelectionBrush" Value="#4410B981" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="12,10" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="BorderBrush" Duration="0:0:0.18" />
+                    <BrushTransition Property="Background" Duration="0:0:0.18" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="#CBD5E1" />
+        </Style>
+
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="BorderBrush" Value="{StaticResource PrimaryAccentBrush}" />
+            <Setter Property="BorderThickness" Value="1.5" />
+        </Style>
+
+        <!-- ComboBox Claro Minimalista -->
+        <Style Selector="ComboBox">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="12,9" />
+            <Setter Property="BorderBrush" Value="#E2E8F0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+
+        <!-- DataGrid Minimalista Light (para vistas secundarias) -->
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="#FFFFFF" />
+            <Setter Property="Foreground" Value="{StaticResource PrimaryTextBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SubtleBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="RowBackground" Value="#FFFFFF" />
+            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F5F9" />
+            <Setter Property="FontFamily" Value="{StaticResource GeometricFontFamily}" />
+            <Setter Property="FontSize" Value="13.5" />
+        </Style>
+
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F8FAFC" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="11.5" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="SeparatorBrush" Value="Transparent" />
+        </Style>
+    </Application.Styles>
+</Application>
