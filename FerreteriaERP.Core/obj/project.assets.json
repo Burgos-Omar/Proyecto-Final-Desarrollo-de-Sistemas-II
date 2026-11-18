@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "targets": {
     "net9.0": {
       "QuestPDF/2026.9.2": {
@@ -161,23 +161,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADRIAN\\.nuget\\packages\\": {},
+    "C:\\Users\\Cesar Velasco Cazón\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ADRIAN\\Desktop\\Proyecto_Final\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
+      "projectUniqueName": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
       "projectName": "FerreteriaERP.Core",
-      "projectPath": "C:\\Users\\ADRIAN\\Desktop\\Proyecto_Final\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
-      "packagesPath": "C:\\Users\\ADRIAN\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ADRIAN\\Desktop\\Proyecto_Final\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\obj\\",
+      "projectPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
+      "packagesPath": "C:\\Users\\Cesar Velasco Cazón\\.nuget\\packages\\",
+      "outputPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ADRIAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Cesar Velasco Cazón\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -190,6 +190,7 @@
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "projectReferences": {}
         }
@@ -204,10 +205,11 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.300"
     },
     "frameworks": {
       "net9.0": {
+        "framework": "net9.0",
         "targetAlias": "net9.0",
         "dependencies": {
           "QuestPDF": {
@@ -231,7 +233,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
