@@ -1,37 +1,56 @@
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.deps.json
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.runtimeconfig.json
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.pdb
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Core.dll
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Core.pdb
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.csproj.AssemblyReference.cache
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.AssemblyInfoInputs.cache
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.AssemblyInfo.cs
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.csproj.CoreCompileInputs.cache
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\Ferreter.E10F3775.Up2Date
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\refint\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.pdb
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.genruntimeconfig.cache
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\obj\Debug\net9.0\ref\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Infrastructure\bin\Debug\net9.0\questpdf_fonts_lato.br
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\questpdf_fonts_lato.br
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.deps.json
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.runtimeconfig.json
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Infrastructure.pdb
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Core.dll
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\bin\Debug\net9.0\FerreteriaERP.Core.pdb
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.csproj.AssemblyReference.cache
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.AssemblyInfoInputs.cache
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.AssemblyInfo.cs
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.csproj.CoreCompileInputs.cache
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.sourcelink.json
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\Ferreter.E10F3775.Up2Date
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\refint\FerreteriaERP.Infrastructure.dll
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.pdb
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\FerreteriaERP.Infrastructure.genruntimeconfig.cache
-C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Infrastructure\obj\Debug\net9.0\ref\FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.deps.json
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.runtimeconfig.json
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.pdb
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.AssemblyReference.cache
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfoInputs.cache
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfo.cs
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.CoreCompileInputs.cache
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/Ferreter.E10F3775.Up2Date
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/refint/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.genruntimeconfig.cache
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/obj/Debug/net9.0/ref/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Programa Ferreteria/FerreteriaERP.Infrastructure/bin/Debug/net9.0/questpdf_fonts_lato.br
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/questpdf_fonts_lato.br
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.deps.json
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.runtimeconfig.json
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.dll
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.pdb
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.AssemblyReference.cache
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfoInputs.cache
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfo.cs
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.CoreCompileInputs.cache
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.sourcelink.json
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/Ferreter.E10F3775.Up2Date
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/refint/FerreteriaERP.Infrastructure.dll
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.genruntimeconfig.cache
+C:/Users/ADRIAN/Desktop/Proyecto_Final/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/ref/FerreteriaERP.Infrastructure.dll
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/questpdf_fonts_lato.br
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.deps.json
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.runtimeconfig.json
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.dll
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/bin/Debug/net9.0/FerreteriaERP.Core.pdb
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.AssemblyReference.cache
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfoInputs.cache
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.AssemblyInfo.cs
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.csproj.CoreCompileInputs.cache
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.sourcelink.json
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/Ferreter.E10F3775.Up2Date
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.dll
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/refint/FerreteriaERP.Infrastructure.dll
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.pdb
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/FerreteriaERP.Infrastructure.genruntimeconfig.cache
+/home/nero/Desktop/proyecto-fere/Proyecto-Final-Desarrollo-de-Sistemas-II/FerreteriaERP.Infrastructure/obj/Debug/net9.0/ref/FerreteriaERP.Infrastructure.dll
