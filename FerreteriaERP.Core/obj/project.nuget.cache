@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "TMJA2eCBIpk=",
+  "dgSpecHash": "vMEFRdX9Z8A=",
   "success": true,
-  "projectFilePath": "C:\\Users\\ADRIAN\\Desktop\\Proyecto_Final\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
+  "projectFilePath": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ADRIAN\\.nuget\\packages\\questpdf\\2026.9.2\\questpdf.2026.9.2.nupkg.sha512"
+    "C:\\Users\\HP\\.nuget\\packages\\questpdf\\2026.9.2\\questpdf.2026.9.2.nupkg.sha512"
   ],
   "logs": []
 }

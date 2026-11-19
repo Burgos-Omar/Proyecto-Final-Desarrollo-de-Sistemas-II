@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FerreteriaERP.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b12437ce0db39c2a666aca87ab39af0c61d060c3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+719402219c3663c8844147b521353caf55268412")]
 [assembly: System.Reflection.AssemblyProductAttribute("FerreteriaERP.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FerreteriaERP.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

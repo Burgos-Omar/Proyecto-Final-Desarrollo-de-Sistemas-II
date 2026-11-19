@@ -123,22 +123,6 @@
                         </StackPanel>
                     </Button>
 
-                    ─── MÓDULO: PROVEEDORES ───────────────────────────────────────
-                    <Button Classes="nav"
-                            Classes.nav-active="{Binding EsVistaProveedoresActiva}"
-                            Command="{Binding IrAProveedoresCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center" />
-                            <TextBlock Text="Proveedores"
-                                       FontSize="14"
-                                       Foreground="{Binding $parent[Button].Foreground}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
                     ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaLogisticaActiva}"
@@ -188,6 +172,22 @@
                     </Button>
                     ──────────────────────────────────────────────────────────────
                     -->
+
+                    <!-- ─── MÓDULO: PROVEEDORES ─────────────────────────────── -->
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaProveedoresActiva}"
+                            Command="{Binding IrAProveedoresCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Proveedores"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
 
                     <Button Classes="nav"
                             IsVisible="{Binding EsAdmin}"
