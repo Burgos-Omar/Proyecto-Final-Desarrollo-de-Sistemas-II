@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FerreteriaERP.UI.Desktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+719402219c3663c8844147b521353caf55268412")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bbf611f150faf109c1326e0a9c7d88896b587f58")]
 [assembly: System.Reflection.AssemblyProductAttribute("FerreteriaERP.UI.Desktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FerreteriaERP.UI.Desktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

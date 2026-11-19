@@ -82,16 +82,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!--
-                    ═══════════════════════════════════════════════════════════════
-                    VERSIÓN BASE — MÓDULOS OCULTOS (propósito académico)
-                    Los botones de navegación están comentados para que la app
-                    arranque sólo con el Dashboard visible.
-                    Los ViewModels, Views y toda la lógica subyacente siguen
-                    intactos; sólo descomenta cada bloque para reconectar el módulo.
-                    ═══════════════════════════════════════════════════════════════
-
-                    ─── MÓDULO: CAJA / POS ────────────────────────────────────────
+                    <!-- ─── MÓDULO: CAJA / POS (comentado intencionalmente) ─────────────
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaCajaActiva}"
                             Command="{Binding IrACajaCommand}">
@@ -106,8 +97,9 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    ─────────────────────────────────────────────────────────────── -->
 
-                    ─── MÓDULO: INVENTARIO ────────────────────────────────────────
+                    <!-- ─── MÓDULO: INVENTARIO ─────────────────────────────────────── -->
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaInventarioActiva}"
                             Command="{Binding IrAInventarioCommand}">
@@ -123,7 +115,7 @@
                         </StackPanel>
                     </Button>
 
-                    ─── MÓDULO: PROVEEDORES ───────────────────────────────────────
+                    <!-- ─── MÓDULO: PROVEEDORES (comentado intencionalmente) ─────────
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaProveedoresActiva}"
                             Command="{Binding IrAProveedoresCommand}">
@@ -138,8 +130,9 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    ─────────────────────────────────────────────────────────────── -->
 
-                    ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
+                    <!-- ─── MÓDULO: LOGÍSTICA Y CARGAS (comentado intencionalmente) ──
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaLogisticaActiva}"
                             Command="{Binding IrALogisticaCommand}">
@@ -154,8 +147,9 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    ─────────────────────────────────────────────────────────────── -->
 
-                    ─── MÓDULO: EMPLEADOS Y RANKING ───────────────────────────────
+                    <!-- ─── MÓDULO: EMPLEADOS Y RANKING (comentado intencionalmente) ─
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaEmpleadosActiva}"
                             Command="{Binding IrAEmpleadosCommand}">
@@ -170,8 +164,9 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
+                    ─────────────────────────────────────────────────────────────── -->
 
-                    ─── MÓDULO: CRÉDITOS Y COBROS ─────────────────────────────────
+                    <!-- ─── MÓDULO: CRÉDITOS Y COBROS (comentado intencionalmente) ───
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaCreditosActiva}"
                             Command="{Binding IrACreditosCommand}">
@@ -186,8 +181,7 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ──────────────────────────────────────────────────────────────
-                    -->
+                    ─────────────────────────────────────────────────────────────── -->
 
                     <Button Classes="nav"
                             IsVisible="{Binding EsAdmin}"
