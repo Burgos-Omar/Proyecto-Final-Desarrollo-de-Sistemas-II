@@ -85,10 +85,8 @@
                     <!--
                     ═══════════════════════════════════════════════════════════════
                     VERSIÓN BASE — MÓDULOS OCULTOS (propósito académico)
-                    Los botones de navegación están comentados para que la app
-                    arranque sólo con el Dashboard visible.
-                    Los ViewModels, Views y toda la lógica subyacente siguen
-                    intactos; sólo descomenta cada bloque para reconectar el módulo.
+                    Los siguientes módulos permanecen comentados. Para activarlos
+                    basta con desplazar su bloque fuera de este comentario.
                     ═══════════════════════════════════════════════════════════════
 
                     ─── MÓDULO: CAJA / POS ────────────────────────────────────────
@@ -97,11 +95,9 @@
                             Command="{Binding IrACajaCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <materialIcons:MaterialIcon Kind="CashRegister"
-                                                        Width="20"
-                                                        Height="20"
+                                                        Width="20" Height="20"
                                                         VerticalAlignment="Center" />
-                            <TextBlock Text="Caja / POS"
-                                       FontSize="14"
+                            <TextBlock Text="Caja / POS" FontSize="14"
                                        Foreground="{Binding $parent[Button].Foreground}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
@@ -113,17 +109,59 @@
                             Command="{Binding IrAInventarioCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <materialIcons:MaterialIcon Kind="PackageVariantClosed"
-                                                        Width="20"
-                                                        Height="20"
+                                                        Width="20" Height="20"
                                                         VerticalAlignment="Center" />
-                            <TextBlock Text="Inventario"
-                                       FontSize="14"
+                            <TextBlock Text="Inventario" FontSize="14"
                                        Foreground="{Binding $parent[Button].Foreground}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
 
-                    ─── MÓDULO: PROVEEDORES ───────────────────────────────────────
+                    ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaLogisticaActiva}"
+                            Command="{Binding IrALogisticaCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="TruckFastOutline"
+                                                        Width="20" Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Logística y Cargas" FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: EMPLEADOS Y RANKING ───────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaEmpleadosActiva}"
+                            Command="{Binding IrAEmpleadosCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="AccountGroupOutline"
+                                                        Width="20" Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Empleados y Ranking" FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: CRÉDITOS Y COBROS ─────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaCreditosActiva}"
+                            Command="{Binding IrACreditosCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="AccountCashOutline"
+                                                        Width="20" Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Créditos y Cobros" FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    ──────────────────────────────────────────────────────────────
+                    -->
+
+                    <!-- ─── MÓDULO: PROVEEDORES (HABILITADO) ──────────────────── -->
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaProveedoresActiva}"
                             Command="{Binding IrAProveedoresCommand}">
@@ -138,56 +176,6 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-
-                    ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
-                    <Button Classes="nav"
-                            Classes.nav-active="{Binding EsVistaLogisticaActiva}"
-                            Command="{Binding IrALogisticaCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <materialIcons:MaterialIcon Kind="TruckFastOutline"
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center" />
-                            <TextBlock Text="Logística y Cargas"
-                                       FontSize="14"
-                                       Foreground="{Binding $parent[Button].Foreground}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    ─── MÓDULO: EMPLEADOS Y RANKING ───────────────────────────────
-                    <Button Classes="nav"
-                            Classes.nav-active="{Binding EsVistaEmpleadosActiva}"
-                            Command="{Binding IrAEmpleadosCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <materialIcons:MaterialIcon Kind="AccountGroupOutline"
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center" />
-                            <TextBlock Text="Empleados y Ranking"
-                                       FontSize="14"
-                                       Foreground="{Binding $parent[Button].Foreground}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-
-                    ─── MÓDULO: CRÉDITOS Y COBROS ─────────────────────────────────
-                    <Button Classes="nav"
-                            Classes.nav-active="{Binding EsVistaCreditosActiva}"
-                            Command="{Binding IrACreditosCommand}">
-                        <StackPanel Orientation="Horizontal" Spacing="12">
-                            <materialIcons:MaterialIcon Kind="AccountCashOutline"
-                                                        Width="20"
-                                                        Height="20"
-                                                        VerticalAlignment="Center" />
-                            <TextBlock Text="Créditos y Cobros"
-                                       FontSize="14"
-                                       Foreground="{Binding $parent[Button].Foreground}"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                    ──────────────────────────────────────────────────────────────
-                    -->
 
                     <Button Classes="nav"
                             IsVisible="{Binding EsAdmin}"
