@@ -1,0 +1,665 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="800"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.ProveedoresView"
+             x:DataType="vm:ProveedoresViewModel">
+
+    <Grid ColumnDefinitions="*,Auto" Margin="28,22">
+
+        <!-- ========================================================= -->
+        <!-- ÁREA PRINCIPAL: DIRECTORIO DE PROVEEDORES (CARDS) + FAB   -->
+        <!-- ========================================================= -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,Auto,*">
+
+            <!-- 1. Encabezado -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,18">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Classes="title"
+                               Text="Directorio de Proveedores" />
+                    <TextBlock Classes="subtitle"
+                               Text="Gestiona datos legales, condiciones comerciales, políticas de flete/garantía y contratos adjuntos." />
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Classes="Card"
+                        Padding="14,8"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="Proveedores registrados:"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   FontSize="12.5"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalProveedoresCount}"
+                                   FontWeight="Bold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- 2. Buscador Reactivo -->
+            <Border Grid.Row="1"
+                    Classes="Card"
+                    Padding="14,10"
+                    Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,12,Auto">
+                    <Grid Grid.Column="0" ColumnDefinitions="Auto,*">
+                        <materialIcons:MaterialIcon Grid.Column="0"
+                                                    Kind="Magnify"
+                                                    Width="20"
+                                                    Height="20"
+                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                    VerticalAlignment="Center"
+                                                    Margin="8,0,10,0" />
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding TextoBusqueda}"
+                                 PlaceholderText="Buscar proveedor por razón social, nombre comercial, NIT, teléfono o correo..."
+                                 Background="Transparent"
+                                 BorderThickness="0" />
+                    </Grid>
+
+                    <Button Grid.Column="2"
+                            Classes="ghost"
+                            Command="{Binding CargarProveedoresCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="Refresh"
+                                                        Width="17"
+                                                        Height="17"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Actualizar"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 3. Banners de Estado -->
+            <Panel Grid.Row="2">
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource DangerSubtleBgBrush}"
+                        BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarError}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <materialIcons:MaterialIcon Kind="AlertOctagonOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource DangerBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource DangerBrush}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <Border Padding="14,10"
+                        Margin="0,0,0,14"
+                        CornerRadius="10"
+                        Background="{StaticResource SuccessSubtleBgBrush}"
+                        BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarExito}">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <materialIcons:MaterialIcon Kind="CheckCircleOutline"
+                                                    Width="18"
+                                                    Height="18"
+                                                    Foreground="{StaticResource SuccessBrush}"
+                                                    VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </Panel>
+
+            <!-- 4. Cuadrícula de Tarjetas de Proveedores + FAB -->
+            <Panel Grid.Row="3">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="0,2,0,84">
+                    <ItemsControl ItemsSource="{Binding Proveedores}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="entities:Proveedor">
+                                <!-- TARJETA DE PROVEEDOR -->
+                                <Border Classes="Card"
+                                        Width="335"
+                                        Margin="0,0,18,18"
+                                        Padding="18">
+                                    <StackPanel Spacing="12">
+
+                                        <!-- Cabecera: Icono + Empresa + Moneda -->
+                                        <Grid ColumnDefinitions="Auto,12,*,Auto">
+                                            <Border Grid.Column="0"
+                                                    Width="42"
+                                                    Height="42"
+                                                    CornerRadius="10"
+                                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                                    BorderThickness="1">
+                                                <materialIcons:MaterialIcon Kind="Domain"
+                                                                            Width="22"
+                                                                            Height="22"
+                                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                                            HorizontalAlignment="Center"
+                                                                            VerticalAlignment="Center" />
+                                            </Border>
+
+                                            <StackPanel Grid.Column="2"
+                                                        VerticalAlignment="Center"
+                                                        Spacing="2">
+                                                <TextBlock Text="{Binding NombreEmpresa}"
+                                                           FontSize="15"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1" />
+                                                <TextBlock Text="{Binding NitMostrar}"
+                                                           FontSize="11.5"
+                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                            </StackPanel>
+
+                                            <Border Grid.Column="3"
+                                                    Classes="badge-stock"
+                                                    VerticalAlignment="Top">
+                                                <TextBlock Text="{Binding MonedaMostrar}" />
+                                            </Border>
+                                        </Grid>
+
+                                        <Border Height="1"
+                                                Background="#F1F5F9" />
+
+                                        <!-- Datos de Contacto y Logística -->
+                                        <StackPanel Spacing="7">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <materialIcons:MaterialIcon Kind="Whatsapp"
+                                                                            Width="16"
+                                                                            Height="16"
+                                                                            Foreground="{StaticResource WhatsAppGreenBrush}"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding TelefonoMostrar}"
+                                                           FontSize="12.5"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <materialIcons:MaterialIcon Kind="MapMarkerOutline"
+                                                                            Width="16"
+                                                                            Height="16"
+                                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding DireccionAlmacen, TargetNullValue='Dirección de almacén no registrada'}"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <materialIcons:MaterialIcon Kind="ClockFast"
+                                                                            Width="16"
+                                                                            Height="16"
+                                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding TiemposEntrega, TargetNullValue='Tiempo de entrega estándar'}"
+                                                           FontSize="12"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Border Height="1"
+                                                Background="#F1F5F9" />
+
+                                        <!-- Acciones de la Tarjeta: Abrir Contrato + Editar -->
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Button Grid.Column="0"
+                                                    Classes="link"
+                                                    HorizontalAlignment="Left"
+                                                    IsVisible="{Binding TieneDocumentoAdjunto}"
+                                                    Command="{Binding $parent[UserControl].((vm:ProveedoresViewModel)DataContext).AbrirDocumentoCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <materialIcons:MaterialIcon Kind="FileDocumentOutline"
+                                                                                Width="16"
+                                                                                Height="16"
+                                                                                VerticalAlignment="Center" />
+                                                    <TextBlock Text="Abrir Contrato"
+                                                               Foreground="{Binding $parent[Button].Foreground}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Grid.Column="1"
+                                                    Classes="ghost"
+                                                    Padding="12,6"
+                                                    Command="{Binding $parent[UserControl].((vm:ProveedoresViewModel)DataContext).EditarProveedorCommand}"
+                                                    CommandParameter="{Binding}">
+                                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                                    <materialIcons:MaterialIcon Kind="PencilOutline"
+                                                                                Width="15"
+                                                                                Height="15"
+                                                                                VerticalAlignment="Center" />
+                                                    <TextBlock Text="Ficha Completa"
+                                                               Foreground="{Binding $parent[Button].Foreground}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" />
+                                                </StackPanel>
+                                            </Button>
+                                        </Grid>
+
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Estado vacío -->
+                <Border Classes="Card"
+                        Padding="36,28"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding SinResultados}"
+                        IsHitTestVisible="False">
+                    <StackPanel Spacing="10" HorizontalAlignment="Center">
+                        <materialIcons:MaterialIcon Kind="DomainOff"
+                                                    Width="42"
+                                                    Height="42"
+                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                    HorizontalAlignment="Center" />
+                        <TextBlock Text="No se encontraron proveedores"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Haz clic en '+ Nuevo Proveedor' para registrar empresas y contratos."
+                                   FontSize="13"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+
+                <!-- FAB: + Nuevo Proveedor -->
+                <Border HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="0,0,16,16"
+                        CornerRadius="999"
+                        BoxShadow="0 10 25 0 #4D10B981">
+                    <Button Classes="fab"
+                            Command="{Binding NuevoProveedorCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <materialIcons:MaterialIcon Kind="Plus"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="#FFFFFF"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="+ Nuevo Proveedor"
+                                       Foreground="#FFFFFF"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Border>
+            </Panel>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- PANEL LATERAL AMPLIO: FORMULARIO CREAR / EDITAR PROVEEDOR -->
+        <!-- ========================================================= -->
+        <Border Grid.Column="1"
+                Width="540"
+                Margin="22,0,0,0"
+                Classes="Card"
+                ClipToBounds="True"
+                IsVisible="{Binding FormularioVisible}">
+
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                <Border Grid.Row="0"
+                        Height="4"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <!-- Cabecera -->
+                <Border Grid.Row="1"
+                        Padding="24,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="2">
+                            <TextBlock Text="{Binding TituloFormulario}"
+                                       FontSize="18"
+                                       FontWeight="Bold" />
+                            <TextBlock Text="Ficha legal, comercial y documental del proveedor"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="ghost"
+                                Width="32"
+                                Height="32"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding CerrarFormularioCommand}">
+                            <materialIcons:MaterialIcon Kind="Close"
+                                                        Width="16"
+                                                        Height="16" />
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Cuerpo del Formulario con ScrollViewer y Grid estructurado en 3 Secciones -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="22" Margin="24,20">
+
+                        <!-- ================================================= -->
+                        <!-- SECCIÓN 1: DATOS LEGALES Y CONTACTO               -->
+                        <!-- ================================================= -->
+                        <StackPanel Spacing="12">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <materialIcons:MaterialIcon Kind="CardAccountDetailsOutline"
+                                                            Width="18"
+                                                            Height="18"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            VerticalAlignment="Center" />
+                                <TextBlock Text="1. DATOS LEGALES Y DE CONTACTO"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,12,*" RowDefinitions="Auto,12,Auto,12,Auto,12,Auto">
+                                <!-- Razón Social -->
+                                <StackPanel Grid.Row="0" Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="RAZÓN SOCIAL / EMPRESA *" />
+                                    <TextBox Text="{Binding NombreEmpresaForm}"
+                                             PlaceholderText="Ej. Importadora Sur S.R.L."
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Nombre Comercial -->
+                                <StackPanel Grid.Row="0" Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="NOMBRE COMERCIAL" />
+                                    <TextBox Text="{Binding NombreComercialForm}"
+                                             PlaceholderText="Ej. FerreSur Bolivia"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- NIT -->
+                                <StackPanel Grid.Row="2" Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="NIT" />
+                                    <TextBox Text="{Binding NitForm}"
+                                             PlaceholderText="Ej. 1029384021"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Licencia de Funcionamiento -->
+                                <StackPanel Grid.Row="2" Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="LICENCIA DE FUNCIONAMIENTO" />
+                                    <TextBox Text="{Binding LicenciaFuncionamientoForm}"
+                                             PlaceholderText="Nº Padrón / Licencia Municipal"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Teléfonos / Celular Principal para WhatsApp -->
+                                <StackPanel Grid.Row="4" Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="CELULAR WHATSAPP / TELÉFONOS" />
+                                    <TextBox Text="{Binding TelefonosContactoForm}"
+                                             PlaceholderText="Ej. 59170012345"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- CI Contacto -->
+                                <StackPanel Grid.Row="4" Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="C.I. DEL REPRESENTANTE / CONTACTO" />
+                                    <TextBox Text="{Binding CiContactoForm}"
+                                             PlaceholderText="Ej. 5849201 TJA"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Email Institucional -->
+                                <StackPanel Grid.Row="6" Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="EMAIL INSTITUCIONAL" />
+                                    <TextBox Text="{Binding EmailInstitucionalForm}"
+                                             PlaceholderText="ventas@proveedor.com"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Dirección Almacén -->
+                                <StackPanel Grid.Row="6" Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="DIRECCIÓN DE ALMACÉN" />
+                                    <TextBox Text="{Binding DireccionAlmacenForm}"
+                                             PlaceholderText="Av. Circunvalación Nº 450"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{StaticResource SubtleBorderBrush}" />
+
+                        <!-- ================================================= -->
+                        <!-- SECCIÓN 2: TÉRMINOS COMERCIALES                   -->
+                        <!-- ================================================= -->
+                        <StackPanel Spacing="12">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <materialIcons:MaterialIcon Kind="HandshakeOutline"
+                                                            Width="18"
+                                                            Height="18"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            VerticalAlignment="Center" />
+                                <TextBlock Text="2. TÉRMINOS COMERCIALES Y LOGÍSTICOS"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <Grid ColumnDefinitions="*,12,*">
+                                <!-- Dropdown amplio de Moneda de Facturación -->
+                                <StackPanel Grid.Column="0" Spacing="5">
+                                    <TextBlock Classes="label" Text="MONEDA DE FACTURACIÓN" />
+                                    <ComboBox ItemsSource="{Binding MonedasDisponibles}"
+                                              SelectedItem="{Binding MonedaFacturacionSeleccionada}"
+                                              IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+
+                                <!-- Tiempos de Entrega -->
+                                <StackPanel Grid.Column="2" Spacing="5">
+                                    <TextBlock Classes="label" Text="TIEMPOS DE ENTREGA" />
+                                    <TextBox Text="{Binding TiemposEntregaForm}"
+                                             PlaceholderText="Ej. 24-48 hrs tras pedido"
+                                             IsEnabled="{Binding ControlesHabilitados}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Formas de Pago Aceptadas -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="FORMAS DE PAGO ACEPTADAS" />
+                                <TextBox Text="{Binding FormasPagoAceptadasForm}"
+                                         PlaceholderText="Ej. Efectivo, Transferencia QR, Cheque, Crédito a 30/60/90 días con referencias comerciales..."
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="62"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+
+                            <!-- Política de Fletes -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="POLÍTICA DE FLETES Y ENVÍOS" />
+                                <TextBox Text="{Binding PoliticaFletesForm}"
+                                         PlaceholderText="Ej. Envío gratis a Tarija a partir de Bs 3,000; pedidos menores vía flota pagado en destino..."
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="62"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+
+                            <!-- Política de Garantía y Cambios -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Classes="label" Text="POLÍTICA DE GARANTÍA, DEFECTUOSOS Y BAJA ROTACIÓN" />
+                                <TextBox Text="{Binding PoliticaGarantiaYCambiosForm}"
+                                         PlaceholderText="Ej. Cambio directo por defecto de fábrica dentro de 30 días y nota de crédito por baja rotación..."
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         MinHeight="62"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Height="1" Background="{StaticResource SubtleBorderBrush}" />
+
+                        <!-- ================================================= -->
+                        <!-- SECCIÓN 3: DOCUMENTACIÓN ADJUNTA                  -->
+                        <!-- ================================================= -->
+                        <StackPanel Spacing="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <materialIcons:MaterialIcon Kind="FileCertificateOutline"
+                                                            Width="18"
+                                                            Height="18"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            VerticalAlignment="Center" />
+                                <TextBlock Text="3. DOCUMENTACIÓN Y CONTRATOS (.PDF / .DOCX)"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+
+                            <Border Padding="14"
+                                    CornerRadius="10"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="10">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <materialIcons:MaterialIcon Kind="Paperclip"
+                                                                    Width="16"
+                                                                    Height="16"
+                                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                                    VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding NombreDocumentoFormTexto}"
+                                                   FontSize="12"
+                                                   FontWeight="Medium"
+                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   MaxLines="1"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <Button Classes="secondary-accent"
+                                                Command="{Binding AdjuntarDocumentoCommand}"
+                                                IsEnabled="{Binding ControlesHabilitados}"
+                                                Padding="14,8">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <materialIcons:MaterialIcon Kind="FileUploadOutline"
+                                                                            Width="16"
+                                                                            Height="16"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="Adjuntar Contrato/Política"
+                                                           Foreground="{Binding $parent[Button].Foreground}"
+                                                           FontSize="12.5"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button Classes="ghost"
+                                                Command="{Binding AbrirDocumentoCommand}"
+                                                IsVisible="{Binding TieneDocumentoEnFormulario}"
+                                                Padding="14,8">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <materialIcons:MaterialIcon Kind="OpenInNew"
+                                                                            Width="16"
+                                                                            Height="16"
+                                                                            VerticalAlignment="Center" />
+                                                <TextBlock Text="Abrir Documento"
+                                                           Foreground="{Binding $parent[Button].Foreground}"
+                                                           FontSize="12.5"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+
+                                        <Button Classes="link"
+                                                Content="Quitar"
+                                                Command="{Binding QuitarDocumentoAdjuntoCommand}"
+                                                IsVisible="{Binding TieneDocumentoEnFormulario}"
+                                                VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Pie del Formulario -->
+                <Border Grid.Row="3"
+                        Padding="24,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,1,0,0">
+                    <Grid ColumnDefinitions="*,10,*">
+                        <Button Grid.Column="0"
+                                Classes="ghost"
+                                Content="Cancelar"
+                                Command="{Binding CerrarFormularioCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+
+                        <Button Grid.Column="2"
+                                Content="{Binding TextoBotonGuardar}"
+                                Command="{Binding GuardarProveedorCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>
+

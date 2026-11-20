@@ -1,0 +1,11 @@
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Release\net9.0\FerreteriaERP.Core.deps.json
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Release\net9.0\FerreteriaERP.Core.dll
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\bin\Release\net9.0\FerreteriaERP.Core.pdb
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.AssemblyInfoInputs.cache
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.AssemblyInfo.cs
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.csproj.CoreCompileInputs.cache
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.dll
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\refint\FerreteriaERP.Core.dll
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\FerreteriaERP.Core.pdb
+c:\Users\ADRIAN\Desktop\Programa Ferreteria\FerreteriaERP.Core\obj\Release\net9.0\ref\FerreteriaERP.Core.dll

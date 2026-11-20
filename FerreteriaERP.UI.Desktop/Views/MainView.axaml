@@ -1,0 +1,450 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:models="using:FerreteriaERP.UI.Desktop.Models"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="820"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.MainView"
+             x:DataType="vm:MainViewModel">
+
+    <Design.DataContext>
+        <vm:MainViewModel />
+    </Design.DataContext>
+
+    <Grid ColumnDefinitions="Auto,*">
+
+        <!-- ========================================================= -->
+        <!-- SIDEBAR IZQUIERDO (Fondo Blanco + Sombra a la derecha)    -->
+        <!-- ========================================================= -->
+        <Border Grid.Column="0"
+                Width="252"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource SubtleBorderBrush}"
+                BorderThickness="0,0,1,0"
+                BoxShadow="4 0 20 0 #0A000000"
+                ZIndex="10"
+                IsVisible="{Binding MostrarSidebar}">
+
+            <Grid RowDefinitions="Auto,*,Auto" Margin="20,24">
+
+                <!-- 1. Logo Corporativo Minimalista -->
+                <StackPanel Grid.Row="0" Spacing="18">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Border Width="42"
+                                Height="42"
+                                CornerRadius="12"
+                                Background="{StaticResource PrimaryAccentBrush}"
+                                BoxShadow="0 4 12 0 #3310B981">
+                            <materialIcons:MaterialIcon Kind="Tools"
+                                                        Width="22"
+                                                        Height="22"
+                                                        Foreground="#FFFFFF"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+
+                        <StackPanel VerticalAlignment="Center" Spacing="1">
+                            <TextBlock Text="Ferretería ERP"
+                                       FontSize="17"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryTextBrush}" />
+                            <TextBlock Text="Gestión &amp; Punto de Venta"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Border Height="1"
+                            Background="{StaticResource SubtleBorderBrush}" />
+                </StackPanel>
+
+                <!-- 2. Menú de Navegación con Material Icons -->
+                <StackPanel Grid.Row="1" Spacing="6" Margin="0,18,0,0">
+                    <TextBlock Classes="label"
+                               Text="MENÚ PRINCIPAL"
+                               Margin="10,0,0,6" />
+
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaInicioActiva}"
+                            Command="{Binding IrAInicioCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="HomeOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Inicio"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!--
+                    ═══════════════════════════════════════════════════════════════
+                    VERSIÓN BASE — MÓDULOS OCULTOS (propósito académico)
+                    Los botones de navegación están comentados para que la app
+                    arranque sólo con el Dashboard visible.
+                    Los ViewModels, Views y toda la lógica subyacente siguen
+                    intactos; sólo descomenta cada bloque para reconectar el módulo.
+                    ═══════════════════════════════════════════════════════════════
+
+                    ─── MÓDULO: CAJA / POS ────────────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaCajaActiva}"
+                            Command="{Binding IrACajaCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="CashRegister"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Caja / POS"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: INVENTARIO ────────────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaInventarioActiva}"
+                            Command="{Binding IrAInventarioCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="PackageVariantClosed"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Inventario"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: PROVEEDORES ───────────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaProveedoresActiva}"
+                            Command="{Binding IrAProveedoresCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Proveedores"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaLogisticaActiva}"
+                            Command="{Binding IrALogisticaCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="TruckFastOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Logística y Cargas"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: EMPLEADOS Y RANKING ───────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaEmpleadosActiva}"
+                            Command="{Binding IrAEmpleadosCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="AccountGroupOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Empleados y Ranking"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    ─── MÓDULO: CRÉDITOS Y COBROS ─────────────────────────────────
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaCreditosActiva}"
+                            Command="{Binding IrACreditosCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="AccountCashOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Créditos y Cobros"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    ──────────────────────────────────────────────────────────────
+                    -->
+
+                    <Button Classes="nav"
+                            IsVisible="{Binding EsAdmin}"
+                            Command="{Binding IrAConfiguracionCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="CogOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Configuración"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- 3. Pie del Sidebar: ToggleSwitch Modo Claro/Oscuro + Cerrar Sesión -->
+                <StackPanel Grid.Row="2" Spacing="14">
+                    <Border Height="1"
+                            Background="{StaticResource SubtleBorderBrush}" />
+
+                    <!-- Selector Modo Claro / Oscuro -->
+                    <Border Padding="12,8"
+                            CornerRadius="10"
+                            Background="{StaticResource PrimaryBackgroundBrush}">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <materialIcons:MaterialIcon Grid.Column="0"
+                                                        Kind="ThemeLightDark"
+                                                        Width="18"
+                                                        Height="18"
+                                                        Foreground="{StaticResource SecondaryTextBrush}"
+                                                        VerticalAlignment="Center"
+                                                        Margin="0,0,10,0" />
+                            <TextBlock Grid.Column="1"
+                                       Text="Modo Oscuro"
+                                       FontSize="12.5"
+                                       FontWeight="Medium"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       VerticalAlignment="Center" />
+                            <ToggleSwitch Grid.Column="2"
+                                          IsChecked="{Binding EsModoOscuro}"
+                                          OnContent=""
+                                          OffContent=""
+                                          VerticalAlignment="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Botón Cerrar Sesión -->
+                    <Button Classes="danger-ghost"
+                            Command="{Binding CerrarSesionCommand}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="LogoutVariant"
+                                                        Width="18"
+                                                        Height="18"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Cerrar Sesión"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
+        <!-- ========================================================= -->
+        <!-- ÁREA PRINCIPAL DERECHA: TOPBAR + CONTENT AREA             -->
+        <!-- ========================================================= -->
+        <Grid Grid.Column="1" RowDefinitions="Auto,*">
+
+            <!-- TOPBAR SUPERIOR (Buscador Global con Popup + Perfil con Avatar Circular) -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="28,14"
+                    ZIndex="5"
+                    IsVisible="{Binding MostrarSidebar}">
+
+                <Grid ColumnDefinitions="*,Auto">
+
+                    <!-- Buscador Central Ancho con Ícono de Lupa y Popup en Tiempo Real -->
+                    <Panel Grid.Column="0"
+                           MaxWidth="560"
+                           HorizontalAlignment="Left"
+                           Width="520">
+
+                        <Border x:Name="BuscadorGlobalContainer"
+                                Background="{StaticResource PrimaryBackgroundBrush}"
+                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="999"
+                                Padding="14,2">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <materialIcons:MaterialIcon Grid.Column="0"
+                                                            Kind="Magnify"
+                                                            Width="20"
+                                                            Height="20"
+                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                            VerticalAlignment="Center"
+                                                            Margin="2,0,8,0" />
+
+                                <TextBox Grid.Column="1"
+                                         Text="{Binding TextoBusquedaGlobal}"
+                                         PlaceholderText="Buscar productos en tiempo real por nombre o código..."
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Padding="4,8"
+                                         VerticalAlignment="Center" />
+
+                                <Button Grid.Column="2"
+                                        Classes="link"
+                                        Command="{Binding LimpiarBusquedaGlobalCommand}"
+                                        IsVisible="{Binding IsBuscando}"
+                                        Padding="6"
+                                        VerticalAlignment="Center">
+                                    <materialIcons:MaterialIcon Kind="CloseCircle"
+                                                                Width="16"
+                                                                Height="16"
+                                                                Foreground="{StaticResource SecondaryTextBrush}" />
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- POPUP DE RESULTADOS EN TIEMPO REAL -->
+                        <Popup IsOpen="{Binding IsBuscando, Mode=TwoWay}"
+                               PlacementTarget="{Binding #BuscadorGlobalContainer}"
+                               Placement="Bottom"
+                               VerticalOffset="8"
+                               IsLightDismissEnabled="True">
+                            <Border Classes="Card"
+                                    Width="520"
+                                    MaxHeight="360"
+                                    Padding="10">
+                                <StackPanel Spacing="6">
+                                    <TextBlock Classes="label"
+                                               Text="RESULTADOS EN TIEMPO REAL"
+                                               Margin="8,4,8,2" />
+
+                                    <ListBox ItemsSource="{Binding ResultadosBusquedaGlobal}"
+                                             SelectedItem="{Binding ProductoBusquedaSeleccionado}"
+                                             Background="Transparent"
+                                             BorderThickness="0">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate x:DataType="models:ProductoInventarioItem">
+                                                <Grid ColumnDefinitions="Auto,*,Auto" Margin="4,4">
+                                                    <!-- Miniatura del Producto -->
+                                                    <Border Grid.Column="0"
+                                                            Width="42"
+                                                            Height="42"
+                                                            CornerRadius="8"
+                                                            ClipToBounds="True"
+                                                            Background="#F1F5F9"
+                                                            Margin="0,0,12,0">
+                                                        <Panel>
+                                                            <Image Source="{StaticResource ProductPlaceholderDrawing}"
+                                                                   Stretch="UniformToFill" />
+                                                            <Image Source="{Binding ImagenUrl, Converter={StaticResource ImageConverter}}"
+                                                                   Stretch="UniformToFill" />
+                                                        </Panel>
+                                                    </Border>
+
+                                                    <!-- Nombre y Categoría -->
+                                                    <StackPanel Grid.Column="1"
+                                                                VerticalAlignment="Center"
+                                                                Spacing="2">
+                                                        <TextBlock Text="{Binding Nombre}"
+                                                                   FontWeight="SemiBold"
+                                                                   FontSize="13.5"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{Binding CategoriaNombre}"
+                                                                       FontSize="11.5"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="•"
+                                                                       FontSize="11.5"
+                                                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                                                            <TextBlock Text="{Binding EstadoStockBadgeTexto}"
+                                                                       FontSize="11.5"
+                                                                       FontWeight="Medium"
+                                                                       Foreground="{StaticResource PrimaryAccentBrush}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+
+                                                    <!-- Precio -->
+                                                    <Border Grid.Column="2"
+                                                            VerticalAlignment="Center"
+                                                            Padding="10,5"
+                                                            CornerRadius="8"
+                                                            Background="{StaticResource AccentSubtleBgBrush}">
+                                                        <TextBlock Text="{Binding PrecioVenta, StringFormat='Bs. {0:N2}'}"
+                                                                   FontWeight="Bold"
+                                                                   FontSize="13"
+                                                                   Foreground="{StaticResource PrimaryAccentBrush}" />
+                                                    </Border>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Panel>
+
+                    <!-- Perfil de Usuario a la Derecha (Avatar Circular con Iniciales + Nombre) -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="12"
+                                VerticalAlignment="Center">
+
+                        <StackPanel VerticalAlignment="Center"
+                                    HorizontalAlignment="Right"
+                                    Spacing="1">
+                            <TextBlock Text="{Binding NombreUsuarioActual}"
+                                       FontSize="13.5"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Right"
+                                       Foreground="{StaticResource PrimaryTextBrush}" />
+                            <TextBlock Text="{Binding DetalleRolSucursal}"
+                                       FontSize="11.5"
+                                       HorizontalAlignment="Right"
+                                       Foreground="{StaticResource SecondaryTextBrush}" />
+                        </StackPanel>
+
+                        <!-- Avatar Circular con Iniciales -->
+                        <Border Width="40"
+                                Height="40"
+                                CornerRadius="999"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                BorderThickness="1.5">
+                            <TextBlock Text="{Binding InicialesUsuarioActual}"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                    </StackPanel>
+
+                </Grid>
+            </Border>
+
+            <!-- CONTENT AREA: TransitioningContentControl (250ms) -->
+            <TransitioningContentControl Grid.Row="1"
+                                         Content="{Binding CurrentViewModel}">
+                <TransitioningContentControl.PageTransition>
+                    <CrossFade Duration="0:0:0.250" />
+                </TransitioningContentControl.PageTransition>
+            </TransitioningContentControl>
+
+        </Grid>
+
+    </Grid>
+</UserControl>

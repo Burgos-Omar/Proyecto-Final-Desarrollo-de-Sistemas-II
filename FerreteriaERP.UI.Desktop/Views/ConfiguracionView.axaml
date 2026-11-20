@@ -1,0 +1,140 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="680"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.ConfiguracionView"
+             x:DataType="vm:ConfiguracionViewModel">
+
+    <Grid>
+        <Border Classes="card"
+                Width="480"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                ClipToBounds="True">
+
+            <StackPanel>
+                <!-- Barra superior corporativa de acento -->
+                <Border Height="4"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <StackPanel Spacing="22" Margin="34,30,34,32">
+                    <!-- Encabezado -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="title"
+                                   Text="Configuración Inicial" />
+                        <TextBlock Classes="subtitle"
+                                   Text="Defina el modo de conexión a PostgreSQL para este equipo."
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Selector Central / Sucursal -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="label"
+                                   Text="MODO DE OPERACIÓN" />
+
+                        <Border Padding="14,12"
+                                CornerRadius="6"
+                                Background="{StaticResource PrimaryBackgroundBrush}"
+                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                BorderThickness="1">
+                            <StackPanel Spacing="10">
+                                <RadioButton GroupName="ModoConexion"
+                                             Content="Soy la Central (Local)"
+                                             IsChecked="{Binding EsCentral}"
+                                             IsEnabled="{Binding CamposHabilitados}" />
+                                <RadioButton GroupName="ModoConexion"
+                                             Content="Soy una Sucursal (Remoto)"
+                                             IsChecked="{Binding EsSucursal}"
+                                             IsEnabled="{Binding CamposHabilitados}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Campo IP de VPN (solo visible en modo Sucursal) -->
+                    <StackPanel Spacing="6"
+                                IsVisible="{Binding EsSucursal}">
+                        <TextBlock Classes="label"
+                                   Text="IP DE LA VPN DEL SERVIDOR CENTRAL" />
+                        <Border Classes="input-slot">
+                            <TextBox Text="{Binding IpVpn}"
+                                     PlaceholderText="Ej. 100.64.0.1 (Tailscale / ZeroTier)"
+                                     IsEnabled="{Binding CamposHabilitados}" />
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Campo Contraseña de Base de Datos -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="label"
+                                   Text="CONTRASEÑA DE LA BASE DE DATOS (POSTGRESQL)" />
+                        <Border Classes="input-slot">
+                            <TextBox Text="{Binding PasswordBd}"
+                                     PasswordChar="•"
+                                     PlaceholderText="Contraseña del usuario postgres"
+                                     IsEnabled="{Binding CamposHabilitados}" />
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Resumen técnico de conexión -->
+                    <Border Padding="12,10"
+                            CornerRadius="4"
+                            Background="{StaticResource AccentSubtleBgBrush}"
+                            BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                            BorderThickness="1">
+                        <TextBlock Text="{Binding ResumenConexion}"
+                                   Foreground="{StaticResource PrimaryAccentBrush}"
+                                   FontSize="12"
+                                   FontWeight="Medium"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <!-- Mensaje de error -->
+                    <Border Padding="12,10"
+                            CornerRadius="4"
+                            Background="{StaticResource DangerSubtleBgBrush}"
+                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                            BorderThickness="1"
+                            IsVisible="{Binding MostrarError}">
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource DangerBrush}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <!-- Mensaje de éxito -->
+                    <Border Padding="12,10"
+                            CornerRadius="4"
+                            Background="{StaticResource SuccessSubtleBgBrush}"
+                            BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                            BorderThickness="1"
+                            IsVisible="{Binding MostrarExito}">
+                        <TextBlock Text="{Binding MensajeEstado}"
+                                   Foreground="{StaticResource SuccessBrush}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap" />
+                    </Border>
+
+                    <!-- Acciones -->
+                    <StackPanel Spacing="10" Margin="0,4,0,0">
+                        <Button Content="{Binding TextoBotonGuardar}"
+                                Command="{Binding GuardarYProbarConexionCommand}"
+                                IsDefault="True"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+
+                        <Button Classes="ghost"
+                                Content="Volver al inicio de sesión"
+                                Command="{Binding CancelarCommand}"
+                                IsVisible="{Binding PermitirCancelar}"
+                                IsEnabled="{Binding CamposHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

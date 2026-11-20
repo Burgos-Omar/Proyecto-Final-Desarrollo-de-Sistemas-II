@@ -1,0 +1,119 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="680"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.LoginView"
+             x:DataType="vm:LoginViewModel">
+
+    <Grid>
+        <Border Classes="Card"
+                Width="420"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="0"
+                ClipToBounds="True">
+
+            <StackPanel>
+                <!-- Barra superior corporativa de acento -->
+                <Border Height="5"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <StackPanel Spacing="20" Margin="34,30,34,28">
+                    <!-- Encabezado con Logo de la Ferretería -->
+                    <StackPanel Spacing="8" HorizontalAlignment="Center">
+                        <Border Width="56"
+                                Height="56"
+                                CornerRadius="14"
+                                Background="{StaticResource PrimaryAccentBrush}"
+                                BoxShadow="0 6 16 0 #3310B981"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,4">
+                            <materialIcons:MaterialIcon Kind="Tools"
+                                                        Width="28"
+                                                        Height="28"
+                                                        Foreground="#FFFFFF"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+
+                        <TextBlock Classes="h1"
+                                   Text="Ferretería ERP"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Classes="subtitle"
+                                   Text="Ingrese sus credenciales para acceder al sistema"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Usuario / C.I. -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="label"
+                                   Text="USUARIO (C.I.)" />
+                        <TextBox Text="{Binding Usuario}"
+                                 PlaceholderText="Ej. admin o 7845120"
+                                 IsEnabled="{Binding CamposHabilitados}" />
+                    </StackPanel>
+
+                    <!-- Contraseña -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Classes="label"
+                                   Text="CONTRASEÑA" />
+                        <TextBox Text="{Binding Password}"
+                                 PasswordChar="*"
+                                 PlaceholderText="Ingrese su contraseña"
+                                 IsEnabled="{Binding CamposHabilitados}" />
+                    </StackPanel>
+
+                    <!-- Mensaje de error -->
+                    <Border Padding="12,10"
+                            CornerRadius="8"
+                            Background="{StaticResource DangerSubtleBgBrush}"
+                            BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                            BorderThickness="1"
+                            IsVisible="{Binding TieneError}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <materialIcons:MaterialIcon Kind="AlertCircleOutline"
+                                                        Width="17"
+                                                        Height="17"
+                                                        Foreground="{StaticResource DangerBrush}"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding MensajeError}"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Botón Ingresar + Acceso a Configuración -->
+                    <StackPanel Spacing="12" Margin="0,4,0,0">
+                        <Button Content="{Binding TextoBotonLogin}"
+                                Command="{Binding IniciarSesionCommand}"
+                                Background="{StaticResource PrimaryAccentBrush}"
+                                Foreground="#FFFFFF"
+                                FontWeight="Bold"
+                                FontSize="14.5"
+                                Height="44"
+                                CornerRadius="10"
+                                IsDefault="True"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center" />
+
+                        <Button Classes="link"
+                                Content="Configurar conexión de red"
+                                Command="{Binding AbrirConfiguracionCommand}"
+                                IsEnabled="{Binding CamposHabilitados}"
+                                HorizontalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
