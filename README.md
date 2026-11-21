@@ -134,6 +134,3 @@ Los requisitos no funcionales establecen las condiciones técnicas, arquitectón
 
 ## 5. Resumen general de requisitos
 
-El proyecto contempla los siguientes requisitos:
-
-| Categoría
