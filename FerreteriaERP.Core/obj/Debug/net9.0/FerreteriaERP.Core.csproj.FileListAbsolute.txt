@@ -25,6 +25,7 @@ C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\
 C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\refint\FerreteriaERP.Core.dll
 C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.pdb
 C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\ref\FerreteriaERP.Core.dll
+<<<<<<< HEAD
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\questpdf_fonts_lato.br
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.deps.json
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.dll
@@ -39,3 +40,19 @@ C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaER
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\refint\FerreteriaERP.Core.dll
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.pdb
 C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\ref\FerreteriaERP.Core.dll
+=======
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\questpdf_fonts_lato.br
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.deps.json
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.dll
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\bin\Debug\net9.0\FerreteriaERP.Core.pdb
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.AssemblyReference.cache
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfoInputs.cache
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.AssemblyInfo.cs
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.csproj.CoreCompileInputs.cache
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.sourcelink.json
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.dll
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\refint\FerreteriaERP.Core.dll
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\FerreteriaERP.Core.pdb
+D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\obj\Debug\net9.0\ref\FerreteriaERP.Core.dll
+>>>>>>> cesar
