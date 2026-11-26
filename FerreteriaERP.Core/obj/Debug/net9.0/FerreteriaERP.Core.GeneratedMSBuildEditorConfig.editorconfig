@@ -1,14 +1,21 @@
 is_global = true
 build_property.TargetFramework = net9.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = 
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
+build_property.EntryPointFilePath = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = FerreteriaERP.Core
-build_property.ProjectDir = C:\Users\ADRIAN\Desktop\Proyecto_Final\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\
+<<<<<<< HEAD
+build_property.ProjectDir = C:\Users\HP\Desktop\proyec\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\
+=======
+build_property.ProjectDir = D:\UPDS 2026\Desarrollo de Sistemas II\Proyecto Final - Ferreteria\Proyecto-Final-Desarrollo-de-Sistemas-II\FerreteriaERP.Core\
+>>>>>>> cesar
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.EffectiveAnalysisLevelStyle = 9.0

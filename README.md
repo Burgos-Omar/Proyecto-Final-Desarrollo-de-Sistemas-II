@@ -1,8 +1,33 @@
-# Ferretería
+# Ferretería DCS
+
+Sistema de gestión empresarial de escritorio para una ferretería con múltiples sucursales: ventas, inventario, proveedores, logística, recursos humanos y créditos y cobranzas.
+
+![.NET 9](https://img.shields.io/badge/.NET-9.0-512BD4)
+![Avalonia](https://img.shields.io/badge/UI-Avalonia%2012-8B44AC)
+![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-336791)
+![EF Core](https://img.shields.io/badge/ORM-EF%20Core%209-512BD4)
+
+## Contenido
+
+1. [Descripción del sistema](#1-descripción-del-sistema)
+2. [Actores del sistema](#2-actores-del-sistema)
+3. [Requisitos funcionales (RF)](#3-requisitos-funcionales-rf)
+4. [Requisitos no funcionales (RNF)](#4-requisitos-no-funcionales-rnf)
+5. [Resumen general de requisitos](#5-resumen-general-de-requisitos)
+6. [Tecnologías](#6-tecnologías)
+7. [Arquitectura](#7-arquitectura)
+8. [Instalación y puesta en marcha](#8-instalación-y-puesta-en-marcha)
+9. [Configuración Central / Sucursal](#9-configuración-central--sucursal)
+10. [Base de datos y migraciones](#10-base-de-datos-y-migraciones)
+11. [Pruebas](#11-pruebas)
+12. [Seguridad](#12-seguridad)
+13. [Funcionalidades adicionales](#13-funcionalidades-adicionales)
+
+---
 
 ## 1. Descripción del sistema
 
-**Ferretería ERP** es un sistema de gestión empresarial orientado a la administración integral de una ferretería con múltiples sucursales. Su objetivo es centralizar y optimizar los procesos de ventas, inventario, proveedores, logística, recursos humanos y gestión de créditos y cobranzas.
+**Ferretería DCS** es un sistema de gestión empresarial orientado a la administración integral de una ferretería con múltiples sucursales. Su objetivo es centralizar y optimizar los procesos de ventas, inventario, proveedores, logística, recursos humanos y gestión de créditos y cobranzas.
 
 El sistema permitirá controlar las operaciones comerciales, gestionar el movimiento de mercadería, realizar el seguimiento de las cuentas por cobrar y generar información estadística para apoyar la toma de decisiones.
 
@@ -134,6 +159,239 @@ Los requisitos no funcionales establecen las condiciones técnicas, arquitectón
 
 ## 5. Resumen general de requisitos
 
-El proyecto contempla los siguientes requisitos:
+El sistema define **24 requisitos funcionales** y **11 requisitos no funcionales**.
 
-| Categoría
+### 5.1. Requisitos funcionales por módulo
+
+| Módulo | Códigos | Cantidad | Actor principal |
+|---|---|:---:|---|
+| Inicio (Dashboard) | RF01 – RF05 | 5 | Super Administrador / Gerente Central |
+| Punto de Venta (POS) | RF06 – RF09 | 4 | Cajero / Vendedor |
+| Inventario | RF10 – RF12 | 3 | Encargado de Almacén / Logística |
+| Proveedores | RF13 – RF15 | 3 | Encargado de Almacén / Logística |
+| Logística y Cargas | RF16 – RF18 | 3 | Encargado de Almacén / Logística |
+| Recursos Humanos | RF19 – RF21 | 3 | Super Administrador / Gerente Central |
+| Créditos y Cobranzas | RF22 – RF24 | 3 | Cajero / Vendedor |
+| **Total** | **RF01 – RF24** | **24** | |
+
+### 5.2. Requisitos no funcionales por categoría
+
+| Categoría | Códigos | Cantidad |
+|---|---|:---:|
+| Arquitectura y tecnología | RNF01 – RNF03 | 3 |
+| Base de datos y almacenamiento | RNF04 – RNF05 | 2 |
+| Usabilidad e interfaz (UI/UX) | RNF06 – RNF09 | 4 |
+| Rendimiento y seguridad | RNF10 – RNF11 | 2 |
+| **Total** | **RNF01 – RNF11** | **11** |
+
+### 5.3. Integraciones con sistemas externos
+
+| Integración | Requisitos | Uso |
+|---|---|---|
+| WhatsApp (`wa.me`) | RF11, RF24 | Solicitudes de reabastecimiento a proveedores y gestión de cobranza a clientes |
+| Archivos CSV | RF12 | Importación masiva de productos |
+| Sistema de archivos local | RF10, RF15, RF19, RNF05 | Fotografías y documentos en `%APPDATA%\FerreteriaERP\` |
+
+---
+
+## 6. Tecnologías
+
+| Componente | Tecnología |
+|---|---|
+| Lenguaje y plataforma | C# 13 · .NET 9 |
+| Interfaz gráfica | Avalonia UI 12 (Fluent, DataGrid) |
+| Patrón de presentación | MVVM con CommunityToolkit.Mvvm |
+| Acceso a datos | Entity Framework Core 9 (Code-First) · Npgsql |
+| Base de datos | PostgreSQL |
+| Inyección de dependencias | Microsoft.Extensions.DependencyInjection |
+| Gráficos | LiveCharts (SkiaSharp) |
+| Documentos PDF | QuestPDF (notas de venta y órdenes de compra) |
+| Importación | CsvHelper |
+| Pruebas | xUnit · EF Core InMemory · coverlet |
+
+---
+
+## 7. Arquitectura
+
+La solución sigue una arquitectura **N-Capas** con dependencias en un solo sentido (la UI depende de Infrastructure y de Core; Infrastructure depende de Core; Core no depende de ninguna).
+
+```text
+FerreteriaERP.sln
+├── FerreteriaERP.Core            Dominio: entidades, interfaces, constantes, excepciones y reglas puras
+│   ├── Configuration/            Modelo de configuración de conexión
+│   ├── Constants/                Estados y métodos de pago
+│   ├── Entities/                 Venta, Credito, Producto, Empleado, OrdenDespacho...
+│   ├── Enums/                    ModoOperacion (Central / Sucursal)
+│   ├── Exceptions/               StockInsuficienteException
+│   ├── Interfaces/               Contratos de repositorios y servicios
+│   ├── Security/                 Hashing de contraseñas (PBKDF2-SHA256)
+│   └── Services/                 NumeroALetras, SesionActual
+│
+├── FerreteriaERP.Infrastructure  Acceso a datos y servicios técnicos
+│   ├── Data/                     FerreteriaDbContext, fábricas de contexto y semilla inicial
+│   ├── Migrations/               Migraciones de EF Core
+│   ├── Repositories/             Implementación de los repositorios
+│   ├── Services/                 PDF, respaldo, WhatsApp, importación CSV, conexión y sesión
+│   └── DependencyInjection.cs    Registro de servicios: services.AddInfrastructure()
+│
+├── FerreteriaERP.UI.Desktop      Presentación (Avalonia + MVVM)
+│   ├── ViewModels/               Un ViewModel por pantalla
+│   ├── Views/                    Vistas .axaml
+│   ├── Converters/ · Models/     Utilidades de la interfaz
+│   └── Program.cs                Raíz de composición (contenedor de DI)
+│
+└── FerreteriaERP.Tests           Pruebas automatizadas
+```
+
+### Decisiones de diseño relevantes
+
+- **Contexto de datos por operación.** Los repositorios no guardan estado: cada operación crea su propio `FerreteriaDbContext` mediante una fábrica que lee la configuración de conexión vigente.
+- **Cambio de servidor en caliente.** Al cambiar entre modo Central y Sucursal en la pantalla de configuración, la siguiente operación ya usa la nueva conexión, sin reiniciar la aplicación.
+- **Registro de ventas transaccional.** `VentaRepository.RegistrarVentaAsync` recalcula los montos en el servidor, descuenta el stock de la sucursal con una actualización atómica y registra la venta, el crédito (si aplica) y el contador del cliente en una sola transacción. Si falta stock se lanza `StockInsuficienteException` y no se guarda nada.
+- **Abonos atómicos.** `CreditoRepository.RegistrarAbonoAsync` descuenta el saldo solo si el crédito está pendiente y el saldo alcanza; al llegar a cero el crédito pasa a *Pagado*.
+
+---
+
+## 8. Instalación y puesta en marcha
+
+### Requisitos previos
+
+- [.NET SDK 9](https://dotnet.microsoft.com/download/dotnet/9.0)
+- PostgreSQL (con el servicio en ejecución)
+- `pg_dump` accesible (viene con PostgreSQL) para la función de respaldo
+- Herramienta de migraciones de EF Core, en versión 9:
+
+```powershell
+dotnet tool install --global dotnet-ef --version 9.0.0
+```
+
+### Pasos
+
+```powershell
+# 1. Clonar o descomprimir el proyecto y entrar a la carpeta de la solución
+cd "Programa Ferreteria"
+
+# 2. Restaurar y compilar
+dotnet restore
+dotnet build
+
+# 3. Crear la base de datos y aplicar las migraciones (ver sección 10)
+dotnet ef database update --project FerreteriaERP.Infrastructure --startup-project FerreteriaERP.UI.Desktop
+
+# 4. Ejecutar la aplicación
+dotnet run --project FerreteriaERP.UI.Desktop
+```
+
+> `dotnet run` debe indicar el proyecto con `--project`, porque en la carpeta de la solución no hay un `.csproj`.
+
+### Primer inicio de sesión
+
+Al iniciar por primera vez sobre una base vacía, el sistema crea una sucursal central y un usuario administrador inicial:
+
+| Campo | Valor |
+|---|---|
+| Usuario (CI) | `admin` |
+| Contraseña | `admin123` |
+
+> **Importante:** cambia esta contraseña en cuanto ingreses. Es una credencial de demostración.
+
+---
+
+## 9. Configuración Central / Sucursal
+
+Cada instalación se configura desde la pantalla de configuración inicial:
+
+| Modo | Descripción |
+|---|---|
+| **Central** | La Sucursal Central aloja la base de datos; se conecta a `localhost`. |
+| **Sucursal** | Las sucursales secundarias se conectan a la IP (VPN, por ejemplo Tailscale o ZeroTier) del equipo Central. |
+
+Parámetros: servidor, puerto (por defecto `5432`), base de datos (por defecto `FerreteriaDSS`), usuario y contraseña. Incluye un botón **Probar conexión**.
+
+La configuración se guarda **localmente en cada equipo**, no en la base de datos:
+
+```text
+%APPDATA%\FerreteriaERP\conexion.json
+```
+
+> Si la base de datos aloja información real, protege ese archivo: la contraseña se guarda en texto plano (ver sección 12).
+
+---
+
+## 10. Base de datos y migraciones
+
+El esquema se gestiona con **Code-First**. Las migraciones están en `FerreteriaERP.Infrastructure/Migrations`.
+
+```powershell
+# Aplicar las migraciones existentes
+dotnet ef database update --project FerreteriaERP.Infrastructure --startup-project FerreteriaERP.UI.Desktop
+
+# Crear una migración nueva después de cambiar una entidad
+dotnet ef migrations add NombreDeLaMigracion --project FerreteriaERP.Infrastructure --startup-project FerreteriaERP.UI.Desktop
+```
+
+> **Conexión de las migraciones.** `dotnet ef` no usa `conexion.json`: usa `FerreteriaDbContextFactory`, que apunta a `localhost:5432`, base `FerreteriaDSS`, usuario `postgres`. Ajusta esa cadena si tu PostgreSQL tiene otras credenciales.
+
+> **Nombres de tablas.** Las tablas principales (`Usuarios`, `Ventas`, `Productos`, `Creditos`...) conservan mayúsculas y las compuestas usan `snake_case` (`stock_sucursales`, `detalle_ventas`, `abonos_credito`...). En PostgreSQL, las primeras deben consultarse entre comillas dobles:
+>
+> ```sql
+> SELECT * FROM "Usuarios";
+> ```
+
+### Respaldo
+
+La aplicación genera copias de seguridad completas (`.backup`, formato personalizado de `pg_dump`) desde la pantalla de configuración.
+
+---
+
+## 11. Pruebas
+
+```powershell
+dotnet test
+```
+
+Estado actual: el proyecto `FerreteriaERP.Tests` cubre el inicio de sesión, el hashing de contraseñas y la migración automática de contraseñas en texto plano.
+
+Siguientes módulos recomendados para ampliar la cobertura:
+
+| Prioridad | Módulo | Tipo de prueba |
+|:---:|---|---|
+| 1 | `NumeroALetras`, propiedades calculadas de las entidades | Unitaria, sin dependencias |
+| 2 | `VentaRepository.RegistrarVentaAsync`, `CreditoRepository.RegistrarAbonoAsync` | Integración con SQLite en memoria o PostgreSQL (el proveedor *InMemory* de EF no admite transacciones ni `ExecuteUpdate`) |
+| 3 | ViewModels (POS, Créditos) | Unitaria, con las interfaces simuladas |
+
+---
+
+## 12. Seguridad
+
+- **Contraseñas de usuarios:** PBKDF2-SHA256 con salt aleatorio de 16 bytes y 100 000 iteraciones, comparación en tiempo constante. Los hashes BCrypt antiguos se siguen aceptando y se migran de forma transparente al iniciar sesión.
+- **Control de acceso por rol (RBAC):** los módulos administrativos (Proveedores, Empleados, Gerencia) solo están disponibles para roles administrativos.
+- **Aislamiento por sucursal:** las consultas transaccionales se filtran por la sucursal del usuario autenticado.
+- **Montos calculados en el servidor:** el registro de ventas no confía en los totales enviados desde la interfaz.
+
+### Limitaciones conocidas
+
+- La contraseña de PostgreSQL se guarda en texto plano en `conexion.json`. Se recomienda cifrarla (por ejemplo con DPAPI en Windows).
+- `FerreteriaDbContextFactory` contiene una cadena de conexión de desarrollo con contraseña. No debe usarse con datos reales ni subirse a un repositorio público.
+- El usuario `admin` / `admin123` es de demostración y debe cambiarse.
+- No existe bloqueo de cuenta por intentos fallidos de inicio de sesión.
+
+---
+
+## 13. Funcionalidades adicionales
+
+Además de los requisitos listados, el sistema incluye:
+
+| Módulo | Descripción |
+|---|---|
+| Cotizaciones | Proformas a clientes sin afectar stock ni caja |
+| Órdenes de compra | Emisión de órdenes a proveedores con generación de PDF |
+| Reabastecimiento | Pantalla de productos bajo el stock mínimo |
+| Gerencia | Panel de inteligencia gerencial con gráficos y gastos operativos |
+| Promociones | Reglas por porcentaje, precio fijo o volumen, por producto, categoría o sucursal |
+| Configuración del negocio | Nombre, NIT, logo, datos de contacto, pie de recibo y QR de pago |
+| Notas de venta en PDF | Recibos con el monto en letras (`NumeroALetras`) |
+
+## 14. Enlace al Plan de Trabajo
+
+[Planificacion en JIRA](https://omarbd.atlassian.net/jira/software/projects/SFDCS/boards/3/backlog?epics=visible&jql=parent+%3D+SFDCS-2&atlOrigin=eyJpIjoiNzllOTZlOWM1Yzg3NDZmMGFhOWFmMTNmZjE4ZjRhMjUiLCJwIjoiaiJ9)
