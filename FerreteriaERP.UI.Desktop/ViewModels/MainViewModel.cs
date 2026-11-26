@@ -1,8 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,6 +19,7 @@ namespace FerreteriaERP.UI.Desktop.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private readonly IConfiguracionConexionService? _configuracionService;
+    private readonly IConfiguracionRepository? _configuracionRepository;
     private readonly ISesionService? _sesionService;
     private readonly IProductoRepository? _productoRepository;
     private readonly IServiceProvider? _serviceProvider;
@@ -25,16 +28,24 @@ public partial class MainViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(MostrarSidebar))]
     [NotifyPropertyChangedFor(nameof(EsVistaInicioActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaCajaActiva))]
+    [NotifyPropertyChangedFor(nameof(EsVistaCotizacionesActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaInventarioActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaProveedoresActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaLogisticaActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaEmpleadosActiva))]
     [NotifyPropertyChangedFor(nameof(EsVistaCreditosActiva))]
+    [NotifyPropertyChangedFor(nameof(EsVistaPromocionesActiva))]
+    [NotifyPropertyChangedFor(nameof(EsVistaReabastecimientoActiva))]
+    [NotifyPropertyChangedFor(nameof(EsVistaGerenciaActiva))]
+    [NotifyPropertyChangedFor(nameof(EsVistaConfiguracionActiva))]
     private ViewModelBase? _currentViewModel;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(MostrarSidebar))]
+    [NotifyPropertyChangedFor(nameof(TieneAccesoAdministrativo))]
     [NotifyPropertyChangedFor(nameof(EsAdmin))]
+    [NotifyPropertyChangedFor(nameof(EsSuperAdmin))]
+    [NotifyPropertyChangedFor(nameof(PuedeVerReabastecimiento))]
     [NotifyPropertyChangedFor(nameof(NombreUsuarioActual))]
     [NotifyPropertyChangedFor(nameof(DetalleRolSucursal))]
     [NotifyPropertyChangedFor(nameof(InicialesUsuarioActual))]
@@ -52,6 +63,15 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _esModoOscuro;
 
+    [ObservableProperty]
+    private string _nombreNegocio = "Ferretería ERP";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TieneLogoPersonalizado))]
+    private Bitmap? _logoNegocioBitmap;
+
+    public bool TieneLogoPersonalizado => LogoNegocioBitmap is not null;
+
     /// <summary>
     /// Constructor sin parámetros requerido por el previsualizador (designer) de Avalonia.
     /// </summary>
@@ -62,78 +82,117 @@ public partial class MainViewModel : ViewModelBase
     [ActivatorUtilitiesConstructor]
     public MainViewModel(
         IConfiguracionConexionService configuracionService,
+        IConfiguracionRepository configuracionRepository,
         ISesionService sesionService,
         IProductoRepository productoRepository,
         IServiceProvider serviceProvider)
     {
         _configuracionService = configuracionService;
+        _configuracionRepository = configuracionRepository;
         _sesionService = sesionService;
         _productoRepository = productoRepository;
         _serviceProvider = serviceProvider;
 
-        // ============================================================
-        // VERSIÓN BASE — BYPASS DE LOGIN (propósito académico)
-        // Se inyecta una sesión mock para que EF Core no falle al
-        // consultar IdSucursal u otros campos de sesión.
-        // Para restaurar el flujo normal: eliminar este bloque y
-        // descomentar la lógica original de Login/Configuración.
-        // ============================================================
-        var usuarioMock = new Usuario
+        _ = CargarNombreNegocioAsync();
+
+        // Lógica de arranque: si el archivo JSON no existe, abrir Configuración (solo red); de lo contrario, ir al Login.
+        if (!_configuracionService.EstaConfigurado)
         {
-            Id              = 1,
-            NombreCompleto  = "Administrador Demo",
-            Ci              = "00000000",
-            IdRol           = 1,
-            Rol             = new Rol { Id = 1, Nombre = "Administrador" },
-            IdSucursal      = 1,
-            Sucursal        = new Sucursal { Id = 1, Nombre = "Sucursal Central", EsCentral = true },
-            Estado          = "Activo",
-            FechaInicio     = new System.DateTime(2024, 1, 1),
-        };
+            NavegarAConfiguracion(esModoSoloRed: true);
+        }
+        else
+        {
+            NavegarALogin();
+        }
+    }
 
-        // Establece la sesión estática para que SesionActual.EsAdmin,
-        // SesionActual.IdSucursal, etc. devuelvan valores válidos.
-        SesionActual.Establecer(usuarioMock);
+    private async Task CargarNombreNegocioAsync()
+    {
+        if (_configuracionRepository is null)
+            return;
 
-        // Establece también la sesión en el servicio inyectado.
-        _sesionService.EstablecerSesion(usuarioMock);
+        try
+        {
+            var config = await _configuracionRepository.ObtenerConfiguracionAsync();
+            NombreNegocio = string.IsNullOrWhiteSpace(config?.NombreNegocio)
+                ? "Ferretería ERP"
+                : config.NombreNegocio.Trim();
+            ActualizarLogo(config?.LogoImagen);
+        }
+        catch
+        {
+            NombreNegocio = "Ferretería ERP";
+            ActualizarLogo(null);
+        }
+    }
 
-        // Rellena UsuarioActual para que el Sidebar calcule MostrarSidebar = true.
-        UsuarioActual = usuarioMock;
-
-        // Navega directamente al Dashboard sin pasar por Login.
-        NavegarAInicio();
-
-        // ============================================================
-        // LÓGICA ORIGINAL (comentada — descomenta para restaurar)
-        // ============================================================
-        // if (!_configuracionService.EstaConfigurado)
-        // {
-        //     NavegarAConfiguracion();
-        // }
-        // else
-        // {
-        //     NavegarALogin();
-        // }
+    public void ActualizarLogo(byte[]? logoBytes)
+    {
+        if (logoBytes is { Length: > 0 })
+        {
+            try
+            {
+                using var ms = new MemoryStream(logoBytes);
+                LogoNegocioBitmap = new Bitmap(ms);
+            }
+            catch
+            {
+                LogoNegocioBitmap = null;
+            }
+        }
+        else
+        {
+            LogoNegocioBitmap = null;
+        }
     }
 
     public ObservableCollection<ProductoInventarioItem> ResultadosBusquedaGlobal { get; } = new();
 
     public bool MostrarSidebar =>
         UsuarioActual is not null &&
-        CurrentViewModel is not LoginViewModel &&
-        CurrentViewModel is not ConfiguracionViewModel;
+        CurrentViewModel is not LoginViewModel;
+
+    /// <summary>
+    /// PASO 33 (RBAC): Control centralizado de acceso administrativo (SuperAdmin, Administrador, Admin o Administrativo).
+    /// Evalúa el rol real cargado en <see cref="UsuarioActual"/> o <see cref="SesionActual"/> sin distinguir mayúsculas/minúsculas.
+    /// </summary>
+    public bool TieneAccesoAdministrativo
+    {
+        get
+        {
+            var rolActual = (UsuarioActual?.Rol?.Nombre ?? SesionActual.Rol)?.Trim();
+            if (string.IsNullOrWhiteSpace(rolActual))
+                return false;
+
+            return string.Equals(rolActual, "SuperAdmin", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(rolActual, "Administrador", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(rolActual, "Admin", StringComparison.OrdinalIgnoreCase) ||
+                   string.Equals(rolActual, "Administrativo", StringComparison.OrdinalIgnoreCase);
+        }
+    }
 
     /// <summary>
     /// Expone si el usuario autenticado tiene rol de Administrador leyendo desde <see cref="SesionActual"/>.
     /// </summary>
     public bool EsAdmin => SesionActual.EsAdmin;
 
+    /// <summary>
+    /// Candado de seguridad para Inteligencia Gerencial (Dueño / SuperAdmin / Administrador).
+    /// </summary>
+    public bool EsSuperAdmin => SesionActual.EsSuperAdmin;
+
+    /// <summary>
+    /// Visibilidad del módulo de Reabastecimiento y Órdenes de Compra (Admin / SuperAdmin / Almacenero).
+    /// </summary>
+    public bool PuedeVerReabastecimiento => SesionActual.PuedeGestionarReabastecimiento;
+
     public event Action<string, string>? NotificacionExitoSolicitada;
 
     public bool EsVistaInicioActiva => CurrentViewModel is InicioViewModel;
 
     public bool EsVistaCajaActiva => CurrentViewModel is PosViewModel;
+
+    public bool EsVistaCotizacionesActiva => CurrentViewModel is CotizacionViewModel;
 
     public bool EsVistaInventarioActiva => CurrentViewModel is InventarioViewModel;
 
@@ -144,6 +203,14 @@ public partial class MainViewModel : ViewModelBase
     public bool EsVistaEmpleadosActiva => CurrentViewModel is EmpleadosViewModel;
 
     public bool EsVistaCreditosActiva => CurrentViewModel is CreditosViewModel;
+
+    public bool EsVistaPromocionesActiva => CurrentViewModel is PromocionesViewModel;
+
+    public bool EsVistaReabastecimientoActiva => CurrentViewModel is ReabastecimientoViewModel;
+
+    public bool EsVistaGerenciaActiva => CurrentViewModel is GerenciaViewModel;
+
+    public bool EsVistaConfiguracionActiva => CurrentViewModel is ConfiguracionViewModel;
 
     public string NombreUsuarioActual => UsuarioActual?.NombreCompleto ?? string.Empty;
 
@@ -235,15 +302,24 @@ public partial class MainViewModel : ViewModelBase
         IsBuscando = false;
     }
 
-    public void NavegarAConfiguracion()
+    public void NavegarAConfiguracion(bool esModoSoloRed = false)
     {
         if (_serviceProvider is null || _configuracionService is null)
             return;
 
         var configuracionVm = _serviceProvider.GetRequiredService<ConfiguracionViewModel>();
+        configuracionVm.Inicializar(esModoSoloRed);
+        configuracionVm.NombreNegocioActualizado += nuevoNombre =>
+        {
+            NombreNegocio = string.IsNullOrWhiteSpace(nuevoNombre)
+                ? "Ferretería ERP"
+                : nuevoNombre.Trim();
+        };
+        configuracionVm.LogoNegocioActualizado += ActualizarLogo;
         configuracionVm.ConfiguracionGuardada += () =>
         {
             Program.InicializarBaseDeDatos(_serviceProvider);
+            _ = CargarNombreNegocioAsync();
             if (UsuarioActual is not null)
                 NavegarAInicio();
             else
@@ -252,7 +328,8 @@ public partial class MainViewModel : ViewModelBase
 
         if (_configuracionService.EstaConfigurado)
         {
-            configuracionVm.PermitirCancelar = true;
+            // Solo mostrar botón "Volver" cuando se accede desde la pantalla de Login (sin sesión iniciada)
+            configuracionVm.PermitirCancelar = UsuarioActual is null;
             configuracionVm.CancelarSolicitado += () =>
             {
                 if (UsuarioActual is not null)
@@ -272,7 +349,7 @@ public partial class MainViewModel : ViewModelBase
 
         var loginVm = _serviceProvider.GetRequiredService<LoginViewModel>();
         loginVm.SesionIniciada += OnSesionIniciada;
-        loginVm.AbrirConfiguracionSolicitado += NavegarAConfiguracion;
+        loginVm.AbrirConfiguracionSolicitado += () => NavegarAConfiguracion(esModoSoloRed: true);
 
         CurrentViewModel = loginVm;
     }
@@ -281,7 +358,10 @@ public partial class MainViewModel : ViewModelBase
     {
         _sesionService?.EstablecerSesion(usuario);
         UsuarioActual = usuario;
+        OnPropertyChanged(nameof(TieneAccesoAdministrativo));
         OnPropertyChanged(nameof(EsAdmin));
+        OnPropertyChanged(nameof(EsSuperAdmin));
+        OnPropertyChanged(nameof(PuedeVerReabastecimiento));
 
         NavegarAInicio();
 
@@ -303,11 +383,13 @@ public partial class MainViewModel : ViewModelBase
 
         if (CurrentViewModel is InicioViewModel inicioVm)
         {
+            inicioVm.OnNavegarAPromociones = IrAPromociones;
+            inicioVm.OnNavegarAReabastecimiento = IrAReabastecimiento;
             _ = inicioVm.CargarEstadisticasAsync();
             return;
         }
 
-        CurrentViewModel = _serviceProvider.GetRequiredService<InicioViewModel>();
+        CurrentViewModel = CrearInicioViewModel();
     }
 
     /// <summary>
@@ -326,6 +408,16 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    public void IrACotizaciones()
+    {
+        IsBuscando = false;
+        if (_serviceProvider is null || CurrentViewModel is CotizacionViewModel)
+            return;
+
+        CurrentViewModel = _serviceProvider.GetRequiredService<CotizacionViewModel>();
+    }
+
+    [RelayCommand]
     public void IrAInventario()
     {
         IsBuscando = false;
@@ -339,7 +431,7 @@ public partial class MainViewModel : ViewModelBase
     public void IrAProveedores()
     {
         IsBuscando = false;
-        if (_serviceProvider is null || CurrentViewModel is ProveedoresViewModel)
+        if (!TieneAccesoAdministrativo || _serviceProvider is null || CurrentViewModel is ProveedoresViewModel)
             return;
 
         CurrentViewModel = _serviceProvider.GetRequiredService<ProveedoresViewModel>();
@@ -359,10 +451,36 @@ public partial class MainViewModel : ViewModelBase
     public void IrAEmpleados()
     {
         IsBuscando = false;
-        if (_serviceProvider is null || CurrentViewModel is EmpleadosViewModel)
+        if (!TieneAccesoAdministrativo || _serviceProvider is null || CurrentViewModel is EmpleadosViewModel)
             return;
 
-        CurrentViewModel = _serviceProvider.GetRequiredService<EmpleadosViewModel>();
+        var empleadosVm = _serviceProvider.GetRequiredService<EmpleadosViewModel>();
+        empleadosVm.RolSesionActualActualizado += OnRolSesionActualActualizado;
+        CurrentViewModel = empleadosVm;
+    }
+
+    private void OnRolSesionActualActualizado(Usuario usuarioActualizado)
+    {
+        if (UsuarioActual is null || UsuarioActual.Id != usuarioActualizado.Id)
+            return;
+
+        if (usuarioActualizado.Rol is not null)
+        {
+            UsuarioActual.Rol = usuarioActualizado.Rol;
+            UsuarioActual.IdRol = usuarioActualizado.IdRol;
+            SesionActual.Rol = usuarioActualizado.Rol.Nombre;
+        }
+
+        UsuarioActual.NombreCompleto = usuarioActualizado.NombreCompleto;
+        SesionActual.NombreCompleto = usuarioActualizado.NombreCompleto;
+
+        OnPropertyChanged(nameof(TieneAccesoAdministrativo));
+        OnPropertyChanged(nameof(EsAdmin));
+        OnPropertyChanged(nameof(EsSuperAdmin));
+        OnPropertyChanged(nameof(PuedeVerReabastecimiento));
+        OnPropertyChanged(nameof(NombreUsuarioActual));
+        OnPropertyChanged(nameof(DetalleRolSucursal));
+        OnPropertyChanged(nameof(InicialesUsuarioActual));
     }
 
     [RelayCommand]
@@ -376,13 +494,67 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    public void IrAPromociones()
+    {
+        IsBuscando = false;
+        if (_serviceProvider is null)
+            return;
+
+        if (CurrentViewModel is PromocionesViewModel promoVm)
+        {
+            _ = promoVm.InicializarAsync();
+            return;
+        }
+
+        CurrentViewModel = _serviceProvider.GetRequiredService<PromocionesViewModel>();
+    }
+
+    [RelayCommand]
+    public void IrAReabastecimiento()
+    {
+        IsBuscando = false;
+        if (!PuedeVerReabastecimiento || _serviceProvider is null)
+            return;
+
+        if (CurrentViewModel is ReabastecimientoViewModel reabVm)
+        {
+            _ = reabVm.InicializarAsync();
+            return;
+        }
+
+        CurrentViewModel = _serviceProvider.GetRequiredService<ReabastecimientoViewModel>();
+    }
+
+    [RelayCommand]
+    public void IrAGerencia()
+    {
+        IsBuscando = false;
+        if (!TieneAccesoAdministrativo || _serviceProvider is null)
+            return;
+
+        if (CurrentViewModel is GerenciaViewModel gerenciaVm)
+        {
+            _ = gerenciaVm.AplicarRangoAsync();
+            return;
+        }
+
+        CurrentViewModel = _serviceProvider.GetRequiredService<GerenciaViewModel>();
+    }
+
+    [RelayCommand]
     public void IrAConfiguracion()
     {
         IsBuscando = false;
-        if (!EsAdmin)
-            return;
+        // PASO 33 (RBAC): Todos los roles acceden a Configuración; los no administrativos en modo Solo Red
+        NavegarAConfiguracion(esModoSoloRed: !TieneAccesoAdministrativo);
+    }
 
-        NavegarAConfiguracion();
+    private InicioViewModel CrearInicioViewModel()
+    {
+        var inicioVm = _serviceProvider!.GetRequiredService<InicioViewModel>();
+        inicioVm.OnNavegarAPromociones = IrAPromociones;
+        inicioVm.OnNavegarAReabastecimiento = IrAReabastecimiento;
+        return inicioVm;
     }
 
     private void NavegarAInicio()
@@ -392,7 +564,7 @@ public partial class MainViewModel : ViewModelBase
 
         try
         {
-            CurrentViewModel = _serviceProvider.GetRequiredService<InicioViewModel>();
+            CurrentViewModel = CrearInicioViewModel();
         }
         catch (Exception ex)
         {

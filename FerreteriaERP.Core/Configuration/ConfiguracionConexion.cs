@@ -17,7 +17,7 @@ namespace FerreteriaERP.Core.Configuration
         public int Puerto { get; set; } = 5432;
         public string BaseDatos { get; set; } = "FerreteriaDSS";
         public string Usuario { get; set; } = "postgres";
-        public string Password { get; set; } = "12345";
+        public string Password { get; set; } = string.Empty;
 
         /// <summary>Host efectivo: "localhost" para la Central, la IP de la VPN para una Sucursal.</summary>
         public string ObtenerHost() =>

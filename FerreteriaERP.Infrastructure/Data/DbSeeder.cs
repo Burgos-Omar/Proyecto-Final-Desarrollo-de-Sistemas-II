@@ -3,6 +3,7 @@ using System.Linq;
 using FerreteriaERP.Core.Constants;
 using FerreteriaERP.Core.Entities;
 using FerreteriaERP.Core.Interfaces;
+using FerreteriaERP.Core.Security;
 
 namespace FerreteriaERP.Infrastructure.Data
 {
@@ -31,6 +32,13 @@ namespace FerreteriaERP.Infrastructure.Data
                 huboCambios = true;
             }
 
+            // Garantizar que exista el rol "Administrativo" en el catálogo de roles (PASO 33 - RBAC)
+            if (!context.Roles.Any(r => r.Nombre.ToLower() == "administrativo"))
+            {
+                context.Roles.Add(new Rol { Nombre = "Administrativo" });
+                huboCambios = true;
+            }
+
             // 1. Semilla de Usuario Administrador (solo si la tabla Usuarios está vacía)
             if (!context.Usuarios.Any())
             {
@@ -54,6 +62,22 @@ namespace FerreteriaERP.Infrastructure.Data
 
                 context.Usuarios.Add(usuarioAdmin);
                 huboCambios = true;
+            }
+            else
+            {
+                // PASO 32: Migración automática de contraseñas en texto plano existentes a PBKDF2-SHA256
+                // (No toca hashes BCrypt heredados que empiezan con "$2", los cuales se migran transparentemente al iniciar sesión).
+                var usuariosExistentes = context.Usuarios.ToList();
+                foreach (var usuario in usuariosExistentes)
+                {
+                    if (!string.IsNullOrWhiteSpace(usuario.PasswordHash) &&
+                        !PasswordHasher.IsHashed(usuario.PasswordHash) &&
+                        !usuario.PasswordHash.StartsWith("$2", StringComparison.Ordinal))
+                    {
+                        usuario.PasswordHash = PasswordHasher.HashPassword(usuario.PasswordHash);
+                        huboCambios = true;
+                    }
+                }
             }
 
             // 2. Semilla de Catálogo e Inventario de Prueba (solo si la tabla Productos está vacía)

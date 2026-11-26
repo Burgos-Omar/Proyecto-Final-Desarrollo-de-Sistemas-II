@@ -36,6 +36,12 @@ namespace FerreteriaERP.Infrastructure
             // Servicio generador de Notas de Venta / Recibos en PDF (QuestPDF).
             services.AddSingleton<TicketPdfService>();
 
+            // Servicio de respaldo de base de datos PostgreSQL (pg_dump).
+            services.AddSingleton<BackupService>();
+
+            // Servicio generador de Órdenes de Compra en PDF (QuestPDF).
+            services.AddSingleton<OrdenCompraPdfService>();
+
             // Inyección directa de FerreteriaDbContext (con scope) por si algún servicio necesita
             // un contexto compartido durante una unidad de trabajo. Los repositorios NO lo usan.
             services.AddScoped(sp => sp.GetRequiredService<IDbContextFactory<FerreteriaDbContext>>().CreateDbContext());
@@ -49,6 +55,16 @@ namespace FerreteriaERP.Infrastructure
             services.AddSingleton<IEntregaRepository, EntregaRepository>();
             services.AddSingleton<ISucursalRepository, SucursalRepository>();
             services.AddSingleton<IClienteRepository, ClienteRepository>();
+            services.AddSingleton<ICotizacionRepository, CotizacionRepository>();
+            services.AddSingleton<CotizacionRepository>();
+            services.AddSingleton<IGastoOperativoRepository, GastoOperativoRepository>();
+            services.AddSingleton<GastoOperativoRepository>();
+            services.AddSingleton<IPromocionRepository, PromocionRepository>();
+            services.AddSingleton<PromocionRepository>();
+            services.AddSingleton<IOrdenCompraRepository, OrdenCompraRepository>();
+            services.AddSingleton<OrdenCompraRepository>();
+            services.AddSingleton<IConfiguracionRepository, ConfiguracionRepository>();
+            services.AddSingleton<ConfiguracionRepository>();
 
             return services;
         }
