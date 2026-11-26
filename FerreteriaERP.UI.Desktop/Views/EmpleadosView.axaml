@@ -1004,14 +1004,14 @@
                                         <StackPanel Grid.Column="0" Spacing="5">
                                             <TextBlock Classes="label" Text="USUARIO *" />
                                             <TextBox Text="{Binding NuevoUsuarioAcceso}"
-                                                     Watermark="Ej. jvargas" />
+                                                     PlaceholderText="Ej. jvargas" />
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="2" Spacing="5">
                                             <TextBlock Classes="label" Text="CONTRASEÑA *" />
                                             <TextBox Text="{Binding NuevaPasswordAcceso}"
                                                      PasswordChar="*"
-                                                     Watermark="Mínimo 6 caracteres" />
+                                                     PlaceholderText="Mínimo 6 caracteres" />
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
@@ -1049,7 +1049,7 @@
                                             <TextBlock Classes="label"
                                                        Text="USUARIO DEL SISTEMA" />
                                             <TextBox Text="{Binding UsuarioAccesoActual}"
-                                                     Watermark="Ej. jvargas" />
+                                                     PlaceholderText="Ej. jvargas" />
                                         </StackPanel>
 
                                         <StackPanel Spacing="5">
@@ -1057,7 +1057,7 @@
                                                        Text="RESETEAR CONTRASEÑA (Opcional)" />
                                             <TextBox Text="{Binding NuevaPasswordReseteo}"
                                                      PasswordChar="*"
-                                                     Watermark="Escriba la nueva contraseña" />
+                                                     PlaceholderText="Escriba la nueva contraseña" />
                                         </StackPanel>
 
                                         <Button Content="Actualizar Credenciales"

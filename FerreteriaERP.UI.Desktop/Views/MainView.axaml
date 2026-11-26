@@ -33,11 +33,12 @@
                 <!-- 1. Logo Corporativo Minimalista -->
                 <StackPanel Grid.Row="0" Spacing="18">
                     <StackPanel Orientation="Horizontal" Spacing="12">
-                        <Border Width="42"
-                                Height="42"
+                        <Border Width="44"
+                                Height="44"
                                 CornerRadius="12"
                                 Background="{StaticResource PrimaryAccentBrush}"
-                                BoxShadow="0 4 12 0 #3310B981">
+                                BoxShadow="0 4 12 0 #3310B981"
+                                IsVisible="{Binding !TieneLogoPersonalizado}">
                             <materialIcons:MaterialIcon Kind="Tools"
                                                         Width="22"
                                                         Height="22"
@@ -46,10 +47,24 @@
                                                         VerticalAlignment="Center" />
                         </Border>
 
+                        <Border Width="44"
+                                Height="44"
+                                CornerRadius="10"
+                                Background="#FFFFFF"
+                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                BorderThickness="1"
+                                ClipToBounds="True"
+                                IsVisible="{Binding TieneLogoPersonalizado}">
+                            <Image Source="{Binding LogoNegocioBitmap}"
+                                   Stretch="Uniform" />
+                        </Border>
+
                         <StackPanel VerticalAlignment="Center" Spacing="1">
-                            <TextBlock Text="Ferretería ERP"
+                            <TextBlock Text="{Binding NombreNegocio}"
                                        FontSize="17"
                                        FontWeight="Bold"
+                                       MaxWidth="160"
+                                       TextTrimming="CharacterEllipsis"
                                        Foreground="{StaticResource PrimaryTextBrush}" />
                             <TextBlock Text="Gestión &amp; Punto de Venta"
                                        FontSize="11.5"
@@ -82,7 +97,6 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- ─── MÓDULO: CAJA / POS (comentado intencionalmente) ─────────────
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaCajaActiva}"
                             Command="{Binding IrACajaCommand}">
@@ -97,9 +111,22 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ─────────────────────────────────────────────────────────────── -->
 
-                    <!-- ─── MÓDULO: INVENTARIO ─────────────────────────────────────── -->
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaCotizacionesActiva}"
+                            Command="{Binding IrACotizacionesCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="FileDocumentOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Proformas / Cotiz."
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaInventarioActiva}"
                             Command="{Binding IrAInventarioCommand}">
@@ -115,12 +142,26 @@
                         </StackPanel>
                     </Button>
 
-<<<<<<< HEAD
-                    ─── MÓDULO: LOGÍSTICA Y CARGAS ────────────────────────────────
-=======
-                    <!-- ─── MÓDULO: PROVEEDORES (comentado intencionalmente) ─────────
+                    <!-- Reabastecimiento y Órdenes de Compra (Admin / SuperAdmin / Almacenero - PASO 30) -->
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaReabastecimientoActiva}"
+                            IsVisible="{Binding PuedeVerReabastecimiento}"
+                            Command="{Binding IrAReabastecimientoCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="ClipboardListOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Reabastecimiento"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaProveedoresActiva}"
+                            IsVisible="{Binding TieneAccesoAdministrativo}"
                             Command="{Binding IrAProveedoresCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
@@ -133,10 +174,7 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ─────────────────────────────────────────────────────────────── -->
 
-                    <!-- ─── MÓDULO: LOGÍSTICA Y CARGAS (comentado intencionalmente) ──
->>>>>>> cesar
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaLogisticaActiva}"
                             Command="{Binding IrALogisticaCommand}">
@@ -151,11 +189,10 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ─────────────────────────────────────────────────────────────── -->
 
-                    <!-- ─── MÓDULO: EMPLEADOS Y RANKING (comentado intencionalmente) ─
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaEmpleadosActiva}"
+                            IsVisible="{Binding TieneAccesoAdministrativo}"
                             Command="{Binding IrAEmpleadosCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <materialIcons:MaterialIcon Kind="AccountGroupOutline"
@@ -168,9 +205,7 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ─────────────────────────────────────────────────────────────── -->
 
-                    <!-- ─── MÓDULO: CRÉDITOS Y COBROS (comentado intencionalmente) ───
                     <Button Classes="nav"
                             Classes.nav-active="{Binding EsVistaCreditosActiva}"
                             Command="{Binding IrACreditosCommand}">
@@ -185,26 +220,43 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                    ─────────────────────────────────────────────────────────────── -->
 
-                    <!-- ─── MÓDULO: PROVEEDORES ─────────────────────────────── -->
+                    <!-- Promociones y Campañas (Visible para flujo operativo - PASO 33) -->
                     <Button Classes="nav"
-                            Classes.nav-active="{Binding EsVistaProveedoresActiva}"
-                            Command="{Binding IrAProveedoresCommand}">
+                            Classes.nav-active="{Binding EsVistaPromocionesActiva}"
+                            Command="{Binding IrAPromocionesCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
-                            <materialIcons:MaterialIcon Kind="TruckDeliveryOutline"
+                            <materialIcons:MaterialIcon Kind="TagHeartOutline"
                                                         Width="20"
                                                         Height="20"
                                                         VerticalAlignment="Center" />
-                            <TextBlock Text="Proveedores"
+                            <TextBlock Text="Promociones"
                                        FontSize="14"
                                        Foreground="{Binding $parent[Button].Foreground}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
 
+                    <!-- CANDADO DE SEGURIDAD: Exclusivo para Roles Administrativos (PASO 28 / 33) -->
                     <Button Classes="nav"
-                            IsVisible="{Binding EsAdmin}"
+                            Classes.nav-active="{Binding EsVistaGerenciaActiva}"
+                            IsVisible="{Binding TieneAccesoAdministrativo}"
+                            Command="{Binding IrAGerenciaCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <materialIcons:MaterialIcon Kind="ChartBoxOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        VerticalAlignment="Center" />
+                            <TextBlock Text="Inteligencia Gerencial"
+                                       FontSize="14"
+                                       Foreground="{Binding $parent[Button].Foreground}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Configuración visible para todos los roles (Solo Red para no administrativos - PASO 33) -->
+                    <Button Classes="nav"
+                            Classes.nav-active="{Binding EsVistaConfiguracionActiva}"
                             Command="{Binding IrAConfiguracionCommand}">
                         <StackPanel Orientation="Horizontal" Spacing="12">
                             <materialIcons:MaterialIcon Kind="CogOutline"

@@ -166,6 +166,12 @@ public partial class EmpleadosViewModel : ViewModelBase
 
     public ObservableCollection<Sucursal> SucursalesDisponibles { get; } = new();
 
+    /// <summary>
+    /// Se dispara cuando se actualiza el rol/datos del usuario que tiene la sesión activa,
+    /// permitiendo a <see cref="MainViewModel"/> refrescar permisos en tiempo real.
+    /// </summary>
+    public event Action<Usuario>? RolSesionActualActualizado;
+
     public IReadOnlyList<string> PuestosDisponibles { get; } = new[]
     {
         "Vendedor",
@@ -712,6 +718,18 @@ public partial class EmpleadosViewModel : ViewModelBase
             {
                 usuarioVinculado.Ci = nuevoUsuario;
 
+                var puestoRolActual = string.IsNullOrWhiteSpace(empleado.Puesto) ? "Vendedor" : empleado.Puesto.Trim();
+                var rolSincronizado = await db.Roles.FirstOrDefaultAsync(r => r.Nombre.ToLower() == puestoRolActual.ToLower());
+                if (rolSincronizado is null)
+                {
+                    rolSincronizado = new Rol { Nombre = puestoRolActual };
+                    db.Roles.Add(rolSincronizado);
+                }
+
+                usuarioVinculado.Rol = rolSincronizado;
+                if (rolSincronizado.Id > 0)
+                    usuarioVinculado.IdRol = rolSincronizado.Id;
+
                 if (!string.IsNullOrWhiteSpace(nuevaPassword))
                 {
                     usuarioVinculado.PasswordHash = await Task.Run(() => _passwordHasher.HashPassword(nuevaPassword));
@@ -745,6 +763,12 @@ public partial class EmpleadosViewModel : ViewModelBase
             }
 
             await db.SaveChangesAsync();
+
+            if (usuarioVinculado.Id == SesionActual.IdUsuario)
+            {
+                SesionActual.Rol = usuarioVinculado.Rol?.Nombre ?? empleado.Puesto;
+                RolSesionActualActualizado?.Invoke(usuarioVinculado);
+            }
 
             NuevaPasswordReseteo = string.Empty;
             var textoExito = $"Credenciales de {empleado.NombreCompleto} actualizadas correctamente";
@@ -859,6 +883,11 @@ public partial class EmpleadosViewModel : ViewModelBase
                     return;
                 }
 
+                // Capturar identificadores previos antes de modificar para ubicar el registro asociado en Usuarios
+                var nombreAnteriorLower = existente.NombreCompleto.Trim().ToLower();
+                var ciAnteriorLower = existente.Ci.Trim().ToLower();
+                var ciNuevoLower = ci.ToLower();
+
                 existente.Nombre = nombre;
                 existente.Apellidos = apellidos;
                 existente.Ci = ci;
@@ -869,8 +898,47 @@ public partial class EmpleadosViewModel : ViewModelBase
                 existente.ImagenUrl = ImagenUrlForm;
                 existente.IdSucursal = idSucursalDestino;
 
+                // Sincronizar el rol y datos en el registro vinculado de la tabla Usuarios (rastreado en el mismo DbContext)
+                var usuarioVinculado = await db.Usuarios
+                    .Include(u => u.Rol)
+                    .FirstOrDefaultAsync(u =>
+                        u.NombreCompleto.ToLower() == nombreAnteriorLower ||
+                        u.Ci.ToLower() == ciAnteriorLower ||
+                        u.Ci.ToLower() == ciNuevoLower);
+
+                if (usuarioVinculado is not null)
+                {
+                    var rolNuevo = await db.Roles.FirstOrDefaultAsync(r =>
+                        r.Nombre.ToLower() == puestoFinal.ToLower());
+
+                    if (rolNuevo is null)
+                    {
+                        rolNuevo = new Rol { Nombre = puestoFinal };
+                        db.Roles.Add(rolNuevo);
+                    }
+
+                    usuarioVinculado.NombreCompleto = existente.NombreCompleto;
+                    usuarioVinculado.Celular = existente.Telefono;
+                    usuarioVinculado.Direccion = existente.Direccion;
+                    usuarioVinculado.Salario = salario;
+                    usuarioVinculado.FotoPath = ImagenUrlForm;
+                    usuarioVinculado.IdSucursal = idSucursalDestino;
+                    usuarioVinculado.Rol = rolNuevo;
+                    if (rolNuevo.Id > 0)
+                        usuarioVinculado.IdRol = rolNuevo.Id;
+                }
+
                 await db.SaveChangesAsync();
-                MostrarExitoEstado($"Datos de '{existente.NombreCompleto}' actualizados correctamente.");
+
+                // Si el empleado editado corresponde al usuario actualmente autenticado, refrescar la sesión activa
+                if (usuarioVinculado is not null && usuarioVinculado.Id == SesionActual.IdUsuario)
+                {
+                    SesionActual.Rol = usuarioVinculado.Rol?.Nombre ?? puestoFinal;
+                    SesionActual.NombreCompleto = usuarioVinculado.NombreCompleto;
+                    RolSesionActualActualizado?.Invoke(usuarioVinculado);
+                }
+
+                MostrarExitoEstado($"Datos y rol ({puestoFinal}) de '{existente.NombreCompleto}' actualizados correctamente.");
             }
             else
             {

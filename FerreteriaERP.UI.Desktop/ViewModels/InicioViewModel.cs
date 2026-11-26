@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using FerreteriaERP.Core.Constants;
 using FerreteriaERP.Core.Entities;
 using FerreteriaERP.Core.Interfaces;
+using FerreteriaERP.Core.Services;
 using FerreteriaERP.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,6 +85,7 @@ public partial class InicioViewModel : ViewModelBase
 
     private readonly IDbContextFactory<FerreteriaDbContext> _dbContextFactory;
     private readonly ISesionService _sesionService;
+    private readonly IPromocionRepository _promocionRepository;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(VentasDelDiaTexto))]
@@ -150,14 +152,48 @@ public partial class InicioViewModel : ViewModelBase
 
     public InicioViewModel(
         IDbContextFactory<FerreteriaDbContext> dbContextFactory,
-        ISesionService sesionService)
+        ISesionService sesionService,
+        IPromocionRepository promocionRepository)
     {
         _dbContextFactory = dbContextFactory;
         _sesionService = sesionService;
+        _promocionRepository = promocionRepository;
 
         PromocionVigente = CrearPromocionPorDefecto();
 
         _ = CargarEstadisticasAsync();
+    }
+
+    /// <summary>
+    /// Callback inyectado desde <see cref="MainViewModel"/> para navegar al módulo de Promociones.
+    /// </summary>
+    public Action? OnNavegarAPromociones { get; set; }
+
+    /// <summary>
+    /// Callback inyectado desde <see cref="MainViewModel"/> para navegar al módulo de Reabastecimiento (PASO 30).
+    /// </summary>
+    public Action? OnNavegarAReabastecimiento { get; set; }
+
+    /// <summary>
+    /// Visibilidad del botón "Ver promociones ->" acorde a la política de roles del menú lateral.
+    /// </summary>
+    public bool PuedeVerPromociones => SesionActual.EsSuperAdmin;
+
+    /// <summary>
+    /// Visibilidad del botón "Reabastecer ->" para roles autorizados (Admin / SuperAdmin / Almacenero).
+    /// </summary>
+    public bool PuedeVerReabastecimiento => SesionActual.PuedeGestionarReabastecimiento;
+
+    [RelayCommand]
+    private void VerPromociones()
+    {
+        OnNavegarAPromociones?.Invoke();
+    }
+
+    [RelayCommand]
+    private void IrAReabastecimiento()
+    {
+        OnNavegarAReabastecimiento?.Invoke();
     }
 
     /// <summary>
@@ -464,19 +500,16 @@ public partial class InicioViewModel : ViewModelBase
                 .ThenByDescending(a => a.MontoDeuda)
                 .ToList();
 
-            // 9. Promoción Vigente
+            // 9. Promoción Vigente (consulta real desde IPromocionRepository)
             Promocion? promoActiva = null;
             try
             {
-                promoActiva = await context.Promociones
-                    .AsNoTracking()
-                    .Where(p => p.EstaActiva && p.FechaInicio <= ahoraUtc && p.FechaFin >= ahoraUtc)
-                    .OrderByDescending(p => p.FechaInicio)
-                    .FirstOrDefaultAsync();
+                var vigentes = await _promocionRepository.ObtenerVigentesAsync(idSucursal, ahoraUtc);
+                promoActiva = vigentes.FirstOrDefault();
             }
             catch
             {
-                // Si la tabla Promociones aún no fue migrada, usa la promoción por defecto
+                // Si la tabla Promociones aún no fue migrada, muestra el estado sin promociones activas
             }
 
             // Actualizar propiedades en la UI
@@ -534,12 +567,12 @@ public partial class InicioViewModel : ViewModelBase
         var ahoraUtc = DateTime.UtcNow;
         return new Promocion
         {
-            Titulo = "Mes del Constructor: 15% OFF en Herramientas Eléctricas",
-            Descripcion = "Descuento especial en taladros percutores, amoladoras y kits profesionales por compras al contado o vía QR.",
-            FechaInicio = ahoraUtc.AddDays(-5),
-            FechaFin = ahoraUtc.AddDays(25),
+            Nombre = "Sin promociones activas",
+            Descripcion = "No hay campañas comerciales vigentes en este momento para esta sucursal.",
+            FechaInicio = ahoraUtc,
+            FechaFin = ahoraUtc.AddDays(-1),
             ImagenFondoUrl = string.Empty,
-            EstaActiva = true
+            EstaActiva = false
         };
     }
 }

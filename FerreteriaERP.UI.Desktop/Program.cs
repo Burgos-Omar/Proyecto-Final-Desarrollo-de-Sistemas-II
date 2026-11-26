@@ -69,11 +69,15 @@ sealed class Program
         services.AddTransient<LoginViewModel>();
         services.AddTransient<InicioViewModel>();
         services.AddTransient<PosViewModel>();
+        services.AddTransient<CotizacionViewModel>();
         services.AddTransient<InventarioViewModel>();
         services.AddTransient<ProveedoresViewModel>();
         services.AddTransient<LogisticaViewModel>();
         services.AddTransient<EmpleadosViewModel>();
         services.AddTransient<CreditosViewModel>();
+        services.AddTransient<PromocionesViewModel>();
+        services.AddTransient<ReabastecimientoViewModel>();
+        services.AddTransient<GerenciaViewModel>();
 
         return services.BuildServiceProvider();
     }

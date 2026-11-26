@@ -1,0 +1,434 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1320" d:DesignHeight="820"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.PromocionesView"
+             x:DataType="vm:PromocionesViewModel">
+
+    <Grid ColumnDefinitions="*,20,390" Margin="24,20">
+
+        <!-- ========================================================= -->
+        <!-- COLUMNA IZQUIERDA: KPIS + LISTADO DE CAMPAÑAS (DATAGRID)  -->
+        <!-- ========================================================= -->
+        <Grid Grid.Column="0" RowDefinitions="Auto,Auto,*">
+
+            <!-- 1. Encabezado + KPIs Rápidos -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+                <StackPanel Grid.Column="0" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Classes="h1"
+                                   Text="Promociones y Campañas Comerciales" />
+                        <Border Padding="10,4"
+                                CornerRadius="999"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <materialIcons:MaterialIcon Kind="TagHeartOutline"
+                                                            Width="14"
+                                                            Height="14"
+                                                            Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                            VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding TotalActivasCount, StringFormat='{}{0} activas hoy'}"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="subtitle"
+                               Text="Configure descuentos automáticos por porcentaje, precio fijo o volumen para el Punto de Venta." />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Center">
+                    <Border Classes="Card" Padding="14,8">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="Programadas:"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TotalProgramadasCount}"
+                                       FontSize="13.5"
+                                       FontWeight="Bold"
+                                       Foreground="#0284C7"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Classes="Card" Padding="14,8">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="Usos en POS:"
+                                       FontSize="12"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TotalAplicacionesCount}"
+                                       FontSize="13.5"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <Button Classes="ghost"
+                            Command="{Binding InicializarCommand}"
+                            IsEnabled="{Binding ControlesHabilitados}"
+                            Padding="12,9"
+                            ToolTip.Tip="Actualizar campañas">
+                        <materialIcons:MaterialIcon Kind="Refresh"
+                                                    Width="18"
+                                                    Height="18" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Alertas de Estado -->
+            <Panel Grid.Row="1">
+                <Border Padding="14,10"
+                        Margin="0,0,0,12"
+                        CornerRadius="10"
+                        Background="{StaticResource DangerSubtleBgBrush}"
+                        BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarError}">
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Border Padding="14,10"
+                        Margin="0,0,0,12"
+                        CornerRadius="10"
+                        Background="{StaticResource SuccessSubtleBgBrush}"
+                        BorderBrush="{StaticResource SuccessSubtleBorderBrush}"
+                        BorderThickness="1"
+                        IsVisible="{Binding MostrarExito}">
+                    <TextBlock Text="{Binding MensajeEstado}"
+                               Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Border>
+            </Panel>
+
+            <!-- 3. DataGrid de Campañas Comerciales -->
+            <Border Grid.Row="2"
+                    Classes="Card"
+                    Padding="14,12"
+                    ClipToBounds="True">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding ListaPromociones}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              SelectionMode="Single">
+                        <DataGrid.Columns>
+                            <!-- Nombre y Descripción -->
+                            <DataGridTemplateColumn Header="CAMPAÑA" Width="1.5*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="entities:Promocion">
+                                        <StackPanel Margin="12,6" VerticalAlignment="Center" Spacing="1">
+                                            <TextBlock Text="{Binding Nombre}"
+                                                       FontWeight="Bold"
+                                                       FontSize="13"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding SucursalResumenTexto}"
+                                                       FontSize="11"
+                                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Tipo / Regla -->
+                            <DataGridTextColumn Header="REGLA / BENEFICIO"
+                                                Width="165"
+                                                Binding="{Binding ReglaResumenTexto}"
+                                                x:DataType="entities:Promocion" />
+
+                            <!-- Alcance -->
+                            <DataGridTextColumn Header="ALCANCE"
+                                                Width="*"
+                                                Binding="{Binding AlcanceResumenTexto}"
+                                                x:DataType="entities:Promocion" />
+
+                            <!-- Vigencia -->
+                            <DataGridTextColumn Header="VIGENCIA"
+                                                Width="175"
+                                                Binding="{Binding VigenciaTexto}"
+                                                x:DataType="entities:Promocion" />
+
+                            <!-- Estado -->
+                            <DataGridTemplateColumn Header="ESTADO" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="entities:Promocion">
+                                        <Border Padding="9,3"
+                                                CornerRadius="999"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Background="#ECFDF5"
+                                                BorderBrush="#A7F3D0"
+                                                BorderThickness="1">
+                                            <TextBlock Text="{Binding EstadoVigenciaTexto}"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="#059669" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Usos -->
+                            <DataGridTextColumn Header="USOS"
+                                                Width="75"
+                                                Binding="{Binding CantidadUsos}"
+                                                x:DataType="entities:Promocion" />
+
+                            <!-- Acciones: Editar / Pausar-Activar -->
+                            <DataGridTemplateColumn Header="ACCIONES" Width="165">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="entities:Promocion">
+                                        <StackPanel Orientation="Horizontal"
+                                                    Spacing="6"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="6,4">
+                                            <Button Classes="ghost"
+                                                    Content="Editar"
+                                                    Padding="10,4"
+                                                    FontSize="11.5"
+                                                    Command="{Binding $parent[UserControl].((vm:PromocionesViewModel)DataContext).EditarPromocionCommand}"
+                                                    CommandParameter="{Binding}" />
+
+                                            <Button Classes="ghost"
+                                                    Content="{Binding TextoBotonAccionEstado}"
+                                                    Padding="10,4"
+                                                    FontSize="11.5"
+                                                    Command="{Binding $parent[UserControl].((vm:PromocionesViewModel)DataContext).ToggleActivaCommand}"
+                                                    CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Estado vacío -->
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Spacing="6"
+                                IsVisible="{Binding SinPromociones}"
+                                IsHitTestVisible="False">
+                        <materialIcons:MaterialIcon Kind="TagOffOutline"
+                                                    Width="34"
+                                                    Height="34"
+                                                    Foreground="{StaticResource SecondaryTextBrush}"
+                                                    HorizontalAlignment="Center" />
+                        <TextBlock Text="No hay promociones registradas"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="Cree una campaña en el panel derecho para aplicar descuentos automáticos en Caja."
+                                   FontSize="12.5"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ========================================================= -->
+        <!-- COLUMNA DERECHA: FORMULARIO CREAR / EDITAR CAMPAÑA        -->
+        <!-- ========================================================= -->
+        <Border Grid.Column="2"
+                Classes="Card"
+                ClipToBounds="True">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                <Border Grid.Row="0"
+                        Height="4"
+                        Background="{StaticResource PrimaryAccentBrush}" />
+
+                <Border Grid.Row="1"
+                        Padding="22,16"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,0,0,1">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="label"
+                                   Text="CONFIGURADOR DE CAMPAÑA"
+                                   Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                        <TextBlock Text="{Binding TituloFormulario}"
+                                   FontSize="17"
+                                   FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="13" Margin="22,16">
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="label" Text="NOMBRE DE LA PROMOCIÓN *" />
+                            <TextBox Text="{Binding NombreForm}"
+                                     PlaceholderText="Ej. Semana de la Pintura -15%"
+                                     IsEnabled="{Binding ControlesHabilitados}" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="label" Text="DESCRIPCIÓN (PARA BANNER DE INICIO)" />
+                            <TextBox Text="{Binding DescripcionForm}"
+                                     PlaceholderText="Ej. Descuento directo en compras al contado y QR"
+                                     IsEnabled="{Binding ControlesHabilitados}" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,10,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label" Text="TIPO DE REGLA *" />
+                                <ComboBox ItemsSource="{Binding TiposPromocion}"
+                                          SelectedItem="{Binding TipoPromocionSeleccionado}"
+                                          IsEnabled="{Binding ControlesHabilitados}"
+                                          HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Classes="label" Text="{Binding EtiquetaValorDescuento}" />
+                                <TextBox Text="{Binding ValorDescuentoTexto}"
+                                         PlaceholderText="15"
+                                         IsEnabled="{Binding ControlesHabilitados}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Cantidad Mínima (solo visible cuando TipoPromocion == Volumen) -->
+                        <StackPanel Spacing="4"
+                                    IsVisible="{Binding EsTipoVolumen}">
+                            <TextBlock Classes="label"
+                                       Text="CANTIDAD MÍNIMA DE UNIDADES (VOLUMEN) *"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                            <TextBox Text="{Binding CantidadMinimaTexto}"
+                                     PlaceholderText="Ej. 5"
+                                     IsEnabled="{Binding ControlesHabilitados}" />
+                        </StackPanel>
+
+                        <!-- Alcance: Producto, Categoria o Tienda -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="label" Text="ALCANCE DE LA PROMOCIÓN *" />
+                            <ComboBox ItemsSource="{Binding AlcancesPromocion}"
+                                      SelectedItem="{Binding AlcanceSeleccionado}"
+                                      IsEnabled="{Binding ControlesHabilitados}"
+                                      HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <!-- Selector de Producto (cuando Alcance == Producto) -->
+                        <StackPanel Spacing="4"
+                                    IsVisible="{Binding EsAlcanceProducto}">
+                            <TextBlock Classes="label" Text="PRODUCTO OBJETIVO *" />
+                            <ComboBox ItemsSource="{Binding ProductosDisponibles}"
+                                      SelectedItem="{Binding ProductoSeleccionadoForm}"
+                                      IsEnabled="{Binding ControlesHabilitados}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Producto">
+                                        <TextBlock Text="{Binding Nombre}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Selector de Categoría (cuando Alcance == Categoria) -->
+                        <StackPanel Spacing="4"
+                                    IsVisible="{Binding EsAlcanceCategoria}">
+                            <TextBlock Classes="label" Text="CATEGORÍA OBJETIVO *" />
+                            <ComboBox ItemsSource="{Binding CategoriasDisponibles}"
+                                      SelectedItem="{Binding CategoriaSeleccionadaForm}"
+                                      IsEnabled="{Binding ControlesHabilitados}"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="entities:Categoria">
+                                        <TextBlock Text="{Binding Nombre}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Selector de Sucursal -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Classes="label" Text="SUCURSAL APLICABLE" />
+                            <ComboBox ItemsSource="{Binding OpcionesSucursal}"
+                                      SelectedItem="{Binding SucursalSeleccionadaForm}"
+                                      IsEnabled="{Binding ControlesHabilitados}"
+                                      HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <!-- Rango de Vigencia -->
+                        <Grid ColumnDefinitions="*,10,*">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Classes="label" Text="FECHA INICIO *" />
+                                <CalendarDatePicker SelectedDate="{Binding FechaInicioForm, Mode=TwoWay}"
+                                                    SelectedDateFormat="Custom"
+                                                    CustomDateFormatString="dd/MM/yyyy"
+                                                    PlaceholderText="Inicio..."
+                                                    HorizontalAlignment="Stretch" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Classes="label" Text="FECHA FIN *" />
+                                <CalendarDatePicker SelectedDate="{Binding FechaFinForm, Mode=TwoWay}"
+                                                    SelectedDateFormat="Custom"
+                                                    CustomDateFormatString="dd/MM/yyyy"
+                                                    PlaceholderText="Fin..."
+                                                    HorizontalAlignment="Stretch" />
+                            </StackPanel>
+                        </Grid>
+
+                        <CheckBox Content="Campaña activa inmediatamente"
+                                  IsChecked="{Binding EstaActivaForm}"
+                                  IsEnabled="{Binding ControlesHabilitados}" />
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Botones del Formulario -->
+                <Border Grid.Row="3"
+                        Padding="22,14"
+                        Background="{StaticResource PrimaryBackgroundBrush}"
+                        BorderBrush="{StaticResource SubtleBorderBrush}"
+                        BorderThickness="0,1,0,0">
+                    <Grid ColumnDefinitions="Auto,10,*">
+                        <Button Grid.Column="0"
+                                Classes="ghost"
+                                Content="Limpiar"
+                                Command="{Binding LimpiarFormularioCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Padding="14,10" />
+
+                        <Button Grid.Column="2"
+                                Content="{Binding TextoBotonGuardar}"
+                                Command="{Binding GuardarPromocionCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Height="42"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center" />
+                    </Grid>
+                </Border>
+
+            </Grid>
+        </Border>
+
+    </Grid>
+</UserControl>

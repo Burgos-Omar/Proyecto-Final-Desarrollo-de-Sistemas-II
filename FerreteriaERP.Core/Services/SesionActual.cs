@@ -17,11 +17,31 @@ public static class SesionActual
     public static bool EstaAutenticado => IdUsuario > 0;
 
     /// <summary>
+    /// PASO 33 (RBAC): Indica si el usuario autenticado posee acceso administrativo completo
+    /// (SuperAdmin, Administrador, Admin o Administrativo).
+    /// </summary>
+    public static bool TieneAccesoAdministrativo =>
+        string.Equals(Rol?.Trim(), "SuperAdmin", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(Rol?.Trim(), "Administrador", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(Rol?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(Rol?.Trim(), "Administrativo", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
     /// Indica si el usuario autenticado posee rol de Administrador.
     /// </summary>
-    public static bool EsAdmin =>
-        string.Equals(Rol?.Trim(), "Administrador", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(Rol?.Trim(), "Admin", StringComparison.OrdinalIgnoreCase);
+    public static bool EsAdmin => TieneAccesoAdministrativo;
+
+    /// <summary>
+    /// Indica si el usuario autenticado es Dueño / SuperAdmin o Administrador con acceso a Inteligencia Gerencial.
+    /// </summary>
+    public static bool EsSuperAdmin => TieneAccesoAdministrativo;
+
+    /// <summary>
+    /// Indica si el usuario puede acceder al módulo de Reabastecimiento y Órdenes de Compra (Admin / SuperAdmin / Administrativo / Almacenero).
+    /// </summary>
+    public static bool PuedeGestionarReabastecimiento =>
+        TieneAccesoAdministrativo ||
+        string.Equals(Rol?.Trim(), "Almacenero", StringComparison.OrdinalIgnoreCase);
 
     public static void Establecer(Usuario usuario)
     {

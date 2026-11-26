@@ -150,6 +150,80 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.ConfiguracionNegocio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BancoQr")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Direccion")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte[]>("LogoImagen")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("MensajePieRecibo")
+                        .HasColumnType("text");
+
+                    b.Property<string>("NitNegocio")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("NombreNegocio")
+                        .HasColumnType("text");
+
+                    b.Property<byte[]>("QrPagoImagen")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TitularQr")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configuraciones_negocio", (string)null);
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.Cotizacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaEmision")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NitCliente")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NombreCliente")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("ValidezDias")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Cotizaciones");
+                });
+
             modelBuilder.Entity("FerreteriaERP.Core.Entities.Credito", b =>
                 {
                     b.Property<int>("Id")
@@ -186,6 +260,78 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.ToTable("Creditos");
                 });
 
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleCotizacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdCotizacion")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdProducto")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("IdPromocion")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("MontoDescuento")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdCotizacion");
+
+                    b.HasIndex("IdProducto");
+
+                    b.HasIndex("IdPromocion");
+
+                    b.ToTable("detalle_cotizaciones", (string)null);
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleOrdenCompra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CantidadSolicitada")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("CostoUnitarioEstimado")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("IdOrdenCompra")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdProducto")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdOrdenCompra");
+
+                    b.HasIndex("IdProducto");
+
+                    b.ToTable("detalles_orden_compra", (string)null);
+                });
+
             modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleVenta", b =>
                 {
                     b.Property<int>("Id")
@@ -200,8 +346,14 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Property<int>("IdProducto")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("IdPromocion")
+                        .HasColumnType("integer");
+
                     b.Property<int>("IdVenta")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("MontoDescuento")
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("PrecioUnitario")
                         .HasColumnType("numeric");
@@ -212,6 +364,8 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("IdProducto");
+
+                    b.HasIndex("IdPromocion");
 
                     b.HasIndex("IdVenta");
 
@@ -299,6 +453,86 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.HasIndex("IdVenta");
 
                     b.ToTable("Entregas");
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.GastoOperativo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("IdSucursal")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Monto")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdSucursal");
+
+                    b.ToTable("gastos_operativos", (string)null);
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.OrdenCompra", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("FechaEmision")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("IdProveedor")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdSucursal")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NumeroOrden")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalEstimado")
+                        .HasColumnType("numeric");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdProveedor");
+
+                    b.HasIndex("IdSucursal");
+
+                    b.HasIndex("IdUsuario");
+
+                    b.HasIndex("NumeroOrden")
+                        .IsUnique();
+
+                    b.ToTable("ordenes_compra", (string)null);
                 });
 
             modelBuilder.Entity("FerreteriaERP.Core.Entities.OrdenDespacho", b =>
@@ -402,6 +636,13 @@ namespace FerreteriaERP.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Alcance")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CantidadMinima")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("text");
@@ -415,14 +656,40 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("IdCategoria")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("IdProducto")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("IdSucursal")
+                        .HasColumnType("integer");
+
                     b.Property<string>("ImagenFondoUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TipoPromocion")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Titulo")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("ValorDescuento")
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("IdCategoria");
+
+                    b.HasIndex("IdProducto");
+
+                    b.HasIndex("IdSucursal");
 
                     b.ToTable("Promociones");
                 });
@@ -715,6 +982,51 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Navigation("Venta");
                 });
 
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleCotizacion", b =>
+                {
+                    b.HasOne("FerreteriaERP.Core.Entities.Cotizacion", "Cotizacion")
+                        .WithMany("Detalles")
+                        .HasForeignKey("IdCotizacion")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Promocion", "Promocion")
+                        .WithMany()
+                        .HasForeignKey("IdPromocion")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Cotizacion");
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Promocion");
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleOrdenCompra", b =>
+                {
+                    b.HasOne("FerreteriaERP.Core.Entities.OrdenCompra", "OrdenCompra")
+                        .WithMany("Detalles")
+                        .HasForeignKey("IdOrdenCompra")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("OrdenCompra");
+
+                    b.Navigation("Producto");
+                });
+
             modelBuilder.Entity("FerreteriaERP.Core.Entities.DetalleVenta", b =>
                 {
                     b.HasOne("FerreteriaERP.Core.Entities.Producto", "Producto")
@@ -723,6 +1035,11 @@ namespace FerreteriaERP.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("FerreteriaERP.Core.Entities.Promocion", "Promocion")
+                        .WithMany()
+                        .HasForeignKey("IdPromocion")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("FerreteriaERP.Core.Entities.Venta", "Venta")
                         .WithMany("Detalles")
                         .HasForeignKey("IdVenta")
@@ -730,6 +1047,8 @@ namespace FerreteriaERP.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Producto");
+
+                    b.Navigation("Promocion");
 
                     b.Navigation("Venta");
                 });
@@ -764,6 +1083,44 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Navigation("Venta");
                 });
 
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.GastoOperativo", b =>
+                {
+                    b.HasOne("FerreteriaERP.Core.Entities.Sucursal", "Sucursal")
+                        .WithMany()
+                        .HasForeignKey("IdSucursal")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Sucursal");
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.OrdenCompra", b =>
+                {
+                    b.HasOne("FerreteriaERP.Core.Entities.Proveedor", "Proveedor")
+                        .WithMany()
+                        .HasForeignKey("IdProveedor")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Sucursal", "Sucursal")
+                        .WithMany()
+                        .HasForeignKey("IdSucursal")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("IdUsuario")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Proveedor");
+
+                    b.Navigation("Sucursal");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("FerreteriaERP.Core.Entities.OrdenDespacho", b =>
                 {
                     b.HasOne("FerreteriaERP.Core.Entities.Venta", "Venta")
@@ -792,6 +1149,30 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Navigation("Categoria");
 
                     b.Navigation("Proveedor");
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.Promocion", b =>
+                {
+                    b.HasOne("FerreteriaERP.Core.Entities.Categoria", "Categoria")
+                        .WithMany()
+                        .HasForeignKey("IdCategoria")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Producto", "Producto")
+                        .WithMany()
+                        .HasForeignKey("IdProducto")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("FerreteriaERP.Core.Entities.Sucursal", "Sucursal")
+                        .WithMany()
+                        .HasForeignKey("IdSucursal")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Producto");
+
+                    b.Navigation("Sucursal");
                 });
 
             modelBuilder.Entity("FerreteriaERP.Core.Entities.StockSucursal", b =>
@@ -877,6 +1258,11 @@ namespace FerreteriaERP.Infrastructure.Migrations
                     b.Navigation("Ventas");
                 });
 
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.Cotizacion", b =>
+                {
+                    b.Navigation("Detalles");
+                });
+
             modelBuilder.Entity("FerreteriaERP.Core.Entities.Credito", b =>
                 {
                     b.Navigation("Abonos");
@@ -885,6 +1271,11 @@ namespace FerreteriaERP.Infrastructure.Migrations
             modelBuilder.Entity("FerreteriaERP.Core.Entities.Empleado", b =>
                 {
                     b.Navigation("Ventas");
+                });
+
+            modelBuilder.Entity("FerreteriaERP.Core.Entities.OrdenCompra", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 
             modelBuilder.Entity("FerreteriaERP.Core.Entities.Producto", b =>
