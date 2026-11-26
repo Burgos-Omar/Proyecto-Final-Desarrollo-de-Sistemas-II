@@ -28,6 +28,12 @@ namespace FerreteriaERP.Infrastructure.Data
         public DbSet<OrdenDespacho> OrdenesDespacho { get; set; } = null!;
         public DbSet<Empleado> Empleados { get; set; } = null!;
         public DbSet<Promocion> Promociones { get; set; } = null!;
+        public DbSet<Cotizacion> Cotizaciones { get; set; } = null!;
+        public DbSet<DetalleCotizacion> DetalleCotizaciones { get; set; } = null!;
+        public DbSet<GastoOperativo> GastosOperativos { get; set; } = null!;
+        public DbSet<OrdenCompra> OrdenesCompra { get; set; } = null!;
+        public DbSet<DetalleOrdenCompra> DetallesOrdenCompra { get; set; } = null!;
+        public DbSet<ConfiguracionNegocio> ConfiguracionesNegocio { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +45,11 @@ namespace FerreteriaERP.Infrastructure.Data
             modelBuilder.Entity<AbonoCredito>().ToTable("abonos_credito");
             modelBuilder.Entity<CargaEntrante>().ToTable("cargas_entrantes");
             modelBuilder.Entity<OrdenDespacho>().ToTable("ordenes_despacho");
+            modelBuilder.Entity<DetalleCotizacion>().ToTable("detalle_cotizaciones");
+            modelBuilder.Entity<GastoOperativo>().ToTable("gastos_operativos");
+            modelBuilder.Entity<OrdenCompra>().ToTable("ordenes_compra");
+            modelBuilder.Entity<DetalleOrdenCompra>().ToTable("detalles_orden_compra");
+            modelBuilder.Entity<ConfiguracionNegocio>().ToTable("configuraciones_negocio");
 
             // Configurar campos únicos para evitar duplicados a nivel de base de datos
             modelBuilder.Entity<Usuario>().HasIndex(u => u.Ci).IsUnique();
@@ -132,6 +143,11 @@ namespace FerreteriaERP.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(d => d.IdProducto)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Promocion)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdPromocion)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<Credito>(entity =>
@@ -192,6 +208,83 @@ namespace FerreteriaERP.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(o => o.IdVenta)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<DetalleCotizacion>(entity =>
+            {
+                entity.HasOne(d => d.Cotizacion)
+                    .WithMany(c => c.Detalles)
+                    .HasForeignKey(d => d.IdCotizacion)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Producto)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Promocion)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdPromocion)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<GastoOperativo>(entity =>
+            {
+                entity.HasOne(g => g.Sucursal)
+                    .WithMany()
+                    .HasForeignKey(g => g.IdSucursal)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Promocion>(entity =>
+            {
+                entity.HasOne(p => p.Producto)
+                    .WithMany()
+                    .HasForeignKey(p => p.IdProducto)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(p => p.Categoria)
+                    .WithMany()
+                    .HasForeignKey(p => p.IdCategoria)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(p => p.Sucursal)
+                    .WithMany()
+                    .HasForeignKey(p => p.IdSucursal)
+                    .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<OrdenCompra>(entity =>
+            {
+                entity.HasIndex(o => o.NumeroOrden).IsUnique();
+
+                entity.HasOne(o => o.Proveedor)
+                    .WithMany()
+                    .HasForeignKey(o => o.IdProveedor)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(o => o.Sucursal)
+                    .WithMany()
+                    .HasForeignKey(o => o.IdSucursal)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(o => o.Usuario)
+                    .WithMany()
+                    .HasForeignKey(o => o.IdUsuario)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<DetalleOrdenCompra>(entity =>
+            {
+                entity.HasOne(d => d.OrdenCompra)
+                    .WithMany(o => o.Detalles)
+                    .HasForeignKey(d => d.IdOrdenCompra)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.Producto)
+                    .WithMany()
+                    .HasForeignKey(d => d.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

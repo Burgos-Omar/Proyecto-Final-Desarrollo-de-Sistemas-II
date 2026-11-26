@@ -10,7 +10,7 @@ namespace FerreteriaERP.Infrastructure.Data
             var optionsBuilder = new DbContextOptionsBuilder<FerreteriaDbContext>();
             
             // Cadena de conexión a tu base de datos local
-            var connectionString = "Host=localhost;Port=5432;Database=FerreteriaDSS;Username=postgres;Password=12345";
+            var connectionString = "Host=localhost;Port=5432;Database=FerreteriaDSS;Username=postgres;Password=kali";
             
             optionsBuilder.UseNpgsql(connectionString);
 

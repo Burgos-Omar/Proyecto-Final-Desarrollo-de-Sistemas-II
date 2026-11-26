@@ -1,8 +1,6 @@
 using System;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using FerreteriaERP.UI.Desktop.ViewModels;
 
@@ -10,7 +8,6 @@ namespace FerreteriaERP.UI.Desktop.Views;
 
 public partial class PosView : UserControl
 {
-    private static readonly Uri QrAssetUri = new("avares://FerreteriaERP.UI.Desktop/Assets/qr_placeholder.png");
     private PosViewModel? _suscritoVm;
 
     public PosView()
@@ -22,8 +19,6 @@ public partial class PosView : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
-
-        CargarQrPersonalizadoSiExiste();
         EnfocarEscaneador();
     }
 
@@ -53,25 +48,8 @@ public partial class PosView : UserControl
         }
     }
 
-    private void CargarQrPersonalizadoSiExiste()
-    {
-        try
-        {
-            if (AssetLoader.Exists(QrAssetUri))
-            {
-                using var stream = AssetLoader.Open(QrAssetUri);
-                ImgQrPago.Source = new Bitmap(stream);
-            }
-        }
-        catch
-        {
-            // Mantiene el QR vectorial integrado en App.axaml si el archivo no existe o es inválido.
-        }
-    }
-
     private void EnfocarEscaneador()
     {
         Dispatcher.UIThread.Post(() => TxtCodigoBarras?.Focus(), DispatcherPriority.Input);
     }
 }
-

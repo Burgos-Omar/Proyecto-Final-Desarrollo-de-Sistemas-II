@@ -1,0 +1,620 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:FerreteriaERP.UI.Desktop.ViewModels"
+             xmlns:entities="using:FerreteriaERP.Core.Entities"
+             xmlns:interfaces="using:FerreteriaERP.Core.Interfaces"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="1360" d:DesignHeight="860"
+             Background="{StaticResource PrimaryBackgroundBrush}"
+             x:Class="FerreteriaERP.UI.Desktop.Views.GerenciaView"
+             x:DataType="vm:GerenciaViewModel">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="18" Margin="28,20,28,28">
+
+            <!-- =============================================================== -->
+            <!-- 1. BARRA SUPERIOR DE TÍTULO Y FILTROS DE TIEMPO                 -->
+            <!-- =============================================================== -->
+            <Border Classes="Card"
+                    Padding="18,14">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Classes="h1"
+                                       Text="Inteligencia Gerencial" />
+                            <Border Padding="10,3"
+                                    CornerRadius="999"
+                                    Background="#FEF3C7"
+                                    BorderBrush="#FDE68A"
+                                    BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <materialIcons:MaterialIcon Kind="CrownOutline"
+                                                                Width="14"
+                                                                Height="14"
+                                                                Foreground="#B45309"
+                                                                VerticalAlignment="Center" />
+                                    <TextBlock Text="SOLO DUEÑO / SUPERADMIN"
+                                               FontSize="10.5"
+                                               FontWeight="Bold"
+                                               Foreground="#B45309"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Classes="subtitle"
+                                   Text="Rentabilidad neta, capital invertido en almacén, embudo de conversión y gastos operativos." />
+                    </StackPanel>
+
+                    <!-- Controles Rápidos + Rango CalendarDatePicker -->
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                VerticalAlignment="Center">
+                        <Button Classes="ghost"
+                                Content="Esta Semana"
+                                Command="{Binding FiltrarSemanaCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Padding="12,8"
+                                FontSize="12.5" />
+                        <Button Classes="ghost"
+                                Content="Este Mes"
+                                Command="{Binding FiltrarMesCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Padding="12,8"
+                                FontSize="12.5" />
+                        <Button Classes="ghost"
+                                Content="Este Año"
+                                Command="{Binding FiltrarAnioCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Padding="12,8"
+                                FontSize="12.5" />
+
+                        <Border Width="1"
+                                Height="26"
+                                Margin="4,0"
+                                Background="{StaticResource SubtleBorderBrush}" />
+
+                        <CalendarDatePicker SelectedDate="{Binding FechaInicio, Mode=TwoWay}"
+                                            SelectedDateFormat="Custom"
+                                            CustomDateFormatString="dd/MM/yyyy"
+                                            PlaceholderText="Desde..."
+                                            Width="132" />
+
+                        <CalendarDatePicker SelectedDate="{Binding FechaFin, Mode=TwoWay}"
+                                            SelectedDateFormat="Custom"
+                                            CustomDateFormatString="dd/MM/yyyy"
+                                            PlaceholderText="Hasta..."
+                                            Width="132" />
+
+                        <Button Content="Filtrar"
+                                Command="{Binding AplicarRangoCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                Padding="16,8" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Banner de Error si falla alguna consulta -->
+            <Border Padding="14,10"
+                    CornerRadius="10"
+                    Background="{StaticResource DangerSubtleBgBrush}"
+                    BorderBrush="{StaticResource DangerSubtleBorderBrush}"
+                    BorderThickness="1"
+                    IsVisible="{Binding MostrarError}">
+                <TextBlock Text="{Binding MensajeError}"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+            </Border>
+
+            <!-- =============================================================== -->
+            <!-- 2. FILA DE 4 TARJETAS KPI FINANCIERAS                           -->
+            <!-- =============================================================== -->
+            <UniformGrid Columns="4" Rows="1">
+
+                <!-- KPI 1: CAPITAL INVERTIDO EN ALMACÉN -->
+                <Border Classes="Card"
+                        Margin="0,0,12,0"
+                        Padding="18,16">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="5">
+                            <TextBlock Classes="label"
+                                       Text="CAPITAL INVERTIDO EN ALMACÉN" />
+                            <TextBlock Text="{Binding CapitalInvertidoTexto}"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="#0284C7"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Valorización actual a precio de costo"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Width="40"
+                                Height="40"
+                                CornerRadius="10"
+                                Background="#E0F2FE"
+                                VerticalAlignment="Top">
+                            <materialIcons:MaterialIcon Kind="Warehouse"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="#0284C7"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- KPI 2: INGRESOS BRUTOS DEL PERIODO -->
+                <Border Classes="Card"
+                        Margin="0,0,12,0"
+                        Padding="18,16">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="5">
+                            <TextBlock Classes="label"
+                                       Text="INGRESOS BRUTOS DEL PERIODO" />
+                            <TextBlock Text="{Binding IngresosBrutosTexto}"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryTextBrush}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding CostoMercaderiaVendidaTexto}"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Width="40"
+                                Height="40"
+                                CornerRadius="10"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                VerticalAlignment="Top">
+                            <materialIcons:MaterialIcon Kind="CashMultiple"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- KPI 3: GASTOS OPERATIVOS / EXTRAS -->
+                <Border Classes="Card"
+                        Margin="0,0,12,0"
+                        Padding="18,16">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="5">
+                            <TextBlock Classes="label"
+                                       Text="GASTOS OPERATIVOS / EXTRAS" />
+                            <TextBlock Text="{Binding TotalGastosExtrasTexto}"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="#D97706"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Alquiler, salarios, luz/agua e impuestos"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Width="40"
+                                Height="40"
+                                CornerRadius="10"
+                                Background="#FEF3C7"
+                                VerticalAlignment="Top">
+                            <materialIcons:MaterialIcon Kind="ReceiptTextOutline"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="#D97706"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- KPI 4: GANANCIA LÍQUIDA NETA -->
+                <Border Classes="Card"
+                        Padding="18,16"
+                        BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                        BorderThickness="1.5">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Grid.Column="0" Spacing="5">
+                            <TextBlock Classes="label"
+                                       Text="GANANCIA LÍQUIDA NETA" />
+                            <TextBlock Text="{Binding GananciaLiquidaNetaTexto}"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                       IsVisible="{Binding EsGananciaPositiva}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding GananciaLiquidaNetaTexto}"
+                                       FontSize="22"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       IsVisible="{Binding EsGananciaNegativa}"
+                                       TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Ingresos − Costo Mercadería − Gastos"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <Border Grid.Column="1"
+                                Width="40"
+                                Height="40"
+                                CornerRadius="10"
+                                Background="{StaticResource AccentSubtleBgBrush}"
+                                VerticalAlignment="Top">
+                            <materialIcons:MaterialIcon Kind="Finance"
+                                                        Width="20"
+                                                        Height="20"
+                                                        Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+
+            </UniformGrid>
+
+            <!-- =============================================================== -->
+            <!-- 3. ZONA CENTRAL: GRÁFICOS LIVECHARTS2                           -->
+            <!-- =============================================================== -->
+            <Grid ColumnDefinitions="*,16,*">
+
+                <!-- Izquierda: Evolución Mensual de Ingresos -->
+                <Border Grid.Column="0"
+                        Classes="Card"
+                        Padding="20,16">
+                    <StackPanel Spacing="10">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h2"
+                                       FontSize="15.5"
+                                       FontWeight="Bold"
+                                       Text="Evolución Mensual de Ingresos Brutos" />
+                            <TextBlock Classes="subtitle"
+                                       FontSize="12"
+                                       Text="Tendencia de facturación durante los últimos 6 meses" />
+                        </StackPanel>
+
+                        <lvc:CartesianChart Series="{Binding SeriesTendenciaMensual}"
+                                            XAxes="{Binding EjeXMeses}"
+                                            Height="280" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Derecha: Frecuencia de Compras vs Cotizaciones + Embudo -->
+                <Border Grid.Column="2"
+                        Classes="Card"
+                        Padding="20,16">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Classes="h2"
+                                           FontSize="15.5"
+                                           FontWeight="Bold"
+                                           Text="Flujo de Clientes y Conversión" />
+                                <TextBlock Classes="subtitle"
+                                           FontSize="12"
+                                           Text="{Binding SubtituloFlujoClientes}" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Padding="10,4"
+                                    CornerRadius="999"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                    BorderThickness="1"
+                                    VerticalAlignment="Top">
+                                <TextBlock Text="{Binding TasaConversionTexto}"
+                                           FontSize="11.5"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                            </Border>
+                        </Grid>
+
+                        <lvc:CartesianChart Series="{Binding SeriesFlujoClientes}"
+                                            XAxes="{Binding EjeXFlujo}"
+                                            Height="280" />
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+            <!-- =============================================================== -->
+            <!-- 4. ZONA INFERIOR (3 COLUMNAS)                                   -->
+            <!-- =============================================================== -->
+            <Grid ColumnDefinitions="*,16,*,16,*">
+
+                <!-- COLUMNA 1: REGISTRO RÁPIDO DE GASTOS OPERATIVOS -->
+                <Border Grid.Column="0"
+                        Classes="Card"
+                        Padding="18,16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h2"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Text="Registrar Gasto Operativo" />
+                            <TextBlock Classes="subtitle"
+                                       FontSize="11.5"
+                                       Text="Descuenta alquiler, sueldos, luz/agua o impuestos de la ganancia neta" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Classes="label" Text="CATEGORÍA DEL GASTO" />
+                            <ComboBox ItemsSource="{Binding CategoriasGasto}"
+                                      SelectedItem="{Binding NuevoGastoCategoria}"
+                                      HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,10,120">
+                            <StackPanel Grid.Column="0" Spacing="5">
+                                <TextBlock Classes="label" Text="DESCRIPCIÓN" />
+                                <TextBox Text="{Binding NuevoGastoDescripcion}"
+                                         PlaceholderText="Ej. Factura SETAR mes actual" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Spacing="5">
+                                <TextBlock Classes="label" Text="MONTO (BS)" />
+                                <TextBox Text="{Binding NuevoGastoMonto}"
+                                         PlaceholderText="0.00" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Button Content="Registrar Gasto y Recalcular"
+                                Command="{Binding RegistrarGastoCommand}"
+                                IsEnabled="{Binding ControlesHabilitados}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center" />
+
+                        <Border Height="1"
+                                Background="{StaticResource SubtleBorderBrush}" />
+
+                        <TextBlock Classes="label"
+                                   Text="GASTOS DEL PERIODO" />
+
+                        <ItemsControl ItemsSource="{Binding GastosRecientes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="entities:GastoOperativo">
+                                    <Border Margin="0,0,0,6"
+                                            Padding="10,7"
+                                            CornerRadius="8"
+                                            Background="#F8FAFC"
+                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                            BorderThickness="1">
+                                        <Grid ColumnDefinitions="*,8,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="1">
+                                                <TextBlock Text="{Binding Categoria}"
+                                                           FontSize="12"
+                                                           FontWeight="Bold" />
+                                                <TextBlock Text="{Binding Descripcion}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           TextTrimming="CharacterEllipsis" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" HorizontalAlignment="Right">
+                                                <TextBlock Text="{Binding MontoTexto}"
+                                                           FontSize="12.5"
+                                                           FontWeight="Bold"
+                                                           Foreground="#D97706"
+                                                           HorizontalAlignment="Right" />
+                                                <TextBlock Text="{Binding FechaTexto}"
+                                                           FontSize="10"
+                                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                                           HorizontalAlignment="Right" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- COLUMNA 2: TOP TRABAJADORES DEL PERIODO -->
+                <Border Grid.Column="2"
+                        Classes="Card"
+                        Padding="18,16">
+                    <StackPanel Spacing="12">
+                        <StackPanel Spacing="2">
+                            <TextBlock Classes="h2"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Text="Top Trabajadores del Periodo" />
+                            <TextBlock Classes="subtitle"
+                                       FontSize="11.5"
+                                       Text="Personal con mayor volumen de ventas cerradas en el rango" />
+                        </StackPanel>
+
+                        <Border Height="1"
+                                Background="{StaticResource SubtleBorderBrush}" />
+
+                        <ItemsControl ItemsSource="{Binding TopEmpleados}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EmpleadoGerenciaItem">
+                                    <Border Margin="0,0,0,8"
+                                            Padding="12,9"
+                                            CornerRadius="10"
+                                            Background="#F8FAFC"
+                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                            BorderThickness="1">
+                                        <Grid ColumnDefinitions="Auto,10,*,10,Auto">
+                                            <Border Grid.Column="0"
+                                                    Width="30"
+                                                    Height="30"
+                                                    CornerRadius="999"
+                                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding PosicionTexto}"
+                                                           FontSize="11.5"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+
+                                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="1">
+                                                <TextBlock Text="{Binding NombreCompleto}"
+                                                           FontSize="13"
+                                                           FontWeight="Bold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding CantidadVentasTexto}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="4"
+                                                       Text="{Binding TotalVendidoTexto}"
+                                                       FontSize="13"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- COLUMNA 3: RENDIMIENTO REAL DE PROMOCIONES (PASO 29) -->
+                <Border Grid.Column="4"
+                        Classes="Card"
+                        Padding="18,16">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Classes="h2"
+                                           FontSize="15"
+                                           FontWeight="Bold"
+                                           Text="Rendimiento de Promociones" />
+                                <TextBlock Classes="subtitle"
+                                           FontSize="11.5"
+                                           Text="Impacto comercial y adopción en el periodo" />
+                            </StackPanel>
+
+                            <Border Grid.Column="1"
+                                    Padding="10,4"
+                                    CornerRadius="999"
+                                    Background="{StaticResource AccentSubtleBgBrush}"
+                                    BorderBrush="{StaticResource AccentSubtleBorderBrush}"
+                                    BorderThickness="1"
+                                    VerticalAlignment="Top">
+                                <TextBlock Text="{Binding PorcentajeVentasPromoTexto}"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Resumen de Ventas Promocionales vs Descontado -->
+                        <Grid ColumnDefinitions="*,10,*">
+                            <Border Grid.Column="0"
+                                    Padding="12,10"
+                                    CornerRadius="8"
+                                    Background="#F8FAFC"
+                                    BorderBrush="{StaticResource SubtleBorderBrush}"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="label"
+                                               Text="GENERADO EN PROMOS"
+                                               FontSize="10" />
+                                    <TextBlock Text="{Binding TotalVentasPromoTexto}"
+                                               FontSize="14.5"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource PrimaryAccentHoverBrush}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Column="2"
+                                    Padding="12,10"
+                                    CornerRadius="8"
+                                    Background="#FEF3C7"
+                                    BorderBrush="#FDE68A"
+                                    BorderThickness="1">
+                                <StackPanel Spacing="2">
+                                    <TextBlock Classes="label"
+                                               Text="TOTAL DESCONTADO"
+                                               FontSize="10"
+                                               Foreground="#B45309" />
+                                    <TextBlock Text="{Binding TotalDescontadoPromoTexto}"
+                                               FontSize="14.5"
+                                               FontWeight="Bold"
+                                               Foreground="#B45309" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <Border Height="1"
+                                Background="{StaticResource SubtleBorderBrush}" />
+
+                        <TextBlock Classes="label"
+                                   Text="TOP 3 CAMPAÑAS MÁS EXITOSAS" />
+
+                        <ItemsControl ItemsSource="{Binding TopCampanasPromocionales}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="interfaces:RendimientoCampanaItem">
+                                    <Border Margin="0,0,0,7"
+                                            Padding="11,8"
+                                            CornerRadius="8"
+                                            Background="#F8FAFC"
+                                            BorderBrush="{StaticResource SubtleBorderBrush}"
+                                            BorderThickness="1">
+                                        <Grid ColumnDefinitions="*,8,Auto">
+                                            <StackPanel Grid.Column="0" Spacing="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding NombrePromocion}"
+                                                           FontSize="12.5"
+                                                           FontWeight="Bold"
+                                                           TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Text="{Binding VecesAplicadaTexto}"
+                                                           FontSize="11"
+                                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding TotalGeneradoTexto}"
+                                                       FontSize="12.5"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource PrimaryAccentHoverBrush}"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Border Padding="14,12"
+                                CornerRadius="8"
+                                Background="#F8FAFC"
+                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                BorderThickness="1"
+                                IsVisible="{Binding SinTopCampanas}">
+                            <StackPanel Spacing="4" HorizontalAlignment="Center">
+                                <materialIcons:MaterialIcon Kind="TagHeartOutline"
+                                                            Width="22"
+                                                            Height="22"
+                                                            Foreground="{StaticResource SecondaryTextBrush}"
+                                                            HorizontalAlignment="Center" />
+                                <TextBlock Text="Sin ventas promocionales en este periodo"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource SecondaryTextBrush}"
+                                           HorizontalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

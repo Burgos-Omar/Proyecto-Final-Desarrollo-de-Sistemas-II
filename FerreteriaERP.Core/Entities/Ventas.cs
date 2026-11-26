@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FerreteriaERP.Core.Entities
 {
@@ -51,5 +52,26 @@ namespace FerreteriaERP.Core.Entities
 
         public int IdProducto { get; set; }
         public Producto Producto { get; set; } = null!;
+
+        // Trazabilidad financiera de promociones (PASO 29)
+        public int? IdPromocion { get; set; }
+        public Promocion? Promocion { get; set; }
+        public decimal MontoDescuento { get; set; }
+
+        [NotMapped]
+        public decimal PrecioOriginalUnitario { get; set; }
+
+        [NotMapped]
+        public string? NombrePromocionAplicada { get; set; }
+
+        [NotMapped]
+        public bool TienePromocion =>
+            MontoDescuento > 0m && !string.IsNullOrWhiteSpace(NombrePromocionAplicada);
+
+        [NotMapped]
+        public string BadgePromocionTexto =>
+            TienePromocion
+                ? $"Promo: {NombrePromocionAplicada} (-Bs. {MontoDescuento:N2})"
+                : string.Empty;
     }
 }

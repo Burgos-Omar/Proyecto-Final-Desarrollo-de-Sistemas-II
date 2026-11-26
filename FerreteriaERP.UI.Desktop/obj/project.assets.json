@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
     "net9.0": {
       "Avalonia/12.1.4": {
@@ -537,7 +537,7 @@
           }
         }
       },
-      "LiveChartsCore/2.0.5": {
+      "LiveChartsCore/2.2.0": {
         "type": "package",
         "compile": {
           "lib/net8.0/LiveChartsCore.dll": {
@@ -550,10 +550,10 @@
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView/2.0.5": {
+      "LiveChartsCore.SkiaSharpView/2.2.0": {
         "type": "package",
         "dependencies": {
-          "LiveChartsCore": "2.0.5",
+          "LiveChartsCore": "2.2.0",
           "SkiaSharp": "2.88.9",
           "SkiaSharp.HarfBuzz": "2.88.9"
         },
@@ -568,12 +568,12 @@
           }
         }
       },
-      "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
+      "LiveChartsCore.SkiaSharpView.Avalonia/2.2.0": {
         "type": "package",
         "dependencies": {
           "Avalonia": "11.0.0",
           "Avalonia.Skia": "11.0.0",
-          "LiveChartsCore.SkiaSharpView": "2.0.5"
+          "LiveChartsCore.SkiaSharpView": "2.2.0"
         },
         "compile": {
           "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.dll": {
@@ -2487,10 +2487,10 @@
         "logo.png"
       ]
     },
-    "LiveChartsCore/2.0.5": {
-      "sha512": "cbGiOyGxO+fsWLvrQ4R6Rd8QHfkRGyhxyD6nBSk8/ZwKKtU+vWSqlC4ESgwKSUbrzvK8ooU/yfFJpjHXzPd+vA==",
+    "LiveChartsCore/2.2.0": {
+      "sha512": "7eBSjKr9GgrOzUPe3wwOs2B50KEIpFkYxRpYW6GWdmQJYrNn9y7PzLxL/jTQk+wbhahDnNZ281yIJsoqqxzhgw==",
       "type": "package",
-      "path": "livechartscore/2.0.5",
+      "path": "livechartscore/2.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2504,14 +2504,14 @@
         "lib/net8.0/LiveChartsCore.xml",
         "lib/netstandard2.0/LiveChartsCore.dll",
         "lib/netstandard2.0/LiveChartsCore.xml",
-        "livechartscore.2.0.5.nupkg.sha512",
+        "livechartscore.2.2.0.nupkg.sha512",
         "livechartscore.nuspec"
       ]
     },
-    "LiveChartsCore.SkiaSharpView/2.0.5": {
-      "sha512": "YgRhisuVev2RocHqq7d9juSBGBlMLKYQA5ijEuD/sWeV39dCBInBK4RSfqBYTuNNWs5Fe+NA+F0TCIWJ2t1Cew==",
+    "LiveChartsCore.SkiaSharpView/2.2.0": {
+      "sha512": "mfffHDIJfxHRiIqWa4Hwsq4NPYmwp9rThOW8TsrJrAZGAqtSigzTBWJtUAxYYGb2ZJI+Q0jd2qYpxnqGBoAGsA==",
       "type": "package",
-      "path": "livechartscore.skiasharpview/2.0.5",
+      "path": "livechartscore.skiasharpview/2.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2525,14 +2525,14 @@
         "lib/net8.0/LiveChartsCore.SkiaSharpView.xml",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.dll",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.xml",
-        "livechartscore.skiasharpview.2.0.5.nupkg.sha512",
+        "livechartscore.skiasharpview.2.2.0.nupkg.sha512",
         "livechartscore.skiasharpview.nuspec"
       ]
     },
-    "LiveChartsCore.SkiaSharpView.Avalonia/2.0.5": {
-      "sha512": "gwqV/H5EWhk8KIwc8/4sdPVjsdJ5RpOC5Pfmd1lKIYltCntJQeZTcn1kC4mKykN+eU+BlT0W/grA3xioXdP7iA==",
+    "LiveChartsCore.SkiaSharpView.Avalonia/2.2.0": {
+      "sha512": "gbKBwBhDTSx49mXLUGadQ3FppIl361Be/wNbekFTZa/RgnhqO61RW9jLRNMNNBw26UN88HOzctjUARDFhs+HKA==",
       "type": "package",
-      "path": "livechartscore.skiasharpview.avalonia/2.0.5",
+      "path": "livechartscore.skiasharpview.avalonia/2.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -2544,7 +2544,7 @@
         "lib/net8.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.Avalonia.dll",
         "lib/netstandard2.0/LiveChartsCore.SkiaSharpView.Avalonia.xml",
-        "livechartscore.skiasharpview.avalonia.2.0.5.nupkg.sha512",
+        "livechartscore.skiasharpview.avalonia.2.2.0.nupkg.sha512",
         "livechartscore.skiasharpview.avalonia.nuspec"
       ]
     },
@@ -4816,46 +4816,30 @@
       "CommunityToolkit.Mvvm >= 8.4.2",
       "FerreteriaERP.Core >= 1.0.0",
       "FerreteriaERP.Infrastructure >= 1.0.0",
-      "LiveChartsCore.SkiaSharpView.Avalonia >= 2.0.5",
+      "LiveChartsCore.SkiaSharpView.Avalonia >= 2.2.0",
       "Material.Icons.Avalonia >= 3.0.2",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Microsoft.Extensions.DependencyInjection >= 9.0.0"
     ]
   },
   "packageFolders": {
-<<<<<<< HEAD
-    "C:\\Users\\HP\\.nuget\\packages\\": {},
-=======
-    "C:\\Users\\Cesar Velasco Cazón\\.nuget\\packages\\": {},
->>>>>>> cesar
+    "C:\\Users\\ADRIAN\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-<<<<<<< HEAD
-      "projectUniqueName": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
+      "projectUniqueName": "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
       "projectName": "FerreteriaERP.UI.Desktop",
-      "projectPath": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
-      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\obj\\",
-=======
-      "projectUniqueName": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
-      "projectName": "FerreteriaERP.UI.Desktop",
-      "projectPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
-      "packagesPath": "C:\\Users\\Cesar Velasco Cazón\\.nuget\\packages\\",
-      "outputPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.UI.Desktop\\obj\\",
->>>>>>> cesar
+      "projectPath": "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.UI.Desktop\\FerreteriaERP.UI.Desktop.csproj",
+      "packagesPath": "C:\\Users\\ADRIAN\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.UI.Desktop\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-<<<<<<< HEAD
-        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
-=======
-        "C:\\Users\\Cesar Velasco Cazón\\AppData\\Roaming\\NuGet\\NuGet.Config",
->>>>>>> cesar
+        "C:\\Users\\ADRIAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4868,22 +4852,13 @@
       },
       "frameworks": {
         "net9.0": {
-          "framework": "net9.0",
           "targetAlias": "net9.0",
           "projectReferences": {
-<<<<<<< HEAD
-            "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj": {
-              "projectPath": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj"
+            "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj": {
+              "projectPath": "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj"
             },
-            "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj": {
-              "projectPath": "C:\\Users\\HP\\Desktop\\proyec\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj"
-=======
-            "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj": {
-              "projectPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Core\\FerreteriaERP.Core.csproj"
-            },
-            "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj": {
-              "projectPath": "D:\\UPDS 2026\\Desarrollo de Sistemas II\\Proyecto Final - Ferreteria\\Proyecto-Final-Desarrollo-de-Sistemas-II\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj"
->>>>>>> cesar
+            "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj": {
+              "projectPath": "C:\\Users\\ADRIAN\\Desktop\\Programa Ferreteria\\FerreteriaERP.Infrastructure\\FerreteriaERP.Infrastructure.csproj"
             }
           }
         }
@@ -4898,11 +4873,10 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.300"
+      "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
       "net9.0": {
-        "framework": "net9.0",
         "targetAlias": "net9.0",
         "dependencies": {
           "Avalonia": {
@@ -4935,7 +4909,7 @@
           },
           "LiveChartsCore.SkiaSharpView.Avalonia": {
             "target": "Package",
-            "version": "[2.0.5, )"
+            "version": "[2.2.0, )"
           },
           "Material.Icons.Avalonia": {
             "target": "Package",
@@ -4968,11 +4942,7 @@
             "privateAssets": "all"
           }
         },
-<<<<<<< HEAD
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
-=======
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
->>>>>>> cesar
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

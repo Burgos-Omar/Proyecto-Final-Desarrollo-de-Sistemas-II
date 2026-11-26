@@ -537,6 +537,8 @@
 
                                     <Button Grid.Column="2"
                                             Content="Ver promociones -&gt;"
+                                            Command="{Binding VerPromocionesCommand}"
+                                            IsVisible="{Binding PuedeVerPromociones}"
                                             Background="{StaticResource PrimaryAccentBrush}"
                                             Foreground="#FFFFFF"
                                             FontSize="10"
@@ -566,12 +568,23 @@
                                                TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
 
-                                <materialIcons:MaterialIcon Grid.Column="1"
-                                                            Kind="BellRingOutline"
-                                                            Width="18"
-                                                            Height="18"
-                                                            Foreground="#D97706"
-                                                            VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            Spacing="6"
+                                            VerticalAlignment="Center">
+                                    <Button Classes="ghost"
+                                            Content="Reabastecer -&gt;"
+                                            Command="{Binding IrAReabastecimientoCommand}"
+                                            IsVisible="{Binding PuedeVerReabastecimiento}"
+                                            FontSize="10.5"
+                                            FontWeight="Bold"
+                                            Padding="8,4" />
+                                    <materialIcons:MaterialIcon Kind="BellRingOutline"
+                                                                Width="18"
+                                                                Height="18"
+                                                                Foreground="#D97706"
+                                                                VerticalAlignment="Center" />
+                                </StackPanel>
                             </Grid>
 
                             <Border Height="1"

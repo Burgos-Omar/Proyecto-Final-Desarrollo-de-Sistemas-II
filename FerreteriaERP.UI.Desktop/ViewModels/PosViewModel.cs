@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Notifications;
-using Avalonia.Platform.Storage;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,6 +18,7 @@ using FerreteriaERP.Core.Constants;
 using FerreteriaERP.Core.Entities;
 using FerreteriaERP.Core.Exceptions;
 using FerreteriaERP.Core.Interfaces;
+using FerreteriaERP.Core.Services;
 using FerreteriaERP.Infrastructure.Data;
 using FerreteriaERP.Infrastructure.Services;
 using FerreteriaERP.UI.Desktop.Views;
@@ -29,12 +31,17 @@ public partial class PosViewModel : ViewModelBase
     private readonly IProductoRepository _productoRepository;
     private readonly IVentaRepository _ventaRepository;
     private readonly IClienteRepository _clienteRepository;
+    private readonly ICotizacionRepository _cotizacionRepository;
+    private readonly IPromocionRepository _promocionRepository;
+    private readonly IConfiguracionRepository _configuracionRepository;
     private readonly ISesionService _sesionService;
     private readonly IDbContextFactory<FerreteriaDbContext> _dbContextFactory;
     private readonly TicketPdfService _ticketPdfService;
 
     private List<Producto> _productosConStockSucursal = new();
+    private List<Promocion> _promocionesVigentesSucursal = new();
     private bool _sincronizandoMontoTexto;
+    private string? _nitNegocioDefault;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TieneTextoBusqueda))]
@@ -47,6 +54,11 @@ public partial class PosViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ResumenArticulos))]
     private int _totalArticulos;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TieneDescuentoTotal))]
+    [NotifyPropertyChangedFor(nameof(TotalAhorradoTexto))]
+    private decimal _totalDescuentoCarrito;
 
     [ObservableProperty]
     private decimal _montoRecibido;
@@ -73,6 +85,17 @@ public partial class PosViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(FechaLimiteCreditoTexto))]
     private DateTime? _fechaLimiteCredito = DateTime.Today.AddDays(30);
 
+    // Datos permanentes de facturación / recibo (PASO 23.3)
+    [ObservableProperty]
+    private string _nitFactura = "0";
+
+    [ObservableProperty]
+    private string _nombreFactura = "S/N";
+
+    // Búsqueda rápida de Proforma / Cotización para convertirla en Venta (PASO 27)
+    [ObservableProperty]
+    private string _nroProformaBusqueda = string.Empty;
+
     // Gestión de Cliente para Ventas a Crédito (PASO 8)
     [ObservableProperty]
     private string _ciNitBusqueda = string.Empty;
@@ -88,6 +111,18 @@ public partial class PosViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(TextoClienteConfirmado))]
     [NotifyPropertyChangedFor(nameof(DetalleClienteConfirmado))]
     private Cliente? _clienteSeleccionado;
+
+    // QR Bancario configurado desde Módulo de Configuración (PASO 31)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TieneQrBancario))]
+    [NotifyPropertyChangedFor(nameof(SinQrBancario))]
+    private Bitmap? _qrPagoBitmap;
+
+    [ObservableProperty]
+    private string _bancoQr = string.Empty;
+
+    [ObservableProperty]
+    private string _titularQr = string.Empty;
 
     // Sistema de Recompensas en POS: Vendedor que concretó la venta (PASO 14)
     [ObservableProperty]
@@ -113,6 +148,9 @@ public partial class PosViewModel : ViewModelBase
         IProductoRepository productoRepository,
         IVentaRepository ventaRepository,
         IClienteRepository clienteRepository,
+        ICotizacionRepository cotizacionRepository,
+        IPromocionRepository promocionRepository,
+        IConfiguracionRepository configuracionRepository,
         ISesionService sesionService,
         IDbContextFactory<FerreteriaDbContext> dbContextFactory,
         TicketPdfService ticketPdfService)
@@ -120,6 +158,9 @@ public partial class PosViewModel : ViewModelBase
         _productoRepository = productoRepository;
         _ventaRepository = ventaRepository;
         _clienteRepository = clienteRepository;
+        _cotizacionRepository = cotizacionRepository;
+        _promocionRepository = promocionRepository;
+        _configuracionRepository = configuracionRepository;
         _sesionService = sesionService;
         _dbContextFactory = dbContextFactory;
         _ticketPdfService = ticketPdfService;
@@ -151,6 +192,10 @@ public partial class PosViewModel : ViewModelBase
 
     public string TotalFormateado => $"Bs {Total:N2}";
 
+    public bool TieneDescuentoTotal => TotalDescuentoCarrito > 0m;
+
+    public string TotalAhorradoTexto => $"Ahorro en promociones: -Bs {TotalDescuentoCarrito:N2}";
+
     public string CambioFormateado => $"Bs {CambioDado:N2}";
 
     public string ResumenArticulos => TotalArticulos == 1
@@ -162,6 +207,9 @@ public partial class PosViewModel : ViewModelBase
 
     public bool EsPagoQr => MetodoPagoSeleccionado == MetodosPago.QR;
     public bool NoEsPagoQr => !EsPagoQr;
+
+    public bool TieneQrBancario => QrPagoBitmap is not null;
+    public bool SinQrBancario => QrPagoBitmap is null;
 
     public bool IsPagoCredito => MetodoPagoSeleccionado == MetodosPago.Credito;
     public bool EsPagoCredito => IsPagoCredito;
@@ -205,6 +253,15 @@ public partial class PosViewModel : ViewModelBase
     partial void OnTextoBusquedaChanged(string value)
     {
         FiltrarCatalogoVisible(value);
+    }
+
+    partial void OnNitFacturaChanged(string value)
+    {
+        if (ClienteSeleccionado is not null &&
+            !string.Equals(ClienteSeleccionado.Ci, value?.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            ClienteSeleccionado = null;
+        }
     }
 
     partial void OnCiNitBusquedaChanged(string value)
@@ -251,6 +308,44 @@ public partial class PosViewModel : ViewModelBase
     {
         LimpiarMensaje();
         RecalcularCambio();
+
+        if (value == MetodosPago.QR)
+        {
+            _ = CargarConfiguracionQrAsync();
+        }
+    }
+
+    private async Task CargarConfiguracionQrAsync()
+    {
+        try
+        {
+            var config = await _configuracionRepository.ObtenerConfiguracionAsync();
+            BancoQr = string.IsNullOrWhiteSpace(config.BancoQr) ? "Entidad Bancaria" : config.BancoQr;
+            TitularQr = string.IsNullOrWhiteSpace(config.TitularQr) ? "Ferretería ERP" : config.TitularQr;
+
+            var nitConfig = config.NitNegocio?.Trim();
+            _nitNegocioDefault = string.IsNullOrWhiteSpace(nitConfig) ? null : nitConfig;
+
+            if ((string.IsNullOrWhiteSpace(NitFactura) || NitFactura.Trim() == "0") &&
+                !string.IsNullOrWhiteSpace(_nitNegocioDefault))
+            {
+                NitFactura = _nitNegocioDefault;
+            }
+
+            if (config.QrPagoImagen is { Length: > 0 })
+            {
+                using var ms = new MemoryStream(config.QrPagoImagen);
+                QrPagoBitmap = new Bitmap(ms);
+            }
+            else
+            {
+                QrPagoBitmap = null;
+            }
+        }
+        catch
+        {
+            QrPagoBitmap = null;
+        }
     }
 
     /// <summary>
@@ -272,8 +367,12 @@ public partial class PosViewModel : ViewModelBase
                 .OrderBy(p => p.Nombre)
                 .ToList();
 
+            var vigentes = await _promocionRepository.ObtenerVigentesAsync(idSucursal);
+            _promocionesVigentesSucursal = vigentes.ToList();
+
             FiltrarCatalogoVisible(TextoBusqueda);
             await CargarVendedoresDisponiblesAsync(idSucursal);
+            await CargarConfiguracionQrAsync();
         }
         catch (Exception ex)
         {
@@ -401,10 +500,13 @@ public partial class PosViewModel : ViewModelBase
     {
         LimpiarMensaje();
 
-        var ciNit = CiNitBusqueda?.Trim();
-        if (string.IsNullOrWhiteSpace(ciNit))
+        var ciNit = !string.IsNullOrWhiteSpace(NitFactura) && NitFactura.Trim() != "0"
+            ? NitFactura.Trim()
+            : CiNitBusqueda?.Trim();
+
+        if (string.IsNullOrWhiteSpace(ciNit) || ciNit == "0")
         {
-            MostrarErrorEstado("Ingrese el CI o NIT del cliente para buscarlo o registrarlo.");
+            MostrarErrorEstado("Ingrese un CI o NIT válido del cliente para buscarlo o registrarlo.");
             return;
         }
 
@@ -424,6 +526,8 @@ public partial class PosViewModel : ViewModelBase
                     await _clienteRepository.ActualizarAsync(existente);
                 }
 
+                NitFactura = existente.Ci ?? ciNit;
+                NombreFactura = existente.NombreCompleto;
                 NombreClienteNuevo = existente.NombreCompleto;
                 CelularClienteNuevo = existente.CelularWhatsapp ?? string.Empty;
                 ClienteSeleccionado = existente;
@@ -433,23 +537,29 @@ public partial class PosViewModel : ViewModelBase
                 return;
             }
 
-            var nombreIngresado = NombreClienteNuevo?.Trim();
-            if (string.IsNullOrWhiteSpace(nombreIngresado))
+            var nombreCandidato = !string.IsNullOrWhiteSpace(NombreFactura) &&
+                                  !string.Equals(NombreFactura.Trim(), "S/N", StringComparison.OrdinalIgnoreCase)
+                ? NombreFactura.Trim()
+                : NombreClienteNuevo?.Trim();
+
+            if (string.IsNullOrWhiteSpace(nombreCandidato))
             {
                 ClienteSeleccionado = null;
                 MostrarErrorEstado(
-                    $"El CI/NIT '{ciNit}' no está registrado. Ingrese el Nombre Completo y Celular/WhatsApp y presione 'Confirmar Cliente' para crearlo.");
+                    $"El CI/NIT '{ciNit}' no está registrado. Ingrese el Nombre / Razón Social y Celular/WhatsApp y presione 'Confirmar Cliente' para crearlo.");
                 return;
             }
 
             var nuevoCliente = await _clienteRepository.AgregarAsync(new Cliente
             {
                 Ci = ciNit,
-                NombreCompleto = nombreIngresado,
+                NombreCompleto = nombreCandidato,
                 CelularWhatsapp = celularIngresado,
                 CantidadCompras = 0
             });
 
+            NitFactura = nuevoCliente.Ci ?? ciNit;
+            NombreFactura = nuevoCliente.NombreCompleto;
             ClienteSeleccionado = nuevoCliente;
             MostrarExitoEstado(
                 $"Cliente nuevo registrado y confirmado: {nuevoCliente.NombreCompleto} (CI/NIT: {nuevoCliente.Ci}).");
@@ -489,26 +599,101 @@ public partial class PosViewModel : ViewModelBase
         if (indiceExistente >= 0)
         {
             var actual = Carrito[indiceExistente];
-            Carrito[indiceExistente] = new DetalleVenta
-            {
-                IdProducto = actual.IdProducto,
-                Producto = actual.Producto,
-                Cantidad = cantidadSolicitada,
-                PrecioUnitario = actual.PrecioUnitario,
-                Subtotal = cantidadSolicitada * actual.PrecioUnitario
-            };
+            Carrito[indiceExistente] = CrearDetalleEvaluandoPromocion(
+                actual.Producto ?? producto,
+                cantidadSolicitada,
+                actual.PrecioOriginalUnitario > 0m ? actual.PrecioOriginalUnitario : producto.PrecioVenta);
         }
         else
         {
-            Carrito.Add(new DetalleVenta
-            {
-                IdProducto = producto.Id,
-                Producto = producto,
-                Cantidad = 1,
-                PrecioUnitario = producto.PrecioVenta,
-                Subtotal = producto.PrecioVenta
-            });
+            Carrito.Add(CrearDetalleEvaluandoPromocion(producto, 1, producto.PrecioVenta));
         }
+    }
+
+    /// <summary>
+    /// PASO 29: Motor automático de promociones en POS.
+    /// Evalúa todas las campañas vigentes aplicables por Producto, Categoría o Tienda,
+    /// priorizando la que otorgue el mayor ahorro en Bs. Si una promoción por Volumen
+    /// no alcanza <see cref="Promocion.CantidadMinima"/>, revierte al precio normal.
+    /// </summary>
+    private DetalleVenta CrearDetalleEvaluandoPromocion(
+        Producto? producto,
+        int cantidad,
+        decimal precioBaseUnitario)
+    {
+        var precioOriginal = precioBaseUnitario > 0m
+            ? precioBaseUnitario
+            : (producto?.PrecioVenta ?? 0m);
+
+        var idProd = producto?.Id ?? 0;
+        var idCat = producto?.IdCategoria ?? 0;
+        var idSucursal = _sesionService.EstaAutenticado ? _sesionService.IdSucursalActual : 1;
+        var ahoraUtc = DateTime.UtcNow;
+
+        Promocion? mejorPromo = null;
+        decimal mejorPrecioUnitarioFinal = precioOriginal;
+        decimal mayorAhorroTotal = 0m;
+
+        foreach (var promo in _promocionesVigentesSucursal)
+        {
+            if (!promo.EstaActiva || ahoraUtc < promo.FechaInicio || ahoraUtc > promo.FechaFin)
+                continue;
+
+            if (promo.IdSucursal.HasValue && promo.IdSucursal.Value != idSucursal)
+                continue;
+
+            var coincideAlcance =
+                (string.Equals(promo.Alcance, "Producto", StringComparison.OrdinalIgnoreCase) && promo.IdProducto == idProd) ||
+                (string.Equals(promo.Alcance, "Categoria", StringComparison.OrdinalIgnoreCase) && idCat > 0 && promo.IdCategoria == idCat) ||
+                string.Equals(promo.Alcance, "Tienda", StringComparison.OrdinalIgnoreCase);
+
+            if (!coincideAlcance)
+                continue;
+
+            decimal precioCandidato = precioOriginal;
+
+            if (string.Equals(promo.TipoPromocion, "Porcentaje", StringComparison.OrdinalIgnoreCase))
+            {
+                var factor = Math.Clamp(promo.ValorDescuento, 0m, 95m) / 100m;
+                precioCandidato = Math.Round(precioOriginal * (1m - factor), 2, MidpointRounding.AwayFromZero);
+            }
+            else if (string.Equals(promo.TipoPromocion, "PrecioFijo", StringComparison.OrdinalIgnoreCase))
+            {
+                if (promo.ValorDescuento > 0m && promo.ValorDescuento < precioOriginal)
+                {
+                    precioCandidato = Math.Round(promo.ValorDescuento, 2, MidpointRounding.AwayFromZero);
+                }
+            }
+            else if (string.Equals(promo.TipoPromocion, "Volumen", StringComparison.OrdinalIgnoreCase))
+            {
+                if (cantidad >= Math.Max(1, promo.CantidadMinima))
+                {
+                    var factor = Math.Clamp(promo.ValorDescuento, 0m, 95m) / 100m;
+                    precioCandidato = Math.Round(precioOriginal * (1m - factor), 2, MidpointRounding.AwayFromZero);
+                }
+            }
+
+            var ahorroCandidato = Math.Max(0m, (precioOriginal - precioCandidato) * cantidad);
+            if (ahorroCandidato > mayorAhorroTotal)
+            {
+                mayorAhorroTotal = ahorroCandidato;
+                mejorPrecioUnitarioFinal = precioCandidato;
+                mejorPromo = promo;
+            }
+        }
+
+        return new DetalleVenta
+        {
+            IdProducto = idProd,
+            Producto = producto!,
+            Cantidad = cantidad,
+            PrecioOriginalUnitario = precioOriginal,
+            PrecioUnitario = mejorPrecioUnitarioFinal,
+            Subtotal = cantidad * mejorPrecioUnitarioFinal,
+            IdPromocion = mejorPromo?.Id,
+            MontoDescuento = mayorAhorroTotal,
+            NombrePromocionAplicada = mejorPromo?.Nombre
+        };
     }
 
     [RelayCommand]
@@ -534,14 +719,14 @@ public partial class PosViewModel : ViewModelBase
             return;
         }
 
-        Carrito[indice] = new DetalleVenta
-        {
-            IdProducto = detalle.IdProducto,
-            Producto = detalle.Producto,
-            Cantidad = nuevaCantidad,
-            PrecioUnitario = detalle.PrecioUnitario,
-            Subtotal = nuevaCantidad * detalle.PrecioUnitario
-        };
+        var precioBase = detalle.PrecioOriginalUnitario > 0m
+            ? detalle.PrecioOriginalUnitario
+            : detalle.PrecioUnitario;
+
+        Carrito[indice] = CrearDetalleEvaluandoPromocion(
+            detalle.Producto,
+            nuevaCantidad,
+            precioBase);
 
         SolicitarFocoEscaneador?.Invoke();
     }
@@ -564,14 +749,14 @@ public partial class PosViewModel : ViewModelBase
         else
         {
             var nuevaCantidad = detalle.Cantidad - 1;
-            Carrito[indice] = new DetalleVenta
-            {
-                IdProducto = detalle.IdProducto,
-                Producto = detalle.Producto,
-                Cantidad = nuevaCantidad,
-                PrecioUnitario = detalle.PrecioUnitario,
-                Subtotal = nuevaCantidad * detalle.PrecioUnitario
-            };
+            var precioBase = detalle.PrecioOriginalUnitario > 0m
+                ? detalle.PrecioOriginalUnitario
+                : detalle.PrecioUnitario;
+
+            Carrito[indice] = CrearDetalleEvaluandoPromocion(
+                detalle.Producto,
+                nuevaCantidad,
+                precioBase);
         }
 
         SolicitarFocoEscaneador?.Invoke();
@@ -593,6 +778,83 @@ public partial class PosViewModel : ViewModelBase
     {
         LimpiarPantalla();
         SolicitarFocoEscaneador?.Invoke();
+    }
+
+    /// <summary>
+    /// PASO 27: Busca una Proforma / Cotización por su número, valida su vigencia y vuelca sus productos y cliente al carrito de Caja.
+    /// </summary>
+    [RelayCommand]
+    private async Task CargarProformaAsync()
+    {
+        LimpiarMensaje();
+
+        var textoId = NroProformaBusqueda?.Trim().TrimStart('#', '0');
+        if (string.IsNullOrWhiteSpace(NroProformaBusqueda) ||
+            !int.TryParse(string.IsNullOrEmpty(textoId) ? "0" : textoId, out var idProforma) ||
+            idProforma <= 0)
+        {
+            MostrarToast("Proforma no encontrada", NotificationType.Error);
+            MostrarErrorEstado("Ingrese un número de proforma válido (ej. 1 o 0001).");
+            return;
+        }
+
+        try
+        {
+            var cotizacion = await _cotizacionRepository.GetByIdAsync(idProforma);
+            if (cotizacion is null || cotizacion.Detalles is null || cotizacion.Detalles.Count == 0)
+            {
+                MostrarToast("Proforma no encontrada", NotificationType.Error);
+                MostrarErrorEstado($"No se encontró la Proforma N° {idProforma:D4}.");
+                return;
+            }
+
+            var fechaEmisionLocal = cotizacion.FechaEmision.Kind == DateTimeKind.Utc
+                ? cotizacion.FechaEmision.ToLocalTime().Date
+                : cotizacion.FechaEmision.Date;
+
+            var fechaVencimiento = fechaEmisionLocal.AddDays(cotizacion.ValidezDias);
+            if (DateTime.Today > fechaVencimiento)
+            {
+                MostrarToast(
+                    "La proforma está vencida, los precios podrían haber cambiado",
+                    NotificationType.Warning);
+            }
+
+            Carrito.Clear();
+
+            foreach (var det in cotizacion.Detalles)
+            {
+                var productoRef = det.Producto
+                                  ?? _productosConStockSucursal.FirstOrDefault(p => p.Id == det.IdProducto);
+
+                var precioUnitario = det.PrecioUnitario > 0m
+                    ? det.PrecioUnitario
+                    : (productoRef?.PrecioVenta ?? 0m);
+
+                Carrito.Add(new DetalleVenta
+                {
+                    IdProducto = det.IdProducto,
+                    Producto = productoRef,
+                    Cantidad = det.Cantidad,
+                    PrecioUnitario = precioUnitario,
+                    Subtotal = det.Cantidad * precioUnitario
+                });
+            }
+
+            NitFactura = string.IsNullOrWhiteSpace(cotizacion.NitCliente) ? "0" : cotizacion.NitCliente.Trim();
+            NombreFactura = string.IsNullOrWhiteSpace(cotizacion.NombreCliente) ? "S/N" : cotizacion.NombreCliente.Trim();
+            NroProformaBusqueda = string.Empty;
+
+            MostrarExitoEstado(
+                $"Proforma N° {cotizacion.Id:D4} cargada al carrito ({Carrito.Count} ítem(s) • Cliente: {NombreFactura}).");
+            MostrarToast("Proforma cargada al carrito", NotificationType.Success);
+            SolicitarFocoEscaneador?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            MostrarToast("Error al cargar la proforma: " + ex.Message, NotificationType.Error);
+            MostrarErrorEstado($"No se pudo cargar la proforma: {ex.Message}");
+        }
     }
 
     [RelayCommand]
@@ -688,11 +950,13 @@ public partial class PosViewModel : ViewModelBase
             var nombreClienteCredito = ClienteSeleccionado?.NombreCompleto;
             var vendedorActual = VendedorSeleccionado;
             var nombreVendedor = vendedorActual.NombreCompleto;
-            var clienteRecibo = ClienteSeleccionado ?? new Cliente
-            {
-                NombreCompleto = string.IsNullOrWhiteSpace(NombreClienteNuevo) ? "SIN NOMBRE" : NombreClienteNuevo.Trim(),
-                Ci = string.IsNullOrWhiteSpace(CiNitBusqueda) ? "0" : CiNitBusqueda.Trim()
-            };
+            var clienteRecibo = (IsPagoCredito && ClienteSeleccionado is not null)
+                ? ClienteSeleccionado
+                : new Cliente
+                {
+                    Ci = string.IsNullOrWhiteSpace(NitFactura) ? "0" : NitFactura.Trim(),
+                    NombreCompleto = string.IsNullOrWhiteSpace(NombreFactura) ? "S/N" : NombreFactura.Trim()
+                };
             var mapaProductosCarrito = Carrito
                 .Where(c => c.Producto is not null)
                 .GroupBy(c => c.IdProducto)
@@ -711,7 +975,11 @@ public partial class PosViewModel : ViewModelBase
                     IdProducto = item.IdProducto,
                     Cantidad = item.Cantidad,
                     PrecioUnitario = item.PrecioUnitario,
-                    Subtotal = item.Subtotal
+                    Subtotal = item.Subtotal,
+                    IdPromocion = item.IdPromocion,
+                    MontoDescuento = item.MontoDescuento,
+                    PrecioOriginalUnitario = item.PrecioOriginalUnitario,
+                    NombrePromocionAplicada = item.NombrePromocionAplicada
                 }).ToList()
             };
 
@@ -753,50 +1021,22 @@ public partial class PosViewModel : ViewModelBase
                     $"¡Venta #{ventaGuardada.Id} completada! Total: Bs {totalMostrar:N2}{detalleCambio}  •  Vendedor: {nombreVendedor}");
             }
 
-            // PASO 23.1: Selección de destino, generación y apertura nativa del PDF en Windows 11
+            // PASO 23.4: Impresión rápida en directorio temporal sin abrir SaveFilePickerAsync
             try
             {
-                var topLevel = ObtenerTopLevelActivo();
-                if (topLevel?.StorageProvider is not null)
+                string nombreArchivo = $"Recibo_{ventaGuardada.Id}_{DateTime.Now:HHmmss}.pdf";
+                string rutaTemporal = Path.Combine(Path.GetTempPath(), nombreArchivo);
+
+                await Task.Run(() =>
+                    _ticketPdfService.GenerarNotaDeVentaPdf(ventaGuardada, vendedorActual, clienteRecibo, rutaTemporal));
+
+                Process.Start(new ProcessStartInfo
                 {
-                    var archivoDestino = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-                    {
-                        Title = "Guardar Nota de Venta (PDF)",
-                        SuggestedFileName = $"Recibo_{ventaGuardada.Id:D4}.pdf",
-                        DefaultExtension = "pdf",
-                        ShowOverwritePrompt = true,
-                        FileTypeChoices = new[]
-                        {
-                            new FilePickerFileType("Documento PDF")
-                            {
-                                Patterns = new[] { "*.pdf" },
-                                MimeTypes = new[] { "application/pdf" }
-                            }
-                        }
-                    });
+                    FileName = rutaTemporal,
+                    UseShellExecute = true
+                });
 
-                    if (archivoDestino is not null)
-                    {
-                        string rutaLocal = archivoDestino.TryGetLocalPath()
-                                           ?? archivoDestino.Path.LocalPath;
-
-                        if (!rutaLocal.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-                        {
-                            rutaLocal += ".pdf";
-                        }
-
-                        await Task.Run(() =>
-                            _ticketPdfService.GenerarNotaDeVentaPdf(ventaGuardada, vendedorActual, clienteRecibo, rutaLocal));
-
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = rutaLocal,
-                            UseShellExecute = true
-                        });
-
-                        MostrarToast("Venta registrada y recibo generado", NotificationType.Success);
-                    }
-                }
+                MostrarToast("Venta registrada con éxito", NotificationType.Success);
             }
             catch (Exception ex)
             {
@@ -821,10 +1061,108 @@ public partial class PosViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// PASO 24: Genera el Reporte de Arqueo y Cierre de Caja del día actual para el cajero activo en PDF y lo abre para impresión.
+    /// </summary>
+    [RelayCommand]
+    private async Task CerrarCajaAsync()
+    {
+        LimpiarMensaje();
+
+        if (!_sesionService.EstaAutenticado && !SesionActual.EstaAutenticado)
+        {
+            MostrarErrorEstado("No existe una sesión activa para generar el arqueo de caja.");
+            return;
+        }
+
+        EstaProcesando = true;
+        try
+        {
+            var idUsuario = SesionActual.IdUsuario > 0
+                ? SesionActual.IdUsuario
+                : _sesionService.IdUsuarioActual;
+
+            var idSucursal = SesionActual.IdSucursal > 0
+                ? SesionActual.IdSucursal
+                : _sesionService.IdSucursalActual;
+
+            var nombreCajero = !string.IsNullOrWhiteSpace(SesionActual.NombreCompleto)
+                ? SesionActual.NombreCompleto
+                : NombreCajeroActivo;
+
+            var nombreSucursal = !string.IsNullOrWhiteSpace(SesionActual.NombreSucursal)
+                ? SesionActual.NombreSucursal
+                : NombreSucursalActiva;
+
+            // Rango del día local convertido a UTC para Npgsql
+            var hoyLocal = DateTime.Today;
+            var inicioDiaUtc = DateTime.SpecifyKind(hoyLocal, DateTimeKind.Local).ToUniversalTime();
+            var finDiaUtc = DateTime.SpecifyKind(hoyLocal.AddDays(1), DateTimeKind.Local).ToUniversalTime();
+
+            await using var db = await _dbContextFactory.CreateDbContextAsync();
+
+            var ventasHoyUsuario = await db.Ventas
+                .AsNoTracking()
+                .Where(v => v.IdSucursal == idSucursal &&
+                            v.IdUsuario == idUsuario &&
+                            v.FechaHora >= inicioDiaUtc &&
+                            v.FechaHora < finDiaUtc)
+                .ToListAsync();
+
+            decimal totalEfectivo = ventasHoyUsuario
+                .Where(v => string.Equals(v.MetodoPago, MetodosPago.Efectivo, StringComparison.OrdinalIgnoreCase))
+                .Sum(v => v.Total);
+
+            decimal totalQR = ventasHoyUsuario
+                .Where(v => string.Equals(v.MetodoPago, MetodosPago.QR, StringComparison.OrdinalIgnoreCase))
+                .Sum(v => v.Total);
+
+            decimal totalCreditos = ventasHoyUsuario
+                .Where(v => string.Equals(v.MetodoPago, MetodosPago.Credito, StringComparison.OrdinalIgnoreCase))
+                .Sum(v => v.Total);
+
+            decimal totalGeneral = totalEfectivo + totalQR + totalCreditos;
+
+            string rutaTemporal = Path.Combine(
+                Path.GetTempPath(),
+                $"CierreCaja_{DateTime.Now:yyyyMMdd_HHmm}.pdf");
+
+            await Task.Run(() =>
+                _ticketPdfService.GenerarReporteCierreCajaPdf(
+                    hoyLocal,
+                    nombreCajero,
+                    nombreSucursal,
+                    totalEfectivo,
+                    totalQR,
+                    totalCreditos,
+                    rutaTemporal));
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = rutaTemporal,
+                UseShellExecute = true
+            });
+
+            MostrarExitoEstado(
+                $"Arqueo de caja generado ({ventasHoyUsuario.Count} ventas hoy • Total: Bs {totalGeneral:N2}).");
+            MostrarToast("Arqueo de caja generado correctamente", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            MostrarErrorEstado($"No se pudo generar el cierre de caja: {ex.Message}");
+            MostrarToast("Error al generar el cierre de caja: " + ex.Message, NotificationType.Error);
+        }
+        finally
+        {
+            EstaProcesando = false;
+        }
+    }
+
     private void RecalcularTotales()
     {
         Total = Carrito.Sum(d => d.Cantidad * d.PrecioUnitario);
         TotalArticulos = Carrito.Sum(d => d.Cantidad);
+        TotalDescuentoCarrito = Carrito.Sum(d => d.MontoDescuento);
 
         OnPropertyChanged(nameof(CarritoVacio));
         OnPropertyChanged(nameof(TieneProductosEnCarrito));
@@ -851,6 +1189,8 @@ public partial class PosViewModel : ViewModelBase
         TextoBusqueda = string.Empty;
         MontoRecibido = 0m;
         MetodoPagoSeleccionado = MetodosPago.Efectivo;
+        NitFactura = !string.IsNullOrWhiteSpace(_nitNegocioDefault) ? _nitNegocioDefault : "0";
+        NombreFactura = "S/N";
         CiNitBusqueda = string.Empty;
         NombreClienteNuevo = string.Empty;
         CelularClienteNuevo = string.Empty;

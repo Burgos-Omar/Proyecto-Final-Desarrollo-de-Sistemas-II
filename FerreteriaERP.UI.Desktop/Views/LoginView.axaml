@@ -31,7 +31,8 @@
                                 Background="{StaticResource PrimaryAccentBrush}"
                                 BoxShadow="0 6 16 0 #3310B981"
                                 HorizontalAlignment="Center"
-                                Margin="0,0,0,4">
+                                Margin="0,0,0,4"
+                                IsVisible="{Binding !TieneLogoPersonalizado}">
                             <materialIcons:MaterialIcon Kind="Tools"
                                                         Width="28"
                                                         Height="28"
@@ -40,8 +41,24 @@
                                                         VerticalAlignment="Center" />
                         </Border>
 
+                        <Border Width="64"
+                                Height="64"
+                                CornerRadius="12"
+                                Background="#FFFFFF"
+                                BorderBrush="{StaticResource SubtleBorderBrush}"
+                                BorderThickness="1"
+                                ClipToBounds="True"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,4"
+                                IsVisible="{Binding TieneLogoPersonalizado}">
+                            <Image Source="{Binding LogoNegocioBitmap}"
+                                   Stretch="Uniform" />
+                        </Border>
+
                         <TextBlock Classes="h1"
-                                   Text="Ferretería ERP"
+                                   Text="{Binding NombreNegocio}"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
                                    HorizontalAlignment="Center" />
                         <TextBlock Classes="subtitle"
                                    Text="Ingrese sus credenciales para acceder al sistema"
